@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
-function NumericInput() {
-  const [value, setValue] = useState(0);
+function TextInput({ type }) {
+  const [value, setValue] = useState("");
 
   const onChangeHandler = ({ target: { value } }) => {
     setValue(value);
@@ -10,7 +10,7 @@ function NumericInput() {
   return (
     <div className="input-group">
       <input
-        type="number"
+        type={type}
         className="form-control"
         onChange={onChangeHandler}
         value={value}
@@ -19,4 +19,4 @@ function NumericInput() {
   );
 }
 
-export default NumericInput;
+export default TextInput;
