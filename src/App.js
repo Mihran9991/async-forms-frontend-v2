@@ -1,16 +1,17 @@
 import React from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import routeConstants from "./constants/routeConstants";
 import "./App.scss";
-import Login from "./pages/Auth";
+import Auth from "./pages/Auth/Auth";
 
 function App() {
   return (
     <Router>
       <div className="App">
         <Switch>
-          <Route path="/login" component={Login} />
-          <Route path="/users">Users</Route>
-          <Route path="/">Home</Route>
+          <Route path={routeConstants.AUTH} component={Auth} />
+          <Route path={routeConstants.USERS}>Users</Route>
+          <Route path={routeConstants.HOME}>Home</Route>
         </Switch>
       </div>
     </Router>
