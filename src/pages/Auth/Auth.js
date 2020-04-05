@@ -1,5 +1,5 @@
 import React from "react";
-import Login from "./Login/Login";
+import Login from "./Login";
 import styles from "./auth.module.scss";
 
 function Auth() {
