@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Button from "react-bootstrap/Button";
 import { If, Else, Then } from "react-if";
 import classnames from "classnames";
@@ -25,6 +25,7 @@ function Create() {
   const [columns, setColumns] = useState([]);
   const [rows, setRows] = useState([]);
   const [title, setTitle] = useState("");
+  const [isResetRowInputGroup, setIsResetRowInputGroup] = useState(false);
 
   const saveColumn = () => {
     setColumns([...columns, currentColumn]);
@@ -82,11 +83,15 @@ function Create() {
     return isEqual(currentRowProperties, columnNames);
   };
 
+  useEffect(() => {
+    setIsResetRowInputGroup(!isPendingRow && rows.length);
+  }, [isPendingRow, rows]);
+
   return (
     <>
       <Card>
         <Stepper
-          allowNext={[!!title, !isPendingColumn && columns.length > 0, true]}
+          allowNext={[!!title, !!(!isPendingColumn && columns.length), true]}
         >
           <div className={styles["add-table-name"]}>
             <h4>Add Table Name</h4>
@@ -150,6 +155,8 @@ function Create() {
             <InputGroup.Generic
               data={columns}
               cb={(data) => setTableStructure(data, "row")}
+              reset={isResetRowInputGroup}
+              resetCallback={setIsResetRowInputGroup}
             />
             <If condition={isPendingRow}>
               <Then>

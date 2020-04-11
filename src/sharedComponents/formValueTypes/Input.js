@@ -1,7 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import isFunction from "lodash/isFunction";
 
-function TextInput({ type, size, cb, propName, onlyValue, defaultValue }) {
+function TextInput({
+  type,
+  size,
+  cb,
+  propName,
+  onlyValue,
+  defaultValue,
+  reset,
+  resetCallback = () => {},
+}) {
   const [value, setValue] = useState("");
 
   const onChangeHandler = ({ target: { value } }) => {
@@ -17,6 +26,13 @@ function TextInput({ type, size, cb, propName, onlyValue, defaultValue }) {
       }
     }
   };
+
+  useEffect(() => {
+    if (reset) {
+      setValue("");
+      resetCallback(false);
+    }
+  }, [reset]);
 
   return (
     <input

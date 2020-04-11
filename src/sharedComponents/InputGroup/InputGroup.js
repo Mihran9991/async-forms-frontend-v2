@@ -5,9 +5,7 @@ import Input from "../formValueTypes/Input";
 import DropDown from "../formValueTypes/Input";
 import styles from "./input-group.module.scss";
 
-function Generic({ data, cb }) {
-  console.log("columns", data);
-
+function Generic({ data, cb, reset, resetCallback }) {
   return (
     <div className={classnames("input-group", styles["custom-input-group"])}>
       {data.map(({ name, type }, idx) => {
@@ -15,7 +13,12 @@ function Generic({ data, cb }) {
           return (
             <div key={`ig_item_${idx}`}>
               <span>{name}</span>
-              <Input type="text" propName={name} cb={cb} />
+              <Input
+                type="text"
+                propName={name}
+                cb={cb}
+                {...{ [reset && "reset"]: true, resetCallback }}
+              />
             </div>
           );
         } else {
