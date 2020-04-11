@@ -5,7 +5,7 @@ import { If, Else, Then } from "react-if";
 function Stepper({ children, allowNext }) {
   const [step, setStep] = useState(0);
   const formattedChildren = Array.isArray(children) ? children : [children];
-  //step < formattedChildren.length - 1
+
   return (
     <div className="stepper">
       {formattedChildren.map((child, idx) => {
@@ -17,7 +17,7 @@ function Stepper({ children, allowNext }) {
       })}
 
       <ButtonGroup className="mt-3">
-        <If condition={allowNext}>
+        <If condition={allowNext[step] && step < formattedChildren.length - 1}>
           <Then>
             <Button variant="outline-primary" onClick={() => setStep(step + 1)}>
               Next

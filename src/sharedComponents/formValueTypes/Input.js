@@ -1,13 +1,21 @@
 import React, { useState } from "react";
+import isFunction from "lodash/isFunction";
 
-function TextInput({ type, size, cb, propName }) {
+function TextInput({ type, size, cb, propName, onlyValue, defaultValue }) {
   const [value, setValue] = useState("");
 
   const onChangeHandler = ({ target: { value } }) => {
     setValue(value);
-    cb({
-      [propName]: value,
-    });
+
+    if (isFunction(cb)) {
+      if (onlyValue) {
+        cb(value);
+      } else {
+        cb({
+          [propName]: value,
+        });
+      }
+    }
   };
 
   return (
@@ -15,7 +23,7 @@ function TextInput({ type, size, cb, propName }) {
       type={type}
       className="form-control"
       onChange={onChangeHandler}
-      value={value}
+      value={defaultValue || value}
       aria-label={size}
     />
   );

@@ -19,6 +19,10 @@
         // align-items: center;
         height: calc(100% - 70px);
         padding: 30px;
+
+        .input-group-item {
+          margin-bottom: 15px;
+        }
       }
     }
   }

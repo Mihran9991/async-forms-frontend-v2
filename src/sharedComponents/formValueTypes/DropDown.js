@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import Dropdown from "react-bootstrap/Dropdown";
 
 function renderItemList(items, cb, setCurrentValue) {
-  return items.map(({ value }, idx) => {
+  return items.map(({ value, key }, idx) => {
     const onClickHandler = () => {
       setCurrentValue(value);
       cb({
-        type: value,
+        [key]: value,
       });
     };
 
