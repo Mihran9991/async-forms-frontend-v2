@@ -1,21 +1,47 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import isFunction from "lodash/isFunction";
 
-function TextInput({ type }) {
+function TextInput({
+  type,
+  size,
+  cb,
+  propName,
+  onlyValue,
+  defaultValue,
+  reset,
+  resetCallback = () => {},
+}) {
   const [value, setValue] = useState("");
 
   const onChangeHandler = ({ target: { value } }) => {
     setValue(value);
+
+    if (isFunction(cb)) {
+      if (onlyValue) {
+        cb(value);
+      } else {
+        cb({
+          [propName]: value,
+        });
+      }
+    }
   };
 
+  useEffect(() => {
+    if (reset) {
+      setValue("");
+      resetCallback(false);
+    }
+  }, [reset]);
+
   return (
-    <div className="input-group">
-      <input
-        type={type}
-        className="form-control"
-        onChange={onChangeHandler}
-        value={value}
-      />
-    </div>
+    <input
+      type={type}
+      className="form-control"
+      onChange={onChangeHandler}
+      value={defaultValue || value}
+      aria-label={size}
+    />
   );
 }
 

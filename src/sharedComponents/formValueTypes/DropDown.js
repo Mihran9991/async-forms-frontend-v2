@@ -1,10 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import Dropdown from "react-bootstrap/Dropdown";
 
-function renderItemList(items) {
-  return items.map(({ value }, idx) => {
+function renderItemList(items, cb, setCurrentValue) {
+  return items.map(({ value, key }, idx) => {
     const onClickHandler = () => {
-      console.log("DropDown Item Value", value);
+      setCurrentValue(value);
+      cb({
+        [key]: value,
+      });
     };
 
     return (
@@ -15,15 +18,17 @@ function renderItemList(items) {
   });
 }
 
-function DropDown(props) {
-  const { items } = props;
+function DropDown({ items, cb }) {
+  const [currentValue, setCurrentValue] = useState("Select an Item");
 
   return (
     <Dropdown>
       <Dropdown.Toggle variant="primary" id="dropdown-basic">
-        Select an Item
+        {currentValue}
       </Dropdown.Toggle>
-      <Dropdown.Menu>{renderItemList(items)}</Dropdown.Menu>
+      <Dropdown.Menu>
+        {renderItemList(items, cb, setCurrentValue)}
+      </Dropdown.Menu>
     </Dropdown>
   );
 }
