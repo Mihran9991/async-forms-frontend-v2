@@ -3,12 +3,14 @@ import Button from "react-bootstrap/Button";
 import { If, Else, Then } from "react-if";
 import classnames from "classnames";
 import isEqual from "lodash/isEqual";
+import has from "lodash/has";
 
 import Stepper from "../../sharedComponents/Stepper";
 import Card from "../../sharedComponents/Card";
 import Input from "../../sharedComponents/formValueTypes/Input";
 import InputGroup from "../../sharedComponents/InputGroup";
 import Table from "../../sharedComponents/Table";
+import AddRowProperties from "../../sharedComponents/Table/AddRowProperties";
 import DropDown from "../../sharedComponents/formValueTypes/DropDown";
 import {
   TABLE_DATA_TYPES,
@@ -27,12 +29,14 @@ function Create() {
   const [title, setTitle] = useState("");
   const [isResetRowInputGroup, setIsResetRowInputGroup] = useState(false);
 
+  // TODO:: check duplicatations
   const saveColumn = () => {
     setColumns([...columns, currentColumn]);
     setIsPendingColumn(false);
     setCurrentColumn({});
   };
 
+  // TODO:: check duplicatations
   const saveRow = () => {
     setRows([...rows, currentRow]);
     setIsPendingRow(false);
@@ -43,13 +47,15 @@ function Create() {
     const [[key, value]] = Object.entries(data);
     const isStructureRow = structureType === POSSIBLE_STRUCTURE_PIECES.row;
 
+    console.log("currentRow  ------>", currentRow);
+    console.log("data  ------>", data);
+
     if (!value) {
       const currentStructurePieceCopy = isStructureRow
         ? { ...currentRow }
         : { ...currentColumn };
 
       delete currentStructurePieceCopy[key];
-
       if (isStructureRow) {
         setCurrentRow(currentStructurePieceCopy);
       } else {
@@ -81,8 +87,13 @@ function Create() {
   };
 
   const isCurrentRowValid = () => {
-    const currentRowProperties = Object.keys(currentRow).sort();
+    const currentRowProperties = Object.keys(currentRow)
+      .filter((key) => key !== "type")
+      .sort();
     const columnNames = columns.map(({ name }) => name).sort();
+
+    console.log("-----currentRowProperties", currentRowProperties);
+    console.log("-----columnNames", columnNames);
 
     return isEqual(currentRowProperties, columnNames);
   };
@@ -95,7 +106,11 @@ function Create() {
     <>
       <Card>
         <Stepper
-          allowNext={[!!title, !!(!isPendingColumn && columns.length), true]}
+          allowNextSteps={[
+            !!title,
+            !!(!isPendingColumn && columns.length),
+            true,
+          ]}
         >
           <div className={styles["add-table-name"]}>
             <h4>Add Table Name</h4>
@@ -157,7 +172,7 @@ function Create() {
           </div>
           <div className={styles["add-table-rows"]}>
             <h4>Add Table Row</h4>
-            <InputGroup.Generic
+            <AddRowProperties
               data={columns}
               cb={(data) => setTableStructure(data, "row")}
               reset={isResetRowInputGroup}

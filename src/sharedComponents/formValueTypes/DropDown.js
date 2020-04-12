@@ -18,8 +18,10 @@ function renderItemList(items, cb, setCurrentValue) {
   });
 }
 
-function DropDown({ items, cb }) {
-  const [currentValue, setCurrentValue] = useState("Select an Item");
+function DropDown({ items, cb, defaultValue }) {
+  const [currentValue, setCurrentValue] = useState(
+    defaultValue || "Select an Item"
+  );
 
   return (
     <Dropdown>
