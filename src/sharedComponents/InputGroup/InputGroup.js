@@ -5,7 +5,7 @@ import Input from "../formValueTypes/Input";
 import DropDown from "../formValueTypes/Input";
 import styles from "./input-group.module.scss";
 
-function Generic({ data, cb, reset, resetCallback }) {
+function Generic({ data, cb, reset, resetCallback, currentValue }) {
   return (
     <div className={classnames("input-group", styles["custom-input-group"])}>
       {data.map(({ name, type }, idx) => {
@@ -18,6 +18,7 @@ function Generic({ data, cb, reset, resetCallback }) {
                 propName={name}
                 cb={cb}
                 {...{ [reset && "reset"]: true, resetCallback }}
+                defaultValue={currentValue[name] || ""}
               />
             </div>
           );

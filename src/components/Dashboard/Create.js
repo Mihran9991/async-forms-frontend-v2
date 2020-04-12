@@ -20,7 +20,7 @@ import styles from "./dashboard.module.scss";
 function Create() {
   const [isPendingColumn, setIsPendingColumn] = useState(false);
   const [isPendingRow, setIsPendingRow] = useState(false);
-  const [currentColumn, setCurrentColumn] = useState({});
+  const [currentColumn, setCurrentColumn] = useState({ name: "", type: "" });
   const [currentRow, setCurrentRow] = useState({});
   const [columns, setColumns] = useState([]);
   const [rows, setRows] = useState([]);
@@ -71,14 +71,18 @@ function Create() {
   };
 
   const isCurrentColumnValid = () => {
-    const currentColumnProperties = Object.keys(currentColumn).sort();
+    const currentColumnPropertyKeys = Object.keys(currentColumn).sort();
+    const areKeysPresent = isEqual(currentColumnPropertyKeys, COLUMN_KEYS);
+    const areValuesNotEmpty = Object.values(currentColumn).every(
+      (val) => val.length > 0
+    );
 
-    return isEqual(currentColumnProperties, COLUMN_KEYS);
+    return areKeysPresent && areValuesNotEmpty;
   };
 
   const isCurrentRowValid = () => {
     const currentRowProperties = Object.keys(currentRow).sort();
-    const columnNames = columns.map(({ name }) => name);
+    const columnNames = columns.map(({ name }) => name).sort();
 
     return isEqual(currentRowProperties, columnNames);
   };
@@ -119,6 +123,7 @@ function Create() {
                       cb={(data) => setTableStructure(data, "column")}
                       propName="name"
                       type="text"
+                      defaultValue={currentColumn.name}
                     />
                   </div>
                   <div
@@ -157,6 +162,7 @@ function Create() {
               cb={(data) => setTableStructure(data, "row")}
               reset={isResetRowInputGroup}
               resetCallback={setIsResetRowInputGroup}
+              currentValue={currentRow}
             />
             <If condition={isPendingRow}>
               <Then>
