@@ -1,5 +1,6 @@
 import React from "react";
 import axios from "axios";
+import {HOST, LOGIN_ROUTE, PORT} from "../../constants/backend.config";
 
 const LoginForm = () => {
   const DOM = [
@@ -66,10 +67,14 @@ const LoginForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const response = await axios.post(
-      "localhost:3001/login",
+      `http://${HOST}:${PORT}${LOGIN_ROUTE}`,
       formData
     );
-    console.log(response.data);
+    if (response.status === 200) {
+      const token = response.data.token;
+      console.log(token);
+      // code for storing token in cookies //
+    }
   };
 
   return (
