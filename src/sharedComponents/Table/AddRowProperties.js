@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Button from "react-bootstrap/Button";
 import { AiOutlinePlus } from "react-icons/ai";
 import { If, Then, Else } from "react-if";
@@ -77,6 +77,12 @@ function AddRowProperties({ data, cb, reset, resetCallback, currentValue }) {
       },
     });
   };
+
+  useEffect(() => {
+    if (reset) {
+      setTransformedRowDropDownData([]);
+    }
+  }, [reset]);
 
   // TODO:: separate by mini components, add more effective way for rendering for different column types(for example - switch case)
   return (
