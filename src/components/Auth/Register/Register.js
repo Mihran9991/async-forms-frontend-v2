@@ -1,6 +1,7 @@
-import React from "react";
-import axios from "axios";
-import {HOST, PORT, REGISTER_ROUTE} from "../../constants/backend.config";
+import React, {useState} from "react";
+import {REGISTER_ROUTE} from "../../../constants/backend.config";
+import {renderDOM as commonRenderMap} from "../Auth";
+import {axiosInstance} from "../../index";
 
 const RegisterForm = () => {
   const DOM = [
@@ -11,7 +12,7 @@ const RegisterForm = () => {
         name: "name",
         type: "text",
         className: "form-control",
-        placeholder: "Name",
+        placeholder: "Enter name",
       },
     },
     {
@@ -21,7 +22,7 @@ const RegisterForm = () => {
         name: "surname",
         type: "text",
         className: "form-control",
-        placeholder: "Surname",
+        placeholder: "Enter surname",
       },
     },
     {
@@ -36,48 +37,31 @@ const RegisterForm = () => {
     },
     {
       className: "form-group",
-      label: "Password",
+      label: "New Password",
       input: {
-        name: "password",
+        name: "password1",
         type: "password",
         className: "form-control",
-        placeholder: "Enter password",
+        placeholder: "Enter new password",
+      },
+    },
+    {
+      className: "form-group",
+      label: "Confirm Password",
+      input: {
+        name: "password2",
+        type: "password",
+        className: "form-control",
+        placeholder: "Confirm new password",
       },
     }
   ];
 
   function renderDOM() {
-    return DOM.map(
-      (
-        {
-          className,
-          label,
-          input: {name, type, className: inputClassName, placeholder},
-        },
-        idx
-      ) => {
-        return (
-          <div className={className} key={idx}>
-            <label>{label}</label>
-            <input name={name} onChange={handleChange}
-                   type={type}
-                   className={inputClassName}
-                   placeholder={placeholder}
-            />
-          </div>
-        );
-      }
-    );
+    return commonRenderMap(DOM, handleChange);
   }
 
-  const initialFormData = Object.freeze({
-    name: "",
-    surname: "",
-    email: "",
-    password: ""
-  });
-
-  const [formData, updateFormData] = React.useState(initialFormData);
+  const [formData, updateFormData] = useState(initialFormData);
 
   const handleChange = (e) => {
     updateFormData({
@@ -88,16 +72,26 @@ const RegisterForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await axios.post(
-      `http://${HOST}:${PORT}${REGISTER_ROUTE}`,
-      formData
+    if (formData.password1 !== formData.password2) {
+      console.log("Passwords don't match!");
+      // todo: code for showing error message //
+      return;
+    }
+    const response = await axiosInstance.post(
+      `${REGISTER_ROUTE}`,
+      {
+        name: formData.name,
+        surname: formData.surname,
+        email: formData.email,
+        password: formData.password1,
+      }
     );
     if (response.status === 200) {
       console.log(response.data.message);
-      // code for storing token in cookies //
-      // code for redirecting to login page //
+      // todo: code for storing token in cookies //
+      // todo: code for redirecting to login page //
     } else {
-      // code for showing error message //
+      // todo: code for showing error message //
     }
   };
 
@@ -117,5 +111,13 @@ const RegisterForm = () => {
     </div>
   );
 };
+
+const initialFormData = Object.freeze({
+  name: "",
+  surname: "",
+  email: "",
+  password1: "",
+  password2: ""
+});
 
 export default RegisterForm;

@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "../auth.module.scss";
-import LogInComponent from "../../../components/Login/Login";
+import LogInComponent from "../../../components/Auth/Login/Login";
 
 function Login() {
   return (

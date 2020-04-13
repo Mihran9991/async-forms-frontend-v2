@@ -1,6 +1,7 @@
-import React from "react";
-import axios from "axios";
-import {HOST, LOGIN_ROUTE, PORT} from "../../constants/backend.config";
+import React, {useState} from "react";
+import {LOGIN_ROUTE} from "../../../constants/backend.config";
+import {renderDOM as commonRenderDom} from "../Auth";
+import {axiosInstance} from "../../index";
 
 const LoginForm = () => {
   const DOM = [
@@ -27,35 +28,10 @@ const LoginForm = () => {
   ];
 
   function renderDOM() {
-    return DOM.map(
-      (
-        {
-          className,
-          label,
-          input: {name, type, className: inputClassName, placeholder},
-        },
-        idx
-      ) => {
-        return (
-          <div className={className} key={idx}>
-            <label>{label}</label>
-            <input name={name} onChange={handleChange}
-                   type={type}
-                   className={inputClassName}
-                   placeholder={placeholder}
-            />
-          </div>
-        );
-      }
-    );
+    return commonRenderDom(DOM, handleChange);
   }
 
-  const initialFormData = Object.freeze({
-    email: "",
-    password: ""
-  });
-
-  const [formData, updateFormData] = React.useState(initialFormData);
+  const [formData, updateFormData] = useState(initialFormData);
 
   const handleChange = (e) => {
     updateFormData({
@@ -66,14 +42,17 @@ const LoginForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await axios.post(
-      `http://${HOST}:${PORT}${LOGIN_ROUTE}`,
-      formData
+    const response = await axiosInstance.post(
+      `${LOGIN_ROUTE}`,
+      {
+        email: formData.email,
+        password: formData.password
+      }
     );
     if (response.status === 200) {
       const token = response.data.token;
       console.log(token);
-      // code for storing token in cookies //
+      // todo: code for storing token in cookies //
     }
   };
 
@@ -92,5 +71,10 @@ const LoginForm = () => {
     </div>
   );
 };
+
+const initialFormData = Object.freeze({
+  email: "",
+  password: ""
+});
 
 export default LoginForm;
