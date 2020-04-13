@@ -1,15 +1,15 @@
 import React from "react";
 import styles from "../auth.module.scss";
-import LogInComponent from "../../../components/Login/Login";
+import RegisterComponent from "../../../components/Register";
 
-function Login() {
+function Register() {
   return (
     <div className={styles["auth-wrapper"]}>
       <div className={styles["auth-inner"]}>
-        <LogInComponent/>
+        <RegisterComponent/>
       </div>
     </div>
   );
 }
 
-export default Login;
+export default Register;
