@@ -1,7 +1,7 @@
 import React, {useState} from "react";
-import {LOGIN_ROUTE} from "../../../constants/backend.config";
 import {renderDOM as commonRenderDom} from "../Auth";
-import {axiosInstance} from "../../index";
+import authService from "../../../services/authService";
+import cookieService from "../../../services/cookieService";
 
 const LoginForm = () => {
   const DOM = [
@@ -42,17 +42,12 @@ const LoginForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await axiosInstance.post(
-      `${LOGIN_ROUTE}`,
-      {
-        email: formData.email,
-        password: formData.password
-      }
-    );
+    const response = await authService.loginRequest(formData);
+    console.log("Got response: " + response.data);
     if (response.status === 200) {
       const token = response.data.token;
+      cookieService.addCookie("user", token);
       console.log(token);
-      // todo: code for storing token in cookies //
     }
   };
 
@@ -65,7 +60,7 @@ const LoginForm = () => {
           Log In
         </button>
         <p className="forgot-password text-right">
-          <a href="#">Forgot password?</a>
+          <u><a href="#">Forgot password?</a></u>
         </p>
       </form>
     </div>

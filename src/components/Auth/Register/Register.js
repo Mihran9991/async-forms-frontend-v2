@@ -1,7 +1,6 @@
 import React, {useState} from "react";
-import {REGISTER_ROUTE} from "../../../constants/backend.config";
 import {renderDOM as commonRenderMap} from "../Auth";
-import {axiosInstance} from "../../index";
+import authService from "../../../services/authService";
 
 const RegisterForm = () => {
   const DOM = [
@@ -77,18 +76,9 @@ const RegisterForm = () => {
       // todo: code for showing error message //
       return;
     }
-    const response = await axiosInstance.post(
-      `${REGISTER_ROUTE}`,
-      {
-        name: formData.name,
-        surname: formData.surname,
-        email: formData.email,
-        password: formData.password1,
-      }
-    );
+    const response = await authService.registerRequest(formData);
     if (response.status === 200) {
       console.log(response.data.message);
-      // todo: code for storing token in cookies //
       // todo: code for redirecting to login page //
     } else {
       // todo: code for showing error message //
@@ -104,8 +94,8 @@ const RegisterForm = () => {
           Register
         </button>
         <p className="forgot-password text-right">
-          // somehow use param with ${} instead of hardcoded text
-          Already registered? <a href="/login">Log in</a>
+          {/*somehow use param with ${} instead of hardcoded text*/}
+          Already registered? <u><a href="/login">Log in</a></u>
         </p>
       </form>
     </div>
