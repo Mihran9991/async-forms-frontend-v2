@@ -5,25 +5,11 @@ import { If, Then, Else } from "react-if";
 import classnames from "classnames";
 import get from "lodash/get";
 
+import { transformRowData } from "../../utils/dataTransform";
 import { DROP_DOWN, INPUT } from "../../constants/tableConstants";
 import Input from "../formValueTypes/Input";
 import DropDown from "../formValueTypes/DropDown";
 import styles from "./table.module.scss";
-
-function transformRowDataFilterMapper({ type }) {
-  return type === DROP_DOWN;
-}
-
-function transformRowDataReduceMapper(acc, { name, type }) {
-  const nextResult = { ...acc, [name]: { type } };
-  return nextResult;
-}
-
-function transformRowData(data) {
-  return data
-    .filter(transformRowDataFilterMapper)
-    .reduce(transformRowDataReduceMapper, {});
-}
 
 function AddRowProperties({ data, cb, reset, resetCallback, currentValue }) {
   const [dropDownCurrentItems, setDropDownCurrentItems] = useState({});
@@ -32,14 +18,14 @@ function AddRowProperties({ data, cb, reset, resetCallback, currentValue }) {
   );
 
   const addDropDownItem = (name) => {
-    const transformedRowDropDownDataByName = get(
+    const rowDropDownDataByName = get(
       transformedRowDropDownData,
       `${name}`,
       {}
     );
 
     const newItems = [
-      ...get(transformedRowDropDownDataByName, "items", []),
+      ...get(rowDropDownDataByName, "items", []),
       get(dropDownCurrentItems, `${name}`, {}),
     ];
 
@@ -87,7 +73,7 @@ function AddRowProperties({ data, cb, reset, resetCallback, currentValue }) {
   // TODO:: separate by mini components, add more effective way for rendering for different column types(for example - switch case)
   return (
     <div className={styles["add-row-properties"]}>
-      {data.map(({ name, type }, idx) => {
+      {data.map(([name, { type }], idx) => {
         return (
           <div key={`ig_item_${idx}`}>
             <span>{name}</span>
@@ -146,7 +132,7 @@ function AddRowProperties({ data, cb, reset, resetCallback, currentValue }) {
                     inputCurrentValueHandler(currentValue, name)
                   }
                   {...{ [reset && "reset"]: true, resetCallback }}
-                  defaultValue={get(currentValue, "name.value", "")}
+                  defaultValue={get(currentValue, `${name}.value`, "")}
                   onlyValue
                 />
               </Else>

@@ -1,10 +1,10 @@
 import React from "react";
 import Row from "./Row";
 
-function Body({ data }) {
+function Body({ rows }) {
   return (
     <tbody>
-      {data.map((properties, idx) => (
+      {rows.map((properties, idx) => (
         <Row key={`row_${idx}`} properties={properties} />
       ))}
     </tbody>

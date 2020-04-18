@@ -21,8 +21,8 @@ function Table({ title, columns, rows }) {
 
   return (
     <TableBT striped bordered hover responsive variant="dark">
-      <Header data={columns} />
-      <Body data={rows} />
+      <Header columns={columns} />
+      <Body rows={rows} />
     </TableBT>
   );
 }

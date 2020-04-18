@@ -1,12 +1,12 @@
 import React from "react";
 import Column from "./Column";
 
-function Header({ data }) {
+function Header({ columns }) {
   return (
     <thead>
       <tr>
         {/* <Column name={"#"} /> */}
-        {data.map(({ name }, idx) => {
+        {Object.keys(columns).map((name, idx) => {
           return <Column key={`col_${idx}`} name={name} />;
         })}
       </tr>

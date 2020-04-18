@@ -10,13 +10,13 @@ import Card from "../../sharedComponents/Card";
 import Input from "../../sharedComponents/formValueTypes/Input";
 import InputGroup from "../../sharedComponents/InputGroup";
 import Table from "../../sharedComponents/Table";
-import AddRowProperties from "../../sharedComponents/Table/AddRowProperties";
+import RowProperties from "../../sharedComponents/Table/RowProperties";
 import DropDown from "../../sharedComponents/formValueTypes/DropDown";
 import {
-  TABLE_DATA_TYPES,
-  COLUMN_KEYS,
-  POSSIBLE_STRUCTURE_PIECES,
-} from "../../constants/tableConstants";
+  transformObjectDataIntoArray,
+  sortfObjectByKey,
+} from "../../utils/dataTransform";
+import { TABLE_DATA_TYPES, COLUMN_KEYS } from "../../constants/tableConstants";
 import styles from "./dashboard.module.scss";
 
 function Create() {
@@ -24,56 +24,68 @@ function Create() {
   const [isPendingRow, setIsPendingRow] = useState(false);
   const [currentColumn, setCurrentColumn] = useState({ name: "", type: "" });
   const [currentRow, setCurrentRow] = useState({});
-  const [columns, setColumns] = useState([]);
+  const [columns, setColumns] = useState({});
   const [rows, setRows] = useState([]);
   const [title, setTitle] = useState("");
   const [isResetRowInputGroup, setIsResetRowInputGroup] = useState(false);
 
-  // TODO:: check duplicatations
+  const isDuplicateColumn = (name) => {
+    return has(columns, name);
+  };
+
   const saveColumn = () => {
-    setColumns([...columns, currentColumn]);
+    const { name, type } = currentColumn;
+    if (isDuplicateColumn(name)) {
+      // TODO:: handle with modal | notification
+      alert("DUPICATE COLUMN ERROR");
+      return;
+    }
+
+    setColumns({ ...columns, [name]: { type } });
     setIsPendingColumn(false);
     setCurrentColumn({});
   };
 
-  // TODO:: check duplicatations
   const saveRow = () => {
-    setRows([...rows, currentRow]);
+    setRows([...rows, sortfObjectByKey(currentRow)]);
     setIsPendingRow(false);
     setCurrentRow({});
   };
 
-  const setTableStructure = (data, structureType) => {
-    const [[key, value]] = Object.entries(data);
-    const isStructureRow = structureType === POSSIBLE_STRUCTURE_PIECES.row;
+  const setRowData = (data) => {
+    const [[key, { type, value }]] = Object.entries(data);
+    const currentRowCopy = { ...currentRow };
 
-    console.log("currentRow  ------>", currentRow);
-    console.log("data  ------>", data);
-
-    if (!value) {
-      const currentStructurePieceCopy = isStructureRow
-        ? { ...currentRow }
-        : { ...currentColumn };
-
-      delete currentStructurePieceCopy[key];
-      if (isStructureRow) {
-        setCurrentRow(currentStructurePieceCopy);
-      } else {
-        setCurrentColumn(currentStructurePieceCopy);
-      }
-    } else {
-      if (isStructureRow) {
-        setCurrentRow({
-          ...currentRow,
-          ...data,
-        });
-      } else {
-        setCurrentColumn({
-          ...currentColumn,
-          ...data,
-        });
-      }
+    if (!value && currentRowCopy[key]) {
+      delete currentRowCopy[key];
+      setCurrentRow(currentRowCopy);
+      return;
     }
+
+    setCurrentRow({
+      ...currentRow,
+      ...data,
+    });
+  };
+
+  const removeEmptyValuedColumnByKey = (key, value) => {
+    const currentColumnCopy = { ...currentColumn };
+
+    if (!value && has(currentColumnCopy, key)) {
+      delete currentColumnCopy[key];
+      setCurrentColumn(currentColumnCopy);
+      return;
+    }
+  };
+
+  const setColumnData = (data) => {
+    const [[key, value]] = transformObjectDataIntoArray(data);
+
+    removeEmptyValuedColumnByKey(key, value);
+    setCurrentColumn({
+      ...currentColumn,
+      ...data,
+    });
   };
 
   const isCurrentColumnValid = () => {
@@ -90,10 +102,9 @@ function Create() {
     const currentRowProperties = Object.keys(currentRow)
       .filter((key) => key !== "type")
       .sort();
-    const columnNames = columns.map(({ name }) => name).sort();
-
-    console.log("-----currentRowProperties", currentRowProperties);
-    console.log("-----columnNames", columnNames);
+    const columnNames = transformObjectDataIntoArray(columns, "keys")
+      .map((name) => name)
+      .sort();
 
     return isEqual(currentRowProperties, columnNames);
   };
@@ -107,8 +118,11 @@ function Create() {
       <Card>
         <Stepper
           allowNextSteps={[
-            !!title,
-            !!(!isPendingColumn && columns.length),
+            Boolean(title),
+            Boolean(
+              !isPendingColumn &&
+                transformObjectDataIntoArray(columns, "keys").length
+            ),
             true,
           ]}
         >
@@ -135,7 +149,7 @@ function Create() {
                   >
                     <span>Enter Column Name</span>
                     <Input
-                      cb={(data) => setTableStructure(data, "column")}
+                      cb={setColumnData}
                       propName="name"
                       type="text"
                       defaultValue={currentColumn.name}
@@ -148,10 +162,7 @@ function Create() {
                     })}
                   >
                     <span>Choose Column Type</span>
-                    <DropDown
-                      cb={(data) => setTableStructure(data, "column")}
-                      items={TABLE_DATA_TYPES}
-                    />
+                    <DropDown cb={setColumnData} items={TABLE_DATA_TYPES} />
                   </div>
                 </InputGroup>
                 <If condition={isCurrentColumnValid()}>
@@ -172,9 +183,9 @@ function Create() {
           </div>
           <div className={styles["add-table-rows"]}>
             <h4>Add Table Row</h4>
-            <AddRowProperties
-              data={columns}
-              cb={(data) => setTableStructure(data, "row")}
+            <RowProperties
+              data={transformObjectDataIntoArray(sortfObjectByKey(columns))}
+              cb={setRowData}
               reset={isResetRowInputGroup}
               resetCallback={setIsResetRowInputGroup}
               currentValue={currentRow}
@@ -201,7 +212,7 @@ function Create() {
           </div>
         </Stepper>
       </Card>
-      <Table title={title} columns={columns} rows={rows} />
+      <Table title={title} columns={sortfObjectByKey(columns)} rows={rows} />
     </>
   );
 }
