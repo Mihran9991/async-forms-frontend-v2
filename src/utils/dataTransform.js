@@ -49,3 +49,14 @@ export const sortArrayOfObjectsByKey = (array, sortBy, order = "asc") => {
 
   return array(sortMapper);
 };
+
+export const addTypeToTableData = (data, type) => {
+  const [[key, value]] = transformObjectDataIntoArray(data, "entries");
+
+  return {
+    [key]: {
+      value,
+      type,
+    },
+  };
+};

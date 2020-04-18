@@ -13,6 +13,7 @@ function AddTableName({ setTitle, title }) {
         type="text"
         defaultValue={title}
         onlyValue
+        fullWidth
       />
     </div>
   );

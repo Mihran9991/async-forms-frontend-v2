@@ -2,36 +2,61 @@ import React from "react";
 import Button from "react-bootstrap/Button";
 import { If, Else, Then } from "react-if";
 
-import { transformObjectDataIntoArray } from "../../utils/dataTransform";
+import {
+  transformObjectDataIntoArray,
+  addTypeToTableData,
+} from "../../utils/dataTransform";
 import DropDown from "../../sharedComponents/formValueTypes/DropDown";
 import Input from "../../sharedComponents/formValueTypes/Input";
 
-import { DROP_DOWN } from "../../constants/tableConstants";
+import { DROP_DOWN, INPUT } from "../../constants/tableConstants";
 
-function Row({ properties, deleteRowHandler }) {
+function Row({ properties, deleteRowHandler, editRowHandler }) {
   const formattedProperties = transformObjectDataIntoArray(
     properties,
-    "values"
+    "entries"
   );
 
   return (
     <tr>
-      {formattedProperties.map(({ value, type }, idx) => {
+      {formattedProperties.map(([name, { value, type }], idx) => {
         return (
           <td key={`${value}_${idx}`}>
             <If condition={type === DROP_DOWN}>
               <Then>
-                <DropDown items={value} />
+                <DropDown
+                  // cb={(editedData) =>
+                  //   editRowHandler(addTypeToTableData(editedData, DROP_DOWN))
+                  // }
+
+                  cb={() => void 0}
+                  fullWidth
+                  items={value}
+                  propName={name}
+                />
               </Then>
               <Else>
-                <Input defaultValue={value} />
+                <Input
+                  cb={(editedData) =>
+                    editRowHandler(addTypeToTableData(editedData, INPUT))
+                  }
+                  fullWidth
+                  defaultValue={value}
+                  propName={name}
+                />
               </Else>
             </If>
           </td>
         );
       })}
       <td>
-        <Button onClick={deleteRowHandler}>Delete</Button>
+        <Button
+          variant="danger"
+          style={{ width: "100%" }}
+          onClick={deleteRowHandler}
+        >
+          Delete
+        </Button>
       </td>
     </tr>
   );

@@ -75,12 +75,16 @@ function AddRowProperties({ data, cb, reset, resetCallback, currentValue }) {
     <div className={styles["add-row-properties"]}>
       {data.map(([name, { type }], idx) => {
         return (
-          <div key={`ig_item_${idx}`}>
+          <div
+            key={`ig_item_${idx}`}
+            className={classnames("mb-3", styles["border-bottom"])}
+          >
             <span>{name}</span>
             <If condition={type === DROP_DOWN}>
               <Then>
                 <br />
                 <Button
+                  className={"mb-3"}
                   variant="outline-success"
                   onClick={() => {
                     setTransformedRowDropDownData({
@@ -104,6 +108,8 @@ function AddRowProperties({ data, cb, reset, resetCallback, currentValue }) {
                 >
                   <Then>
                     <Input
+                      fullWidth
+                      className={"mb-3"}
                       type="text"
                       propName={name}
                       cb={(dropDownItem) =>
@@ -111,6 +117,7 @@ function AddRowProperties({ data, cb, reset, resetCallback, currentValue }) {
                       }
                     />
                     <Button
+                      className={classnames("mb-3", "mt-3")}
                       variant="outline-success"
                       onClick={() => addDropDownItem(name)}
                     >
@@ -119,6 +126,7 @@ function AddRowProperties({ data, cb, reset, resetCallback, currentValue }) {
                   </Then>
                 </If>
                 <DropDown
+                  className={"mb-3"}
                   cb={cb}
                   items={get(transformedRowDropDownData, `${name}.items`, [])}
                   defaultValue={name}

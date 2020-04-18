@@ -1,7 +1,7 @@
 import React from "react";
 import Row from "./Row";
 
-function Body({ rows, deleteRowHandler }) {
+function Body({ rows, deleteRowHandler, editRowHandler }) {
   return (
     <tbody>
       {rows.map((properties, idx) => (
@@ -9,6 +9,7 @@ function Body({ rows, deleteRowHandler }) {
           key={`row_${idx}`}
           properties={properties}
           deleteRowHandler={() => deleteRowHandler(idx)}
+          editRowHandler={(editedData) => editRowHandler(idx, editedData)}
         />
       ))}
     </tbody>

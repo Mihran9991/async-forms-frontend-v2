@@ -7,14 +7,19 @@ function TextInput({
   cb,
   propName,
   onlyValue,
-  defaultValue,
+  defaultValue: defaultValueFromProps,
   reset,
   resetCallback = () => {},
+  fullWidth,
 }) {
-  const [value, setValue] = useState("");
+  const [currentValue, setCurrentValue] = useState("");
+  const [defaultValue, setDefaultValue] = useState(defaultValueFromProps);
+
+  const value = defaultValue || currentValue;
 
   const onChangeHandler = ({ target: { value } }) => {
-    setValue(value);
+    setDefaultValue("");
+    setCurrentValue(value);
 
     if (isFunction(cb)) {
       if (onlyValue) {
@@ -29,17 +34,18 @@ function TextInput({
 
   useEffect(() => {
     if (reset) {
-      setValue("");
+      setCurrentValue("");
       resetCallback(false);
     }
   }, [reset]);
 
   return (
     <input
+      style={{ width: fullWidth ? "100%" : "inherit" }}
       type={type}
       className="form-control"
       onChange={onChangeHandler}
-      value={defaultValue || value}
+      value={value}
       aria-label={size}
     />
   );

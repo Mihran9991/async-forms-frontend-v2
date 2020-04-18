@@ -7,7 +7,7 @@ import isEmpty from "lodash/isEmpty";
 import Header from "../../sharedComponents/Table/Header";
 import Body from "../../sharedComponents/Table/Body";
 
-function Table({ title, columns, rows }) {
+function Table({ title, columns, rows, editRowHandler }) {
   const [tableData, setTableData] = useState({
     title,
     columns,
@@ -34,13 +34,15 @@ function Table({ title, columns, rows }) {
     });
   }, [title, columns, rows]);
 
-  console.log(tableData);
-
   return (
     <>
       <TableBT striped bordered hover responsive variant="dark">
         <Header columns={columns} />
-        <Body rows={rows} deleteRowHandler={deleteRowHandler} />
+        <Body
+          rows={rows}
+          deleteRowHandler={deleteRowHandler}
+          editRowHandler={editRowHandler}
+        />
       </TableBT>
       <If condition={!(isEmpty(title) || isEmpty(columns) || isEmpty(rows))}>
         <Then>

@@ -35,6 +35,7 @@ function AddTableColumns({
                 propName="name"
                 type="text"
                 defaultValue={currentColumn.name}
+                fullWidth
               />
             </div>
             <div

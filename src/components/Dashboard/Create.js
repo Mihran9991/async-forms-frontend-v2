@@ -24,6 +24,17 @@ function Create() {
   const [title, setTitle] = useState("");
   const [isResetRowInputGroup, setIsResetRowInputGroup] = useState(false);
 
+  const editRowHandler = (index, editedData) => {
+    const rowsCopy = [...rows];
+
+    rowsCopy[index] = {
+      ...rowsCopy[index],
+      ...editedData,
+    };
+
+    setRows(rowsCopy);
+  };
+
   const isDuplicateColumn = (name) => {
     return has(columns, name);
   };
@@ -39,6 +50,16 @@ function Create() {
     setColumns({ ...columns, [name]: { type } });
     setIsPendingColumn(false);
     setCurrentColumn({});
+  };
+
+  const setColumnData = (data) => {
+    const [[key, value]] = transformObjectDataIntoArray(data);
+
+    removeEmptyValuedColumnByKey(key, value);
+    setCurrentColumn({
+      ...currentColumn,
+      ...data,
+    });
   };
 
   const saveRow = () => {
@@ -71,16 +92,6 @@ function Create() {
       setCurrentColumn(currentColumnCopy);
       return;
     }
-  };
-
-  const setColumnData = (data) => {
-    const [[key, value]] = transformObjectDataIntoArray(data);
-
-    removeEmptyValuedColumnByKey(key, value);
-    setCurrentColumn({
-      ...currentColumn,
-      ...data,
-    });
   };
 
   const isCurrentColumnValid = () => {
@@ -143,7 +154,12 @@ function Create() {
           />
         </Stepper>
       </Card>
-      <Table title={title} columns={sortfObjectByKey(columns)} rows={rows} />
+      <Table
+        title={title}
+        columns={sortfObjectByKey(columns)}
+        rows={rows}
+        editRowHandler={editRowHandler}
+      />
     </>
   );
 }
