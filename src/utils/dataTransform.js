@@ -1,5 +1,6 @@
 import { DROP_DOWN } from "../constants/tableConstants";
 import isObject from "lodash/isObject";
+import isString from "lodash/isString";
 
 export const transformObjectDataIntoArray = (objData, mode = "entries") => {
   return Object[mode](objData);
@@ -20,6 +21,10 @@ export const transformRowData = (data) => {
 export const sortfObjectByKey = (obj, order = "asc") => {
   const sortedObj = {};
   const sortMapper = (a, b) => {
+    if (!isString(a) || !isString(b)) {
+      throw Error("Incomparable types");
+    }
+
     if (order === "asc") return a.localeCompare(b);
     return b.localeCompare(a);
   };

@@ -8,7 +8,7 @@ import Input from "../../sharedComponents/formValueTypes/Input";
 
 import { DROP_DOWN } from "../../constants/tableConstants";
 
-function Row({ properties }) {
+function Row({ properties, deleteRowHandler }) {
   const formattedProperties = transformObjectDataIntoArray(
     properties,
     "values"
@@ -31,7 +31,7 @@ function Row({ properties }) {
         );
       })}
       <td>
-        <Button>Delete</Button>
+        <Button onClick={deleteRowHandler}>Delete</Button>
       </td>
     </tr>
   );

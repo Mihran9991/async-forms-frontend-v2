@@ -1,23 +1,18 @@
 import React, { useState, useEffect } from "react";
-import Button from "react-bootstrap/Button";
-import { If, Else, Then } from "react-if";
-import classnames from "classnames";
 import isEqual from "lodash/isEqual";
 import has from "lodash/has";
 
+import AddTableName from "./AddTableName";
+import AddTableColumns from "./AddTableColumns";
+import AddTableRows from "./AddTableRows";
 import Stepper from "../../sharedComponents/Stepper";
 import Card from "../../sharedComponents/Card";
-import Input from "../../sharedComponents/formValueTypes/Input";
-import InputGroup from "../../sharedComponents/InputGroup";
 import Table from "../../sharedComponents/Table";
-import RowProperties from "../../sharedComponents/Table/RowProperties";
-import DropDown from "../../sharedComponents/formValueTypes/DropDown";
 import {
   transformObjectDataIntoArray,
   sortfObjectByKey,
 } from "../../utils/dataTransform";
-import { TABLE_DATA_TYPES, COLUMN_KEYS } from "../../constants/tableConstants";
-import styles from "./dashboard.module.scss";
+import { COLUMN_KEYS } from "../../constants/tableConstants";
 
 function Create() {
   const [isPendingColumn, setIsPendingColumn] = useState(false);
@@ -126,90 +121,26 @@ function Create() {
             true,
           ]}
         >
-          <div className={styles["add-table-name"]}>
-            <h4>Add Table Name</h4>
-            <Input
-              cb={setTitle}
-              propName="table-name"
-              type="text"
-              defaultValue={title}
-              onlyValue
-            />
-          </div>
-          <div className={styles["add-table-columns"]}>
-            <h4>Add Table Column</h4>
-            <If condition={isPendingColumn}>
-              <Then>
-                <InputGroup>
-                  <div
-                    className={classnames({
-                      [styles["enter-column-name"]]: true,
-                      [styles["input-group-item"]]: true,
-                    })}
-                  >
-                    <span>Enter Column Name</span>
-                    <Input
-                      cb={setColumnData}
-                      propName="name"
-                      type="text"
-                      defaultValue={currentColumn.name}
-                    />
-                  </div>
-                  <div
-                    className={classnames({
-                      [styles["select-field-type"]]: true,
-                      [styles["input-group-item"]]: true,
-                    })}
-                  >
-                    <span>Choose Column Type</span>
-                    <DropDown cb={setColumnData} items={TABLE_DATA_TYPES} />
-                  </div>
-                </InputGroup>
-                <If condition={isCurrentColumnValid()}>
-                  <Button variant="outline-success" onClick={saveColumn}>
-                    Save
-                  </Button>
-                </If>
-              </Then>
-              <Else>
-                <Button
-                  variant="outline-success"
-                  onClick={() => setIsPendingColumn(true)}
-                >
-                  Add Column
-                </Button>
-              </Else>
-            </If>
-          </div>
-          <div className={styles["add-table-rows"]}>
-            <h4>Add Table Row</h4>
-            <RowProperties
-              data={transformObjectDataIntoArray(sortfObjectByKey(columns))}
-              cb={setRowData}
-              reset={isResetRowInputGroup}
-              resetCallback={setIsResetRowInputGroup}
-              currentValue={currentRow}
-            />
-            <If condition={isPendingRow}>
-              <Then>
-                <Button
-                  variant="outline-success"
-                  onClick={() => setIsPendingRow(true)}
-                >
-                  Add Row
-                </Button>
-              </Then>
-              <Else>
-                <If condition={isCurrentRowValid()}>
-                  <Then>
-                    <Button variant="outline-success" onClick={saveRow}>
-                      Save
-                    </Button>
-                  </Then>
-                </If>
-              </Else>
-            </If>
-          </div>
+          <AddTableName setTitle={setTitle} title={title} />
+          <AddTableColumns
+            isPendingColumn={isPendingColumn}
+            setColumnData={setColumnData}
+            currentColumn={currentColumn}
+            isCurrentColumnValid={isCurrentColumnValid}
+            saveColumn={saveColumn}
+            setIsPendingColumn={setIsPendingColumn}
+          />
+          <AddTableRows
+            setRowData={setRowData}
+            isResetRowInputGroup={isResetRowInputGroup}
+            setIsResetRowInputGroup={setIsResetRowInputGroup}
+            currentRow={currentRow}
+            isPendingRow={isPendingRow}
+            setIsPendingRow={setIsPendingRow}
+            isCurrentRowValid={isCurrentRowValid}
+            saveRow={saveRow}
+            columns={columns}
+          />
         </Stepper>
       </Card>
       <Table title={title} columns={sortfObjectByKey(columns)} rows={rows} />
