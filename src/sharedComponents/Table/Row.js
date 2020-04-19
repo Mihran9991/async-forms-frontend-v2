@@ -26,7 +26,7 @@ function Row({ properties, deleteRowHandler, editRowHandler }) {
               <Then>
                 <DropDown
                   cb={(editedData) =>
-                    editRowHandler(addTypeToTableData(editedData, INPUT))
+                    editRowHandler(addTypeToTableData(editedData, DROP_DOWN))
                   }
                   fullWidth
                   items={value}

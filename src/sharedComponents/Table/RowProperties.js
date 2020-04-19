@@ -17,6 +17,20 @@ function AddRowProperties({ data, cb, reset, resetCallback, currentValue }) {
     transformRowData(data)
   );
 
+  const addDropDownEmptyField = (name) => {
+    if (reset) {
+      resetCallback(false);
+    }
+
+    setTransformedRowDropDownData({
+      ...transformedRowDropDownData,
+      [name]: {
+        ...transformedRowDropDownData[name],
+        newItem: true,
+      },
+    });
+  };
+
   const addDropDownItem = (name) => {
     const rowDropDownDataByName = get(
       transformedRowDropDownData,
@@ -86,15 +100,7 @@ function AddRowProperties({ data, cb, reset, resetCallback, currentValue }) {
                 <Button
                   className={"mb-3"}
                   variant="outline-success"
-                  onClick={() => {
-                    setTransformedRowDropDownData({
-                      ...transformedRowDropDownData,
-                      [name]: {
-                        ...transformedRowDropDownData[name],
-                        newItem: true,
-                      },
-                    });
-                  }}
+                  onClick={() => addDropDownEmptyField(name)}
                 >
                   <AiOutlinePlus />
                   Add values to {name}
@@ -127,8 +133,12 @@ function AddRowProperties({ data, cb, reset, resetCallback, currentValue }) {
                 </If>
                 <DropDown
                   className={"mb-3"}
-                  cb={cb}
-                  items={get(transformedRowDropDownData, `${name}.items`, [])}
+                  cb={() => void 0}
+                  items={
+                    reset
+                      ? []
+                      : get(transformedRowDropDownData, `${name}.items`, [])
+                  }
                   defaultValue={name}
                 />
               </Then>

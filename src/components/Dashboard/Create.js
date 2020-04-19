@@ -19,28 +19,26 @@ function Create() {
   const [isPendingRow, setIsPendingRow] = useState(false);
   const [currentColumn, setCurrentColumn] = useState({ name: "", type: "" });
   const [currentRow, setCurrentRow] = useState({});
+
+  // We are representing columns as a hashMap({}) in order to avoid
+  // duplicate column names.
   const [columns, setColumns] = useState({});
   const [rows, setRows] = useState([]);
   const [title, setTitle] = useState("");
   const [isResetRowInputGroup, setIsResetRowInputGroup] = useState(false);
 
   const editRowHandler = (index, editedData) => {
-    console.log("rows", rows);
-    console.log("editedData", editedData);
+    const rowsCopy = [...rows];
 
-    // const rowsCopy = [...rows];
+    rowsCopy[index] = {
+      ...rowsCopy[index],
+      ...editedData,
+    };
 
-    // rowsCopy[index] = {
-    //   ...rowsCopy[index],
-    //   ...editedData,
-    // };
-
-    // setRows(rowsCopy);
+    setRows(rowsCopy);
   };
 
-  const isDuplicateColumn = (name) => {
-    return has(columns, name);
-  };
+  const isDuplicateColumn = (name) => has(columns, name);
 
   const saveColumn = () => {
     const { name, type } = currentColumn;
@@ -72,6 +70,8 @@ function Create() {
   };
 
   const setRowData = (data) => {
+    console.log("setRowData");
+
     const [[key, { type, value }]] = Object.entries(data);
     const currentRowCopy = { ...currentRow };
 
@@ -93,7 +93,6 @@ function Create() {
     if (!value && has(currentColumnCopy, key)) {
       delete currentColumnCopy[key];
       setCurrentColumn(currentColumnCopy);
-      return;
     }
   };
 
@@ -119,7 +118,7 @@ function Create() {
   };
 
   useEffect(() => {
-    setIsResetRowInputGroup(!isPendingRow && rows.length);
+    setIsResetRowInputGroup(Boolean(!isPendingRow && rows.length));
   }, [isPendingRow, rows]);
 
   return (

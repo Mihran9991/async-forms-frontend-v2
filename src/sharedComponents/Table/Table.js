@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Table as TableBT, Button } from "react-bootstrap";
 import { If, Then } from "react-if";
-import filter from "lodash/filter";
+import remove from "lodash/remove";
 import isEmpty from "lodash/isEmpty";
 
 import Header from "../../sharedComponents/Table/Header";
@@ -15,10 +15,11 @@ function Table({ title, columns, rows, editRowHandler }) {
     rows,
   });
 
-  const deleteRowHandler = (deletableItemIdx) => {
-    const updatedRows = filter([...rows], (_, id) => id !== deletableItemIdx);
-
-    console.log("updatedRows ------>", updatedRows);
+  const deleteRowHandler = (id) => {
+    const updatedRows = remove(
+      rows,
+      (_, deletableItemIdx) => id === deletableItemIdx
+    );
 
     setTableData({
       ...tableData,

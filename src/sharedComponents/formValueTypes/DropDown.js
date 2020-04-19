@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dropdown, Button } from "react-bootstrap";
 import { If, Then, Else } from "react-if";
 import filter from "lodash/filter";
@@ -16,20 +16,22 @@ function ItemList({
 }) {
   return items.map(({ value, key }, idx) => {
     const onClickHandler = () => {
-      setCurrentValue(value);
+      if (!editable) {
+        setCurrentValue(value);
 
-      if (!propName) {
+        if (!propName) {
+          cb({
+            [key]: value,
+          });
+          return;
+        }
+
         cb({
-          [key]: value,
+          [propName]: {
+            [key]: value,
+          },
         });
-        return;
       }
-
-      cb({
-        [propName]: {
-          [key]: value,
-        },
-      });
     };
 
     return (
@@ -40,7 +42,11 @@ function ItemList({
       >
         <If condition={Boolean(editable)}>
           <Then>
-            <Input defaultValue={value} />
+            <Input
+              defaultValue={value}
+              cb={(editedItem) => cb(editedItem, idx)}
+              propName={propName}
+            />
             <Button
               onClick={() => {
                 removeItem(idx);
@@ -76,24 +82,36 @@ function DropDown({
       return;
     }
 
-    console.log("items", items, deletableItemIdx);
-
-    const updatedItems = filter(items, (_, id) => {
-      console.log(id, "========", deletableItemIdx);
-      return id !== deletableItemIdx;
-    });
-
-    console.log("updatedItems ----------->", updatedItems);
+    const updatedItems = filter(items, (_, id) => id !== deletableItemIdx);
 
     setItems(updatedItems);
-    // setCurrentValue(updatedItems[updatedItems.length - 1].value);
-    // cb({
-    //   [propName]: updatedItems,
-    // });
+    setCurrentValue(updatedItems[0].value);
+    cb({
+      [propName]: updatedItems,
+    });
   };
 
   const addItem = () => {
-    setItems([...items, { name: propName, value: "" }]);
+    const updatedItems = [...items, { key: propName, value: "" }];
+
+    setItems(updatedItems);
+    cb({
+      [propName]: updatedItems,
+    });
+    setShowDropDown(true);
+  };
+
+  const editItem = (editedData, idx) => {
+    const updatedItems = [...items];
+    updatedItems[idx] = {
+      ...updatedItems[idx],
+      value: editedData[propName],
+    };
+
+    setItems(updatedItems);
+    cb({
+      [propName]: updatedItems,
+    });
   };
 
   const dropDownToggleHandler = (isOpen, event, { source }) => {
@@ -103,6 +121,10 @@ function DropDown({
 
     setShowDropDown(isOpen);
   };
+
+  useEffect(() => {
+    setItems(itemsFromProps);
+  }, [itemsFromProps]);
 
   return (
     <Dropdown show={showDropDown} onToggle={dropDownToggleHandler}>
@@ -116,17 +138,16 @@ function DropDown({
       <Dropdown.Menu>
         <ItemList
           items={items}
-          cb={cb}
+          cb={editable ? editItem : cb}
           removeItem={removeItem}
           setCurrentValue={setCurrentValue}
           propName={propName}
           editable={editable}
         />
-
         <If condition={Boolean(editable)}>
-          <Button style={{ width: "100%" }} onClick={addItem}>
-            +
-          </Button>
+          <Dropdown.Item onClick={addItem}>
+            <Button style={{ width: "100%" }}>+</Button>
+          </Dropdown.Item>
         </If>
       </Dropdown.Menu>
     </Dropdown>
