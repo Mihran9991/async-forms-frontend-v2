@@ -1,8 +1,9 @@
 import React from "react";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import {BrowserRouter as Router, Switch, Route} from "react-router-dom";
 import routeConstants from "./constants/routeConstants";
 import "./App.scss";
-import Auth from "./pages/Auth/";
+import Register from "./pages/Auth/Register/";
+import Login from "./pages/Auth/Login/";
 import Dashboard from "./pages/Dashboard/";
 
 function App() {
@@ -10,8 +11,9 @@ function App() {
     <Router>
       <div className="App">
         <Switch>
-          <Route path={routeConstants.AUTH} component={Auth} />
-          <Route path={routeConstants.DASHBOARD} component={Dashboard} />
+          <Route path={routeConstants.REGISTER} component={Register}/>
+          <Route path={routeConstants.LOGIN} component={Login}/>
+          <Route path={routeConstants.DASHBOARD} component={Dashboard}/>
           <Route path={routeConstants.USERS}>Users</Route>
           <Route path={routeConstants.HOME}>Home</Route>
         </Switch>

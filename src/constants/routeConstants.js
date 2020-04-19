@@ -1,11 +1,13 @@
-const AUTH = "/auth";
 const HOME = "/";
+const REGISTER = "/register";
+const LOGIN = "/login";
 const USERS = "/users";
 const DASHBOARD = "/dashboard";
 
 export default {
-  AUTH,
   HOME,
+  REGISTER,
+  LOGIN,
   USERS,
   DASHBOARD,
 };
