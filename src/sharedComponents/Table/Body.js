@@ -1,11 +1,16 @@
 import React from "react";
 import Row from "./Row";
 
-function Body({ data }) {
+function Body({ rows, deleteRowHandler, editRowHandler }) {
   return (
     <tbody>
-      {data.map((properties, idx) => (
-        <Row key={`row_${idx}`} properties={properties} />
+      {rows.map((properties, idx) => (
+        <Row
+          key={`row_${idx}`}
+          properties={properties}
+          deleteRowHandler={() => deleteRowHandler(idx)}
+          editRowHandler={(editedData) => editRowHandler(idx, editedData)}
+        />
       ))}
     </tbody>
   );

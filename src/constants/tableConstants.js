@@ -1,11 +1,12 @@
 import DropDown from "../sharedComponents/formValueTypes/DropDown";
 import Input from "../sharedComponents/formValueTypes/Input";
 
+export const DROP_DOWN = "Drop Down";
+export const INPUT = "Input";
+
 export const TABLE_DATA_TYPES = [
-  { value: "Drop Down", component: DropDown, key: "type" },
-  { value: "Input", component: Input, key: "type" },
+  { value: DROP_DOWN, component: DropDown, key: "type" },
+  { value: INPUT, component: Input, key: "type" },
 ];
 
 export const COLUMN_KEYS = ["name", "type"].sort();
-
-export const POSSIBLE_STRUCTURE_PIECES = { row: "row", column: "column" };

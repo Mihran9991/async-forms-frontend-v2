@@ -1,186 +1,164 @@
 import React, { useState, useEffect } from "react";
-import Button from "react-bootstrap/Button";
-import { If, Else, Then } from "react-if";
-import classnames from "classnames";
 import isEqual from "lodash/isEqual";
+import has from "lodash/has";
 
+import AddTableName from "./AddTableName";
+import AddTableColumns from "./AddTableColumns";
+import AddTableRows from "./AddTableRows";
 import Stepper from "../../sharedComponents/Stepper";
 import Card from "../../sharedComponents/Card";
-import Input from "../../sharedComponents/formValueTypes/Input";
-import InputGroup from "../../sharedComponents/InputGroup";
 import Table from "../../sharedComponents/Table";
-import DropDown from "../../sharedComponents/formValueTypes/DropDown";
 import {
-  TABLE_DATA_TYPES,
-  COLUMN_KEYS,
-  POSSIBLE_STRUCTURE_PIECES,
-} from "../../constants/tableConstants";
-import styles from "./dashboard.module.scss";
+  transformObjectDataIntoArray,
+  sortfObjectByKey,
+} from "../../utils/dataTransform";
+import { COLUMN_KEYS } from "../../constants/tableConstants";
 
 function Create() {
   const [isPendingColumn, setIsPendingColumn] = useState(false);
   const [isPendingRow, setIsPendingRow] = useState(false);
-  const [currentColumn, setCurrentColumn] = useState({});
+  const [currentColumn, setCurrentColumn] = useState({ name: "", type: "" });
   const [currentRow, setCurrentRow] = useState({});
-  const [columns, setColumns] = useState([]);
+
+  // We are representing columns as a hashMap({}) in order to avoid
+  // duplicate column names.
+  const [columns, setColumns] = useState({});
   const [rows, setRows] = useState([]);
   const [title, setTitle] = useState("");
   const [isResetRowInputGroup, setIsResetRowInputGroup] = useState(false);
 
+  const editRowHandler = (index, editedData) => {
+    const rowsCopy = [...rows];
+
+    rowsCopy[index] = {
+      ...rowsCopy[index],
+      ...editedData,
+    };
+
+    setRows(rowsCopy);
+  };
+
+  const isDuplicateColumn = (name) => has(columns, name);
+
   const saveColumn = () => {
-    setColumns([...columns, currentColumn]);
+    const { name, type } = currentColumn;
+    if (isDuplicateColumn(name)) {
+      // TODO:: handle with modal | notification
+      alert("DUPICATE COLUMN ERROR");
+      return;
+    }
+
+    setColumns({ ...columns, [name]: { type } });
     setIsPendingColumn(false);
     setCurrentColumn({});
   };
 
+  const setColumnData = (data) => {
+    const [[key, value]] = transformObjectDataIntoArray(data);
+
+    removeEmptyValuedColumnByKey(key, value);
+    setCurrentColumn({
+      ...currentColumn,
+      ...data,
+    });
+  };
+
   const saveRow = () => {
-    setRows([...rows, currentRow]);
+    setRows([...rows, sortfObjectByKey(currentRow)]);
     setIsPendingRow(false);
     setCurrentRow({});
   };
 
-  const setTableStructure = (data, structureType) => {
-    const [[key, value]] = Object.entries(data);
-    const isStructureRow = structureType === POSSIBLE_STRUCTURE_PIECES.row;
+  const setRowData = (data) => {
+    console.log("setRowData");
 
-    if (!value) {
-      const currentStructurePieceCopy = isStructureRow
-        ? { ...currentRow }
-        : { ...currentColumn };
+    const [[key, { type, value }]] = Object.entries(data);
+    const currentRowCopy = { ...currentRow };
 
-      delete currentStructurePieceCopy[key];
+    if (!value && currentRowCopy[key]) {
+      delete currentRowCopy[key];
+      setCurrentRow(currentRowCopy);
+      return;
+    }
 
-      if (isStructureRow) {
-        setCurrentRow(currentStructurePieceCopy);
-      } else {
-        setCurrentColumn(currentStructurePieceCopy);
-      }
-    } else {
-      if (isStructureRow) {
-        setCurrentRow({
-          ...currentRow,
-          ...data,
-        });
-      } else {
-        setCurrentColumn({
-          ...currentColumn,
-          ...data,
-        });
-      }
+    setCurrentRow({
+      ...currentRow,
+      ...data,
+    });
+  };
+
+  const removeEmptyValuedColumnByKey = (key, value) => {
+    const currentColumnCopy = { ...currentColumn };
+
+    if (!value && has(currentColumnCopy, key)) {
+      delete currentColumnCopy[key];
+      setCurrentColumn(currentColumnCopy);
     }
   };
 
   const isCurrentColumnValid = () => {
-    const currentColumnProperties = Object.keys(currentColumn).sort();
+    const currentColumnPropertyKeys = Object.keys(currentColumn).sort();
+    const areKeysPresent = isEqual(currentColumnPropertyKeys, COLUMN_KEYS);
+    const areValuesNotEmpty = Object.values(currentColumn).every(
+      (val) => val.length > 0
+    );
 
-    return isEqual(currentColumnProperties, COLUMN_KEYS);
+    return areKeysPresent && areValuesNotEmpty;
   };
 
   const isCurrentRowValid = () => {
-    const currentRowProperties = Object.keys(currentRow).sort();
-    const columnNames = columns.map(({ name }) => name);
+    const currentRowProperties = Object.keys(currentRow)
+      .filter((key) => key !== "type")
+      .sort();
+    const columnNames = transformObjectDataIntoArray(columns, "keys")
+      .map((name) => name)
+      .sort();
 
     return isEqual(currentRowProperties, columnNames);
   };
 
   useEffect(() => {
-    setIsResetRowInputGroup(!isPendingRow && rows.length);
+    setIsResetRowInputGroup(Boolean(!isPendingRow && rows.length));
   }, [isPendingRow, rows]);
 
   return (
     <>
       <Card>
         <Stepper
-          allowNext={[!!title, !!(!isPendingColumn && columns.length), true]}
+          allowNextSteps={[
+            Boolean(title),
+            Boolean(transformObjectDataIntoArray(columns, "keys").length),
+            true,
+          ]}
         >
-          <div className={styles["add-table-name"]}>
-            <h4>Add Table Name</h4>
-            <Input
-              cb={setTitle}
-              propName="table-name"
-              type="text"
-              defaultValue={title}
-              onlyValue
-            />
-          </div>
-          <div className={styles["add-table-columns"]}>
-            <h4>Add Table Column</h4>
-            <If condition={isPendingColumn}>
-              <Then>
-                <InputGroup>
-                  <div
-                    className={classnames({
-                      [styles["enter-column-name"]]: true,
-                      [styles["input-group-item"]]: true,
-                    })}
-                  >
-                    <span>Enter Column Name</span>
-                    <Input
-                      cb={(data) => setTableStructure(data, "column")}
-                      propName="name"
-                      type="text"
-                    />
-                  </div>
-                  <div
-                    className={classnames({
-                      [styles["select-field-type"]]: true,
-                      [styles["input-group-item"]]: true,
-                    })}
-                  >
-                    <span>Choose Column Type</span>
-                    <DropDown
-                      cb={(data) => setTableStructure(data, "column")}
-                      items={TABLE_DATA_TYPES}
-                    />
-                  </div>
-                </InputGroup>
-                <If condition={isCurrentColumnValid()}>
-                  <Button variant="outline-success" onClick={saveColumn}>
-                    Save
-                  </Button>
-                </If>
-              </Then>
-              <Else>
-                <Button
-                  variant="outline-success"
-                  onClick={() => setIsPendingColumn(true)}
-                >
-                  Add Column
-                </Button>
-              </Else>
-            </If>
-          </div>
-          <div className={styles["add-table-rows"]}>
-            <h4>Add Table Row</h4>
-            <InputGroup.Generic
-              data={columns}
-              cb={(data) => setTableStructure(data, "row")}
-              reset={isResetRowInputGroup}
-              resetCallback={setIsResetRowInputGroup}
-            />
-            <If condition={isPendingRow}>
-              <Then>
-                <Button
-                  variant="outline-success"
-                  onClick={() => setIsPendingRow(true)}
-                >
-                  Add Row
-                </Button>
-              </Then>
-              <Else>
-                <If condition={isCurrentRowValid()}>
-                  <Then>
-                    <Button variant="outline-success" onClick={saveRow}>
-                      Save
-                    </Button>
-                  </Then>
-                </If>
-              </Else>
-            </If>
-          </div>
+          <AddTableName setTitle={setTitle} title={title} />
+          <AddTableColumns
+            isPendingColumn={isPendingColumn}
+            setColumnData={setColumnData}
+            currentColumn={currentColumn}
+            isCurrentColumnValid={isCurrentColumnValid}
+            saveColumn={saveColumn}
+            setIsPendingColumn={setIsPendingColumn}
+          />
+          <AddTableRows
+            setRowData={setRowData}
+            isResetRowInputGroup={isResetRowInputGroup}
+            setIsResetRowInputGroup={setIsResetRowInputGroup}
+            currentRow={currentRow}
+            isPendingRow={isPendingRow}
+            setIsPendingRow={setIsPendingRow}
+            isCurrentRowValid={isCurrentRowValid}
+            saveRow={saveRow}
+            columns={columns}
+          />
         </Stepper>
       </Card>
-      <Table title={title} columns={columns} rows={rows} />
+      <Table
+        title={title}
+        columns={sortfObjectByKey(columns)}
+        rows={rows}
+        editRowHandler={editRowHandler}
+      />
     </>
   );
 }
