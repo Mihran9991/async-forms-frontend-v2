@@ -1,0 +1,22 @@
+@import "../../App.scss";
+
+.sidebar {
+  //position: absolute;
+  width: 240px;
+  background-color: $primary-color;
+  height: 100%;
+  padding-top: 90px;
+  box-shadow: 5px 0 5px -1px rgba(0, 0, 0, 0.2);
+
+  .links {
+    height: calc(100% - 95px);
+    list-style: none;
+    padding: 0;
+    .link-item {
+      margin-bottom: 20px;
+      padding-left: 10px;
+      width: 100%;
+      cursor: pointer;
+    }
+  }
+}
