@@ -15,8 +15,6 @@ function TextInput({
   const [currentValue, setCurrentValue] = useState("");
   const [defaultValue, setDefaultValue] = useState(defaultValueFromProps);
 
-  const value = defaultValue || currentValue;
-
   const onChangeHandler = ({ target: { value } }) => {
     setDefaultValue("");
     setCurrentValue(value);
@@ -39,13 +37,17 @@ function TextInput({
     }
   }, [reset]);
 
+  useEffect(() => {
+    setDefaultValue(defaultValueFromProps);
+  }, [defaultValueFromProps]);
+
   return (
     <input
       style={{ width: fullWidth ? "100%" : "inherit" }}
       type={type}
       className="form-control"
       onChange={onChangeHandler}
-      value={value}
+      value={defaultValue || currentValue}
       aria-label={size}
     />
   );

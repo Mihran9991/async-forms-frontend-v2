@@ -25,14 +25,17 @@ function Create() {
   const [isResetRowInputGroup, setIsResetRowInputGroup] = useState(false);
 
   const editRowHandler = (index, editedData) => {
-    const rowsCopy = [...rows];
+    console.log("rows", rows);
+    console.log("editedData", editedData);
 
-    rowsCopy[index] = {
-      ...rowsCopy[index],
-      ...editedData,
-    };
+    // const rowsCopy = [...rows];
 
-    setRows(rowsCopy);
+    // rowsCopy[index] = {
+    //   ...rowsCopy[index],
+    //   ...editedData,
+    // };
+
+    // setRows(rowsCopy);
   };
 
   const isDuplicateColumn = (name) => {
@@ -125,10 +128,7 @@ function Create() {
         <Stepper
           allowNextSteps={[
             Boolean(title),
-            Boolean(
-              !isPendingColumn &&
-                transformObjectDataIntoArray(columns, "keys").length
-            ),
+            Boolean(transformObjectDataIntoArray(columns, "keys").length),
             true,
           ]}
         >

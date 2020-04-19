@@ -25,14 +25,13 @@ function Row({ properties, deleteRowHandler, editRowHandler }) {
             <If condition={type === DROP_DOWN}>
               <Then>
                 <DropDown
-                  // cb={(editedData) =>
-                  //   editRowHandler(addTypeToTableData(editedData, DROP_DOWN))
-                  // }
-
-                  cb={() => void 0}
+                  cb={(editedData) =>
+                    editRowHandler(addTypeToTableData(editedData, INPUT))
+                  }
                   fullWidth
                   items={value}
                   propName={name}
+                  editable
                 />
               </Then>
               <Else>
