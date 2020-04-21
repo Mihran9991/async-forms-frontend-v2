@@ -31,7 +31,13 @@ const ForgotResetForm = () => {
     return commonRenderDom(DOM, handleChange);
   }
 
-  const [formData, updateFormData] = useState(initialFormData);
+  const [formData, updateFormData] = useState(
+    Object.freeze({
+      requestId: QueryParamService.getParam("requestId"),
+      newPassword: "",
+      confirmPassword: "",
+    })
+  );
 
   const handleChange = (e) => {
     updateFormData({
@@ -78,11 +84,5 @@ const isValid = (formData) => {
     formData.newPassword === formData.newPassword
   );
 };
-
-const initialFormData = Object.freeze({
-  requestId: QueryParamService.getParam("requestId"),
-  newPassword: "",
-  confirmPassword: "",
-});
 
 export default ForgotResetForm;

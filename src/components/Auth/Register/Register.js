@@ -60,7 +60,15 @@ const RegisterForm = () => {
     return commonRenderMap(DOM, handleChange);
   }
 
-  const [formData, updateFormData] = useState(initialFormData);
+  const [formData, updateFormData] = useState(
+    Object.freeze({
+      name: "",
+      surname: "",
+      email: "",
+      password1: "",
+      password2: "",
+    })
+  );
 
   const handleChange = (e) => {
     updateFormData({
@@ -94,8 +102,7 @@ const RegisterForm = () => {
           Register
         </button>
         <p className="forgot-password text-right">
-          {/*somehow use param with ${} instead of hardcoded text*/}
-          Already registered?{" "}
+          Already registered?
           <u>
             <a href="/login">Log in</a>
           </u>
@@ -104,13 +111,5 @@ const RegisterForm = () => {
     </div>
   );
 };
-
-const initialFormData = Object.freeze({
-  name: "",
-  surname: "",
-  email: "",
-  password1: "",
-  password2: "",
-});
 
 export default RegisterForm;

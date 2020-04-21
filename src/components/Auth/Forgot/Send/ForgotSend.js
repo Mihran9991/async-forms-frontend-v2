@@ -20,7 +20,11 @@ const ForgotSendForm = () => {
     return commonRenderDom(DOM, handleChange);
   }
 
-  const [formData, updateFormData] = useState(initialFormData);
+  const [formData, updateFormData] = useState(
+    Object.freeze({
+      email: "",
+    })
+  );
 
   const handleChange = (e) => {
     updateFormData({
@@ -56,9 +60,5 @@ const ForgotSendForm = () => {
     </div>
   );
 };
-
-const initialFormData = Object.freeze({
-  email: "",
-});
 
 export default ForgotSendForm;

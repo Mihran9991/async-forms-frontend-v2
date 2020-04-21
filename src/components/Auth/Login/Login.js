@@ -31,7 +31,12 @@ const LoginForm = () => {
     return commonRenderDom(DOM, handleChange);
   }
 
-  const [formData, updateFormData] = useState(initialFormData);
+  const [formData, updateFormData] = useState(
+    Object.freeze({
+      email: "",
+      password: "",
+    })
+  );
 
   const handleChange = (e) => {
     updateFormData({
@@ -68,10 +73,5 @@ const LoginForm = () => {
     </div>
   );
 };
-
-const initialFormData = Object.freeze({
-  email: "",
-  password: "",
-});
 
 export default LoginForm;
