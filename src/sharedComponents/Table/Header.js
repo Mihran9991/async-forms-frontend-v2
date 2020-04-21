@@ -6,7 +6,7 @@ import Column from "./Column";
 function Header({
   columns,
   editable,
-  editColumnHandler,
+  saveColumnHandler,
   deleteColumnByNameHandler,
 }) {
   const transformedColumns = transformObjectDataIntoArray(columns, "entries");
@@ -14,15 +14,14 @@ function Header({
   return (
     <thead>
       <tr>
-        {/* <Column name={"#"} /> */}
-        {transformedColumns.map(([name, { type }], idx) => {
+        {transformedColumns.map(([name, properties], idx) => {
           return (
             <Column
               key={`col_${idx}`}
               name={name}
-              type={type}
+              properties={properties}
               editable={editable}
-              editColumnHandler={editColumnHandler}
+              saveColumnHandler={saveColumnHandler}
               deleteColumnByNameHandler={deleteColumnByNameHandler}
               maxWidth={100 / transformedColumns.length}
             />

@@ -6,7 +6,6 @@ import isEmpty from "lodash/isEmpty";
 
 import Header from "../../sharedComponents/Table/Header";
 import Body from "../../sharedComponents/Table/Body";
-import styles from "./table.module.scss";
 
 function Table({
   title,
@@ -14,7 +13,7 @@ function Table({
   rows,
   createRowHandler,
   editRowHandler,
-  editColumnHandler,
+  saveColumnHandler,
   deleteColumnByNameHandler,
   createColumnHandler,
   isInvalidColumnAvailable,
@@ -62,12 +61,11 @@ function Table({
         hover
         responsive
         //  variant="dark"
-        className={styles["table"]}
       >
         <Header
           columns={columns}
           editable={!rows.length}
-          editColumnHandler={editColumnHandler}
+          saveColumnHandler={saveColumnHandler}
           deleteColumnByNameHandler={deleteColumnByNameHandler}
         />
         <Body

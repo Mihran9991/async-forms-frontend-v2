@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import isEqual from "lodash/isEqual";
+import { v4 as uuidv4 } from "uuid";
+
+import get from "lodash/get";
 import has from "lodash/has";
 import isEmpty from "lodash/isEmpty";
 
@@ -16,6 +18,12 @@ import {
   isInvalidColumnAvailable,
 } from "../../utils/tableUtil";
 
+function addNewColumnsAlreadyExistingRows(rows, newColumn) {
+  return rows.reduce((acc, currentRow) => {
+    return [...acc, { ...currentRow, ...newColumn }];
+  }, []);
+}
+
 function Create() {
   const [columns, setColumns] = useState({});
   const [rows, setRows] = useState([]);
@@ -23,13 +31,14 @@ function Create() {
 
   const transformedColumns = transformObjectDataIntoArray(columns, "values");
   const hasTableInvalidColumn = isInvalidColumnAvailable(transformedColumns);
+
   /**
    *
    * @param {string} name
    * @param {Object | string} editedData
    * @param {string} structurePiece ("name" | "type")
    */
-  const editColumnHandler = (oldName, editedData) => {
+  const saveColumnHandler = (oldName, editedData) => {
     if (isEmpty(editedData)) {
       return;
     }
@@ -39,11 +48,18 @@ function Create() {
       editedData,
       "entries"
     );
+    const constructedValue = has(value, "uid")
+      ? value
+      : { ...value, uid: uuidv4() };
 
-    if (
-      !isEqual(editedData, columnsCopy[newName]) &&
-      isColumnNameExisting(newName)
-    ) {
+    const isColumnExisting = () => {
+      return (
+        has(columnsCopy, newName) &&
+        get(columnsCopy, `${newName}.uid`) !== get(constructedValue, "uid")
+      );
+    };
+
+    if (isColumnExisting()) {
       // TODO:: handle with modal | notification
       alert("DUPICATE COLUMN ERROR");
       return;
@@ -55,11 +71,10 @@ function Create() {
         oldName,
         newName
       );
-
-      modiviedColumnsCopy[newName] = value;
+      modiviedColumnsCopy[newName] = constructedValue;
       setColumns(modiviedColumnsCopy);
     } else {
-      columnsCopy[newName] = value;
+      columnsCopy[newName] = constructedValue;
       setColumns(columnsCopy);
     }
   };
@@ -72,16 +87,20 @@ function Create() {
   };
 
   const createColumnHandler = () => {
-    if (isColumnNameExisting("") || hasTableInvalidColumn) {
+    console.log("hasTableInvalidColumn", hasTableInvalidColumn);
+
+    if (hasTableInvalidColumn) {
       // TODO:: handle with modal | notification
       alert("Please fill pending column before trying to create new");
       return;
     }
+    const emptyColumn = { "": { type: "" } };
+    // if (rows.length) {
+    //   addNewColumnsAlreadyExistingRows(columns, emptyColumn);
+    // }
 
-    setColumns({ ...columns, "": { type: "" } });
+    setColumns({ ...columns, ...emptyColumn });
   };
-
-  const isColumnNameExisting = (name) => has(columns, name);
 
   const editRowHandler = (index, editedData) => {
     const rowsCopy = [...rows];
@@ -99,8 +118,6 @@ function Create() {
 
   console.log("columns", columns);
 
-  console.log("rows", rows);
-
   return (
     <Card>
       <Stepper
@@ -117,7 +134,7 @@ function Create() {
           rows={rows}
           createRowHandler={createRowHandler}
           editRowHandler={editRowHandler}
-          editColumnHandler={editColumnHandler}
+          saveColumnHandler={saveColumnHandler}
           deleteColumnByNameHandler={deleteColumnByNameHandler}
           createColumnHandler={createColumnHandler}
           isInvalidColumnAvailable={hasTableInvalidColumn}

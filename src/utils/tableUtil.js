@@ -1,3 +1,5 @@
+import get from "lodash/get";
+
 import { transformObjectDataIntoArray } from "./dataTransformUtil";
 import { DROP_DOWN } from "../constants/tableConstants";
 
@@ -13,14 +15,14 @@ export const generateRowByColumns = (columns) => {
   );
 };
 
+export const isColumnInvalid = (column) =>
+  !get(column, "type", "").length || !get(column, "uid", "false").length;
+
 export const isInvalidColumnAvailable = (columns) => {
   for (let i = 0; i < columns.length; ++i) {
-    const areValuesEmpty = transformObjectDataIntoArray(
-      columns[i],
-      "values"
-    ).every((val) => val.length === 0);
-
-    if (areValuesEmpty) return true;
+    if (isColumnInvalid(columns[i])) {
+      return true;
+    }
   }
 
   return false;

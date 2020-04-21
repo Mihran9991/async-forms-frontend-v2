@@ -4,19 +4,18 @@ import { If, Then } from "react-if";
 import Button from "react-bootstrap/Button";
 import Input from "../formValueTypes/Input";
 import DropDown from "../formValueTypes/DropDown";
+import { isColumnInvalid } from "../../utils/tableUtil";
 import { TABLE_DATA_TYPES, EMPTY_VALUE } from "../../constants/tableConstants";
 import styels from "./table.module.scss";
 
 function Column({
   name,
-  type,
+  properties,
   editable,
-  editColumnHandler,
+  saveColumnHandler,
   deleteColumnByNameHandler,
   maxWidth,
 }) {
-  console.log("name", name);
-
   const [isEditingEnabled, setIsEditingEnabled] = useState(false);
   const [currentData, setCurrentData] = useState({});
   const [currentName, setCurrentName] = useState(name);
@@ -25,25 +24,31 @@ function Column({
     if (structurePiece === "name") {
       setCurrentName(editedData);
       setCurrentData({
-        [editedData]: { type },
+        [editedData]: properties,
       });
     } else {
       setCurrentData({
-        [currentName]: editedData,
+        [currentName]: { ...properties, ...editedData },
       });
     }
   };
 
   const editActionHandler = () => {
     if (isEditingEnabled) {
-      editColumnHandler(name, currentData);
+      saveColumnHandler(name, currentData);
     }
+
     setCurrentData({});
     setIsEditingEnabled(!isEditingEnabled);
   };
 
   return (
-    <th style={{ width: `${maxWidth}%` }}>
+    <th
+      style={{
+        width: `${maxWidth}%`,
+        background: name && !isColumnInvalid(properties) ? "inherit" : "red",
+      }}
+    >
       <div className={styels["column"]}>
         <div>{name ? name : EMPTY_VALUE}</div>
         <div>
