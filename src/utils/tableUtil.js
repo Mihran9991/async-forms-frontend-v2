@@ -15,15 +15,44 @@ export const generateRowByColumns = (columns) => {
   );
 };
 
-export const isColumnInvalid = (column) =>
-  !get(column, "type", "").length || !get(column, "uid", "false").length;
+export const isColumnValid = (column) =>
+  get(column, "type", "").length && get(column, "uid", "false").length;
 
 export const isInvalidColumnAvailable = (columns) => {
   for (let i = 0; i < columns.length; ++i) {
-    if (isColumnInvalid(columns[i])) {
+    if (!isColumnValid(columns[i])) {
       return true;
     }
   }
 
   return false;
+};
+
+export const addNewColumnsToExistingRows = (rows, newColumn) => {
+  return rows.reduce((acc, currentRow) => {
+    // deleting initial column(e.g "": {type: ""})
+    if (get(currentRow, "")) delete currentRow[""];
+    const [[name, properties]] = transformObjectDataIntoArray(
+      newColumn,
+      "entries"
+    );
+
+    return [
+      ...acc,
+      {
+        ...currentRow,
+        [name]: {
+          ...properties,
+          value: properties.type === DROP_DOWN ? [] : "",
+        },
+      },
+    ];
+  }, []);
+};
+
+export const deleteColumnFromExistingRowsByName = (rows, name) => {
+  return rows.reduce((acc, currentRow) => {
+    delete currentRow[name];
+    return [...acc, { ...currentRow }];
+  }, []);
 };

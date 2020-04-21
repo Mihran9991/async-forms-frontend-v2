@@ -1,6 +1,7 @@
 import { DROP_DOWN } from "../constants/tableConstants";
 import isObject from "lodash/isObject";
 import isString from "lodash/isString";
+import pickBy from "lodash/pickBy";
 
 export const transformObjectDataIntoArray = (objData, mode = "entries") => {
   return Object[mode](objData);
@@ -71,4 +72,10 @@ export const renameObjectKey = (obj, oldKey, newKey) => {
   }, {});
 
   return newObj;
+};
+
+export const filterObjectByKey = (object, filterKey) => {
+  return pickBy(object, (_, key) => {
+    return key !== filterKey;
+  });
 };
