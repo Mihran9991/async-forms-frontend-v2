@@ -25,3 +25,9 @@ export function renderDOM(DOM, handleChange) {
     }
   );
 }
+
+export const showMessage = (message) => {
+  const elem = document.getElementById("info");
+  elem.innerHTML = message;
+  elem.style.display = "block";
+};

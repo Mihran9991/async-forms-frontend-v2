@@ -1,4 +1,4 @@
-import { renderDOM as commonRenderDom } from "../Forgot";
+import { renderDOM as commonRenderDom, showMessage } from "../Forgot";
 import React, { useState } from "react";
 import ForgotService from "../../../../services/forgotService";
 
@@ -40,12 +40,6 @@ const ForgotSendForm = () => {
       });
   };
 
-  const showMessage = (message) => {
-    const elem = document.getElementById("info");
-    elem.innerHTML = message;
-    elem.style.display = "block";
-  };
-
   return (
     <div className="login">
       <form onSubmit={handleSubmit}>
@@ -55,7 +49,7 @@ const ForgotSendForm = () => {
         <br />
         {renderDOM()}
         <button onClick={handleSubmit} className="btn btn-primary btn-block">
-          Send email request
+          Send email
         </button>
       </form>
     </div>

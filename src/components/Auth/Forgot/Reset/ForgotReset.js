@@ -1,18 +1,28 @@
-import { renderDOM as commonRenderDom } from "../../Auth";
+import { renderDOM as commonRenderDom, showMessage } from "../Forgot";
 import React, { useState } from "react";
-import authService from "../../../../services/authService";
-import cookieService from "../../../../services/cookieService";
+import ForgotService from "../../../../services/forgotService";
+import QueryParamService from "../../../../services/queryParamService";
 
-const LoginForm = () => {
+const ForgotResetForm = () => {
   const DOM = [
     {
       className: "form-group",
-      label: "Email address",
+      label: "New Password",
       input: {
-        name: "email",
-        type: "email",
+        name: "newPassword",
+        type: "password",
         className: "form-control",
-        placeholder: "Enter email",
+        placeholder: "Enter Password",
+      },
+    },
+    {
+      className: "form-group",
+      label: "Confirm Password",
+      input: {
+        name: "confirmPassword",
+        type: "password",
+        className: "form-control",
+        placeholder: "Confirm Password",
       },
     },
   ];
@@ -30,38 +40,49 @@ const LoginForm = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    const response = await authService.loginRequest(formData);
-    console.log("Got response: " + response.data);
-    if (response.status === 200) {
-      const token = response.data.token;
-      cookieService.addCookie("user", token);
-      console.log(token);
+    if (!isValid(formData)) {
+      showMessage("Passwords don't match");
+      return;
     }
+    ForgotService.resetRequest(formData)
+      .then((response) => {
+        showMessage(response.data.message);
+      })
+      .catch(() => {
+        showMessage("Unable to reset password");
+      });
   };
 
   return (
-    <div className="login">
+    <div className="forgot">
       <form onSubmit={handleSubmit}>
-        <h3>Login</h3>
+        <h3>Reset your password</h3>
+        <br />
+        <h5 id="info" style={{ display: "none" }} />
+        <br />
         {renderDOM()}
         <button onClick={handleSubmit} className="btn btn-primary btn-block">
-          Log In
+          Reset password
         </button>
-        <p className="forgot-password text-right">
-          <u>
-            <a href="#">Forgot password?</a>
-          </u>
-        </p>
       </form>
     </div>
   );
 };
 
+const isValid = (formData) => {
+  return (
+    formData.newPassword &&
+    formData.confirmPassword &&
+    formData.newPassword === formData.newPassword
+  );
+};
+
 const initialFormData = Object.freeze({
-  email: "",
-  password: "",
+  requestId: QueryParamService.getParam("requestId"),
+  newPassword: "",
+  confirmPassword: "",
 });
 
-export default LoginForm;
+export default ForgotResetForm;
