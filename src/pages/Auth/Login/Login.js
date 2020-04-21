@@ -6,7 +6,7 @@ function Login() {
   return (
     <div className={styles["auth-wrapper"]}>
       <div className={styles["auth-inner"]}>
-        <LogInComponent/>
+        <LogInComponent />
       </div>
     </div>
   );

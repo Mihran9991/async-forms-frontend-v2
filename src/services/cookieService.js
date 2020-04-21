@@ -8,5 +8,5 @@ export function removeCookie(key) {
 
 export default {
   addCookie,
-  removeCookie
+  removeCookie,
 };

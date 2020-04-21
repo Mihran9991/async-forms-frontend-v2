@@ -1,7 +1,7 @@
+import { renderDOM as commonRenderDom } from "../../Auth";
 import React, { useState } from "react";
-import { renderDOM as commonRenderDom } from "../Auth";
-import authService from "../../../services/authService";
-import cookieService from "../../../services/cookieService";
+import authService from "../../../../services/authService";
+import cookieService from "../../../../services/cookieService";
 
 const LoginForm = () => {
   const DOM = [
@@ -13,16 +13,6 @@ const LoginForm = () => {
         type: "email",
         className: "form-control",
         placeholder: "Enter email",
-      },
-    },
-    {
-      className: "form-group",
-      label: "Password",
-      input: {
-        name: "password",
-        type: "password",
-        className: "form-control",
-        placeholder: "Enter password",
       },
     },
   ];
