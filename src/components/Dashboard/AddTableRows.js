@@ -2,10 +2,7 @@ import React from "react";
 import { If, Else, Then } from "react-if";
 import Button from "react-bootstrap/Button";
 
-import {
-  transformObjectDataIntoArray,
-  sortfObjectByKey,
-} from "../../utils/dataTransform";
+import { transformObjectDataIntoArray } from "../../utils/dataTransform";
 import RowProperties from "../../sharedComponents/Table/RowProperties";
 import styles from "./dashboard.module.scss";
 
@@ -24,7 +21,7 @@ function AddTableRows({
     <div className={styles["add-table-rows"]}>
       <h4>Add Table Row</h4>
       <RowProperties
-        data={transformObjectDataIntoArray(sortfObjectByKey(columns))}
+        data={transformObjectDataIntoArray(columns)}
         cb={setRowData}
         reset={isResetRowInputGroup}
         resetCallback={setIsResetRowInputGroup}

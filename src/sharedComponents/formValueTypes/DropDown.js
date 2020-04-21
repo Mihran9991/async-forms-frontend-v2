@@ -69,12 +69,24 @@ function DropDown({
   fullWidth,
   propName,
   editable,
+  customWidth,
 }) {
   const [showDropDown, setShowDropDown] = useState(false);
   const [currentValue, setCurrentValue] = useState(
     defaultValue || "Select an Item"
   );
   const [items, setItems] = useState(itemsFromProps);
+  const getWidth = () => {
+    if (customWidth) {
+      return customWidth;
+    }
+
+    if (fullWidth) {
+      return "100%";
+    }
+
+    return "inherit";
+  };
 
   const removeItem = (deletableItemIdx) => {
     if (items.length === 1) {
@@ -131,7 +143,7 @@ function DropDown({
       <Dropdown.Toggle
         variant="primary"
         id="dropdown-basic"
-        style={{ width: fullWidth ? "100%" : "inherit" }}
+        style={{ width: getWidth() }}
       >
         {currentValue}
       </Dropdown.Toggle>

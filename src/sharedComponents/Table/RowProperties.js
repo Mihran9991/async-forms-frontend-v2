@@ -151,7 +151,7 @@ function AddRowProperties({ data, cb, reset, resetCallback, currentValue }) {
                   }
                   {...{ [reset && "reset"]: true, resetCallback }}
                   defaultValue={get(currentValue, `${name}.value`, "")}
-                  onlyValue
+                  callbackResponseOnlyValue
                 />
               </Else>
             </If>

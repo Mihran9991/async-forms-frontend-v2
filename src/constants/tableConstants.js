@@ -10,3 +10,5 @@ export const TABLE_DATA_TYPES = [
 ];
 
 export const COLUMN_KEYS = ["name", "type"].sort();
+
+export const EMPTY_VALUE = "N/A";

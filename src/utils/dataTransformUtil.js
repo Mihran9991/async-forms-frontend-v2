@@ -60,3 +60,15 @@ export const addTypeToTableData = (data, type) => {
     },
   };
 };
+
+export const renameObjectKey = (obj, oldKey, newKey) => {
+  const oldObjkeys = transformObjectDataIntoArray(obj, "keys");
+  const newObj = oldObjkeys.reduce((acc, currentVal) => {
+    return {
+      ...acc,
+      [currentVal === oldKey ? newKey : currentVal]: obj[currentVal],
+    };
+  }, {});
+
+  return newObj;
+};

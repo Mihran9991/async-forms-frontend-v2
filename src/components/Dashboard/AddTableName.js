@@ -12,7 +12,7 @@ function AddTableName({ setTitle, title }) {
         propName="table-name"
         type="text"
         defaultValue={title}
-        onlyValue
+        callbackResponseOnlyValue
         fullWidth
       />
     </div>

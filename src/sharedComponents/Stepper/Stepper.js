@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Button, ButtonGroup } from "react-bootstrap";
-import { If, Else, Then } from "react-if";
+import { If, Then } from "react-if";
 
-function Stepper({ children, allowNextSteps }) {
+function Stepper({ children, allowNextSteps, allowPreviousSteps }) {
   const [step, setStep] = useState(0);
   const formattedChildren = Array.isArray(children) ? children : [children];
 
@@ -17,26 +17,23 @@ function Stepper({ children, allowNextSteps }) {
       })}
 
       <ButtonGroup className="mt-3">
+        <If condition={Boolean(allowPreviousSteps[step] && step > 0)}>
+          <Then>
+            <Button variant="outline-primary" onClick={() => setStep(step - 1)}>
+              Previous
+            </Button>
+          </Then>
+        </If>
         <If
-          condition={
+          condition={Boolean(
             allowNextSteps[step] && step < formattedChildren.length - 1
-          }
+          )}
         >
           <Then>
             <Button variant="outline-primary" onClick={() => setStep(step + 1)}>
               Next
             </Button>
           </Then>
-          <Else>
-            <If condition={step > 0}>
-              <Button
-                variant="outline-primary"
-                onClick={() => setStep(step - 1)}
-              >
-                Previous
-              </Button>
-            </If>
-          </Else>
         </If>
       </ButtonGroup>
     </div>
