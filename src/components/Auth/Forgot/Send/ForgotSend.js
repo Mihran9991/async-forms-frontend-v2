@@ -34,6 +34,7 @@ const ForgotSendForm = () => {
     ForgotService.sendRequest(formData)
       .then((response) => {
         showMessage(response.data.message);
+        // TODO: redirect to login page
       })
       .catch(() => {
         showMessage("Unable to send request");
