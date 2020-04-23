@@ -5,11 +5,10 @@ import { If, Else, Then } from "react-if";
 import {
   transformObjectDataIntoArray,
   addTypeToTableData,
-} from "../../utils/dataTransform";
+} from "../../utils/dataTransformUtil";
+import { DROP_DOWN, INPUT } from "../../constants/tableConstants";
 import DropDown from "../../sharedComponents/formValueTypes/DropDown";
 import Input from "../../sharedComponents/formValueTypes/Input";
-
-import { DROP_DOWN, INPUT } from "../../constants/tableConstants";
 
 function Row({ properties, deleteRowHandler, editRowHandler }) {
   const formattedProperties = transformObjectDataIntoArray(

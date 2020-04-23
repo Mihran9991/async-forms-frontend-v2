@@ -1,5 +1,5 @@
-import React, {useState} from "react";
-import {renderDOM as commonRenderMap} from "../Auth";
+import React, { useState } from "react";
+import { renderDOM as commonRenderMap } from "../Auth";
 import authService from "../../../services/authService";
 
 const RegisterForm = () => {
@@ -53,7 +53,7 @@ const RegisterForm = () => {
         className: "form-control",
         placeholder: "Confirm new password",
       },
-    }
+    },
   ];
 
   function renderDOM() {
@@ -65,7 +65,7 @@ const RegisterForm = () => {
   const handleChange = (e) => {
     updateFormData({
       ...formData,
-      [e.target.name]: e.target.value.trim()
+      [e.target.name]: e.target.value.trim(),
     });
   };
 
@@ -95,7 +95,10 @@ const RegisterForm = () => {
         </button>
         <p className="forgot-password text-right">
           {/*somehow use param with ${} instead of hardcoded text*/}
-          Already registered? <u><a href="/login">Log in</a></u>
+          Already registered?{" "}
+          <u>
+            <a href="/login">Log in</a>
+          </u>
         </p>
       </form>
     </div>
@@ -107,7 +110,7 @@ const initialFormData = Object.freeze({
   surname: "",
   email: "",
   password1: "",
-  password2: ""
+  password2: "",
 });
 
 export default RegisterForm;

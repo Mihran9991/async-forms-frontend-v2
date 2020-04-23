@@ -1,32 +1,41 @@
 import React, { useState, useEffect } from "react";
-import isFunction from "lodash/isFunction";
 
-function TextInput({
+function Input({
   type,
   size,
-  cb,
+  cb = () => {},
   propName,
-  onlyValue,
+  callbackResponseOnlyValue,
   defaultValue: defaultValueFromProps,
   reset,
   resetCallback = () => {},
   fullWidth,
+  customWidth,
 }) {
   const [currentValue, setCurrentValue] = useState("");
   const [defaultValue, setDefaultValue] = useState(defaultValueFromProps);
+  const getWidth = () => {
+    if (customWidth) {
+      return customWidth;
+    }
+
+    if (fullWidth) {
+      return "100%";
+    }
+
+    return "inherit";
+  };
 
   const onChangeHandler = ({ target: { value } }) => {
     setDefaultValue("");
     setCurrentValue(value);
 
-    if (isFunction(cb)) {
-      if (onlyValue) {
-        cb(value);
-      } else {
-        cb({
-          [propName]: value,
-        });
-      }
+    if (callbackResponseOnlyValue) {
+      cb(value);
+    } else {
+      cb({
+        [propName]: value,
+      });
     }
   };
 
@@ -43,7 +52,7 @@ function TextInput({
 
   return (
     <input
-      style={{ width: fullWidth ? "100%" : "inherit" }}
+      style={{ width: getWidth() }}
       type={type}
       className="form-control"
       onChange={onChangeHandler}
@@ -53,4 +62,4 @@ function TextInput({
   );
 }
 
-export default TextInput;
+export default Input;
