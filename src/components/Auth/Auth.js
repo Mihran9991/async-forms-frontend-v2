@@ -6,17 +6,19 @@ export function renderDOM(DOM, handleChange) {
       {
         className,
         label,
-        input: {name, type, className: inputClassName, placeholder},
+        input: { name, type, className: inputClassName, placeholder },
       },
       idx
     ) => {
       return (
         <div className={className} key={idx}>
           <label>{label}</label>
-          <input name={name} onChange={handleChange}
-                 type={type}
-                 className={inputClassName}
-                 placeholder={placeholder}
+          <input
+            name={name}
+            onChange={handleChange}
+            type={type}
+            className={inputClassName}
+            placeholder={placeholder}
           />
         </div>
       );

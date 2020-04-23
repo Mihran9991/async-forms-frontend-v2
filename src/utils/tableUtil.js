@@ -1,7 +1,11 @@
 import get from "lodash/get";
 
 import { transformObjectDataIntoArray } from "./dataTransformUtil";
-import { DROP_DOWN } from "../constants/tableConstants";
+import {
+  DROP_DOWN,
+  DROP_DOWN_INITIAL_VALUE,
+  INPUT_INITIAL_VALUE,
+} from "../constants/tableConstants";
 
 export const generateRowByColumns = (columns) => {
   return transformObjectDataIntoArray(columns, "entries").reduce(
@@ -32,6 +36,7 @@ export const addNewColumnsToExistingRows = (rows, newColumn) => {
   return rows.reduce((acc, currentRow) => {
     // deleting initial column(e.g "": {type: ""})
     if (get(currentRow, "")) delete currentRow[""];
+
     const [[name, properties]] = transformObjectDataIntoArray(
       newColumn,
       "entries"
@@ -43,7 +48,10 @@ export const addNewColumnsToExistingRows = (rows, newColumn) => {
         ...currentRow,
         [name]: {
           ...properties,
-          value: properties.type === DROP_DOWN ? [] : "",
+          value:
+            properties.type === DROP_DOWN
+              ? DROP_DOWN_INITIAL_VALUE
+              : INPUT_INITIAL_VALUE,
         },
       },
     ];

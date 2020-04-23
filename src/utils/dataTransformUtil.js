@@ -1,7 +1,8 @@
-import { DROP_DOWN } from "../constants/tableConstants";
 import isObject from "lodash/isObject";
 import isString from "lodash/isString";
 import pickBy from "lodash/pickBy";
+
+import { DROP_DOWN } from "../constants/tableConstants";
 
 export const transformObjectDataIntoArray = (objData, mode = "entries") => {
   return Object[mode](objData);
@@ -33,7 +34,9 @@ export const sortfObjectByKey = (obj, order = "asc") => {
     sortedObj[key] = obj[key];
   };
 
-  Object.keys(obj).sort(sortMapper).forEach(forEachMapper);
+  transformObjectDataIntoArray(obj, "keys")
+    .sort(sortMapper)
+    .forEach(forEachMapper);
 
   return sortedObj;
 };

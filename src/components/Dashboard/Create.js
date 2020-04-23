@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-
 import get from "lodash/get";
 import has from "lodash/has";
+import remove from "lodash/remove";
 import isEmpty from "lodash/isEmpty";
 import isEqual from "lodash/isEqual";
 
 import AddTableName from "./AddTableName";
-import Stepper from "../../sharedComponents/Stepper";
 import Card from "../../sharedComponents/Card";
 import Table from "../../sharedComponents/Table";
 import {
@@ -28,7 +27,7 @@ function Create() {
   const [title, setTitle] = useState("");
 
   const transformedColumns = transformObjectDataIntoArray(columns, "values");
-  const hasTableInvalidColumn = isInvalidColumnAvailable(transformedColumns);
+  const tableHasInvalidColumn = isInvalidColumnAvailable(transformedColumns);
 
   /**
    *
@@ -36,7 +35,7 @@ function Create() {
    * @param {Object | string} editedData
    * @param {string} structurePiece ("name" | "type")
    */
-  const saveColumnHandler = (oldName, editedData) => {
+  const editColumnHandler = (oldName, editedData) => {
     if (isEmpty(editedData)) return;
     const columnsCopy = { ...columns };
     const [[newName, value]] = transformObjectDataIntoArray(
@@ -46,26 +45,24 @@ function Create() {
     const constructedValue = has(value, "uid")
       ? value
       : { ...value, uid: uuidv4() };
+    const isColumnExists =
+      has(columnsCopy, newName) &&
+      get(columnsCopy, `${newName}.uid`) !== get(constructedValue, "uid");
 
-    const isColumnExisting = () => {
-      return (
-        has(columnsCopy, newName) &&
-        get(columnsCopy, `${newName}.uid`) !== get(constructedValue, "uid")
-      );
-    };
-
-    if (isColumnExisting()) {
+    if (isColumnExists) {
       // TODO:: handle with modal | notification
       alert("DUPICATE COLUMN ERROR");
       return;
     }
 
+    // case, when column name has been modified
     if (!isEqual(oldName, newName)) {
       const modifiedColumnsCopy = renameObjectKey(
         columnsCopy,
         oldName,
         newName
       );
+
       modifiedColumnsCopy[newName] = constructedValue;
       setColumns(modifiedColumnsCopy);
     } else {
@@ -73,9 +70,11 @@ function Create() {
       setColumns(columnsCopy);
     }
 
+    // updating existing rows with new column
     if (rows.length) {
+      const updatedRows = deleteColumnFromExistingRowsByName(rows, oldName);
       setRows(
-        addNewColumnsToExistingRows([...rows], {
+        addNewColumnsToExistingRows([...updatedRows], {
           [newName]: filterObjectByKey(value, "uid"),
         })
       );
@@ -91,7 +90,7 @@ function Create() {
   };
 
   const createColumnHandler = () => {
-    if (hasTableInvalidColumn) {
+    if (tableHasInvalidColumn) {
       // TODO:: handle with modal | notification
       alert("Please fill pending column before trying to create new");
       return;
@@ -121,28 +120,29 @@ function Create() {
     setRows([...rows, generateRowByColumns(columns)]);
   };
 
+  const deleteRowHandler = (rowId) => {
+    const updatedRows = remove(
+      rows,
+      (_, currentRowId) => rowId !== currentRowId
+    );
+
+    setRows(updatedRows);
+  };
   return (
     <Card>
-      <Stepper
-        allowPreviousSteps={[true, false]}
-        allowNextSteps={[
-          Boolean(title),
-          Boolean(transformObjectDataIntoArray(columns, "keys").length),
-        ]}
-      >
-        <AddTableName setTitle={setTitle} title={title} />
-        <Table
-          title={title}
-          columns={columns}
-          rows={rows}
-          createRowHandler={createRowHandler}
-          editRowHandler={editRowHandler}
-          saveColumnHandler={saveColumnHandler}
-          deleteColumnByNameHandler={deleteColumnByNameHandler}
-          createColumnHandler={createColumnHandler}
-          isInvalidColumnAvailable={hasTableInvalidColumn}
-        />
-      </Stepper>
+      <AddTableName saveTitle={setTitle} title={title} />
+      <Table
+        title={title}
+        columns={columns}
+        rows={rows}
+        createRowHandler={createRowHandler}
+        deleteRowHandler={deleteRowHandler}
+        editRowHandler={editRowHandler}
+        editColumnHandler={editColumnHandler}
+        deleteColumnByNameHandler={deleteColumnByNameHandler}
+        createColumnHandler={createColumnHandler}
+        isInvalidColumnAvailable={tableHasInvalidColumn}
+      />
     </Card>
   );
 }

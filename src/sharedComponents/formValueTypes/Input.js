@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-function TextInput({
+function Input({
   type,
   size,
   cb = () => {},
@@ -62,4 +62,4 @@ function TextInput({
   );
 }
 
-export default TextInput;
+export default Input;

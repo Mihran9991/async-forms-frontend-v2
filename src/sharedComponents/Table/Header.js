@@ -6,7 +6,7 @@ import Column from "./Column";
 function Header({
   columns,
   editable,
-  saveColumnHandler,
+  editColumnHandler,
   deleteColumnByNameHandler,
 }) {
   const transformedColumns = transformObjectDataIntoArray(columns, "entries");
@@ -21,7 +21,7 @@ function Header({
               name={name}
               properties={properties}
               editable={editable}
-              saveColumnHandler={saveColumnHandler}
+              editColumnHandler={editColumnHandler}
               deleteColumnByNameHandler={deleteColumnByNameHandler}
               maxWidth={100 / transformedColumns.length}
             />

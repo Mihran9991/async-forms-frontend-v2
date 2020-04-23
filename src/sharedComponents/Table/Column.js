@@ -1,18 +1,18 @@
 import React, { useState } from "react";
 import { If, Then } from "react-if";
 
+import { TABLE_DATA_TYPES, EMPTY_VALUE } from "../../constants/tableConstants";
+import { isColumnValid } from "../../utils/tableUtil";
 import Button from "react-bootstrap/Button";
 import Input from "../formValueTypes/Input";
 import DropDown from "../formValueTypes/DropDown";
-import { isColumnValid } from "../../utils/tableUtil";
-import { TABLE_DATA_TYPES, EMPTY_VALUE } from "../../constants/tableConstants";
 import styels from "./table.module.scss";
 
 function Column({
   name,
   properties,
   editable,
-  saveColumnHandler,
+  editColumnHandler,
   deleteColumnByNameHandler,
   maxWidth,
 }) {
@@ -22,28 +22,20 @@ function Column({
 
   const structureCurrentData = (editedData, structurePiece) => {
     if (structurePiece === "name") {
-      console.log("editedData name", editedData);
-      console.log("currentData", currentData);
-
       setCurrentName(editedData);
       setCurrentData({
         [editedData]: { ...properties, ...currentData[currentName] },
       });
     } else {
-      console.log("editedData", editedData);
-      console.log("currentName", currentName);
-
       setCurrentData({
         [currentName]: { ...properties, ...editedData },
       });
     }
   };
 
-  console.log("currentData", currentData);
-
   const editActionHandler = () => {
     if (isEditingEnabled) {
-      saveColumnHandler(name, currentData);
+      editColumnHandler(name, currentData);
     }
 
     setCurrentData({});
