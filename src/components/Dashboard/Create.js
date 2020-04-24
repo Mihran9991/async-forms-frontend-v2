@@ -6,9 +6,9 @@ import remove from "lodash/remove";
 import isEmpty from "lodash/isEmpty";
 import isEqual from "lodash/isEqual";
 
-import AddTableName from "./AddTableName";
+import FormName from "../../sharedComponents/Form/FormName";
 import Card from "../../sharedComponents/Card";
-import Table from "../../sharedComponents/Table";
+import Form from "../../sharedComponents/Form";
 import {
   transformObjectDataIntoArray,
   renameObjectKey,
@@ -19,7 +19,7 @@ import {
   isInvalidColumnAvailable,
   addNewColumnsToExistingRows,
   deleteColumnFromExistingRowsByName,
-} from "../../utils/tableUtil";
+} from "../../utils/formUtil";
 
 function Create() {
   const [columns, setColumns] = useState({});
@@ -27,7 +27,7 @@ function Create() {
   const [title, setTitle] = useState("");
 
   const transformedColumns = transformObjectDataIntoArray(columns, "values");
-  const tableHasInvalidColumn = isInvalidColumnAvailable(transformedColumns);
+  const formHasInvalidColumn = isInvalidColumnAvailable(transformedColumns);
 
   /**
    *
@@ -90,7 +90,7 @@ function Create() {
   };
 
   const createColumnHandler = () => {
-    if (tableHasInvalidColumn) {
+    if (formHasInvalidColumn) {
       // TODO:: handle with modal | notification
       alert("Please fill pending column before trying to create new");
       return;
@@ -130,8 +130,8 @@ function Create() {
   };
   return (
     <Card>
-      <AddTableName saveTitle={setTitle} title={title} />
-      <Table
+      <FormName saveTitle={setTitle} title={title} />
+      <Form
         title={title}
         columns={columns}
         rows={rows}
@@ -141,7 +141,7 @@ function Create() {
         editColumnHandler={editColumnHandler}
         deleteColumnByNameHandler={deleteColumnByNameHandler}
         createColumnHandler={createColumnHandler}
-        isInvalidColumnAvailable={tableHasInvalidColumn}
+        isInvalidColumnAvailable={formHasInvalidColumn}
       />
     </Card>
   );

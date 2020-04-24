@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { If, Then } from "react-if";
 
-import { TABLE_DATA_TYPES, EMPTY_VALUE } from "../../constants/tableConstants";
-import { isColumnValid } from "../../utils/tableUtil";
+import { FORM_DATA_TYPES, EMPTY_VALUE } from "../../constants/formConstants";
+import { isColumnValid } from "../../utils/formUtil";
 import Button from "react-bootstrap/Button";
 import Input from "../formValueTypes/Input";
 import DropDown from "../formValueTypes/DropDown";
-import styels from "./table.module.scss";
+import styels from "./form.module.scss";
 
 function Column({
   name,
@@ -74,7 +74,7 @@ function Column({
               />
               <If condition={Boolean(editable || !isColumnValid(properties))}>
                 <DropDown
-                  items={TABLE_DATA_TYPES}
+                  items={FORM_DATA_TYPES}
                   cb={(editedData) => structureCurrentData(editedData, "type")}
                   defaultValue={"Edit column type"}
                   fullWidth

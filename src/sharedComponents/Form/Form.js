@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Table as TableBT, Button } from "react-bootstrap";
+import { Table as FormBT, Button } from "react-bootstrap";
 import { If, Then } from "react-if";
 import isEmpty from "lodash/isEmpty";
 
-import Header from "../../sharedComponents/Table/Header";
-import Body from "../../sharedComponents/Table/Body";
+import Header from "../../sharedComponents/Form/Header";
+import Body from "../../sharedComponents/Form/Body";
 
-function Table({
+function Form({
   title,
   columns,
   rows,
@@ -18,20 +18,20 @@ function Table({
   createColumnHandler,
   isInvalidColumnAvailable,
 }) {
-  const [tableData, setTableData] = useState({
+  const [formData, setFormData] = useState({
     title,
     columns,
     rows,
   });
 
-  const isTableReadyForSubmit = !(
+  const isRowReadyForSubmit = !(
     isEmpty(title) ||
     isEmpty(columns) ||
     isEmpty(rows)
   );
 
   useEffect(() => {
-    setTableData({
+    setFormData({
       title,
       columns,
       rows,
@@ -50,7 +50,7 @@ function Table({
         <Button variant="outline-success" onClick={createColumnHandler}>
           Add Column
         </Button>
-        <TableBT
+        <FormBT
           striped
           bordered
           hover
@@ -68,17 +68,16 @@ function Table({
             deleteRowHandler={deleteRowHandler}
             editRowHandler={editRowHandler}
           />
-        </TableBT>
-
-        <If condition={isTableReadyForSubmit}>
+        </FormBT>
+        <If condition={isRowReadyForSubmit}>
           <Then>
             <Button
               variant="outline-success"
               onClick={() => {
-                console.log(tableData);
+                console.log(formData);
               }}
             >
-              Save Table
+              Save Form
             </Button>
           </Then>
         </If>
@@ -87,4 +86,4 @@ function Table({
   );
 }
 
-export default Table;
+export default Form;

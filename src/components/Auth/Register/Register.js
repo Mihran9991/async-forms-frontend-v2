@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { renderDOM as commonRenderMap } from "../Auth";
-import authService from "../../../services/authService";
+import authService from "../../../services/request/authService";
 
 const RegisterForm = () => {
   const DOM = [

@@ -2,16 +2,16 @@ import React, { useState } from "react";
 import { If, Then, Else } from "react-if";
 import Button from "react-bootstrap/Button";
 
-import Input from "../../sharedComponents/formValueTypes/Input";
-import styles from "./dashboard.module.scss";
+import Input from "../formValueTypes/Input";
+import styles from "./form.module.scss";
 
-function AddTableName({ saveTitle, title: titleFromProps }) {
+function FormName({ saveTitle, title: titleFromProps }) {
   const [currentTitle, setCurrentTitle] = useState("");
   const [isEditingEnabled, setIsEditingEnabled] = useState(true);
 
   const title = titleFromProps
     ? `Edit ${titleFromProps}'s value`
-    : "Add table Name";
+    : "Add form Name";
 
   const editActionHandler = () => {
     if (isEditingEnabled) {
@@ -23,13 +23,13 @@ function AddTableName({ saveTitle, title: titleFromProps }) {
   };
 
   return (
-    <div className={styles["add-table-name"]}>
+    <div className={styles["add-form-name"]}>
       <If condition={isEditingEnabled}>
         <Then>
           <h4>{title}</h4>
           <Input
             cb={setCurrentTitle}
-            propName="table-name"
+            propName="form-name"
             type="text"
             defaultValue={title}
             callbackResponseOnlyValue
@@ -45,4 +45,4 @@ function AddTableName({ saveTitle, title: titleFromProps }) {
   );
 }
 
-export default AddTableName;
+export default FormName;

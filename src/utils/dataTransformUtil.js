@@ -2,7 +2,7 @@ import isObject from "lodash/isObject";
 import isString from "lodash/isString";
 import pickBy from "lodash/pickBy";
 
-import { DROP_DOWN } from "../constants/tableConstants";
+import { DROP_DOWN } from "../constants/formConstants";
 
 export const transformObjectDataIntoArray = (objData, mode = "entries") => {
   return Object[mode](objData);
@@ -54,7 +54,7 @@ export const sortArrayOfObjectsByKey = (array, sortBy, order = "asc") => {
   return array(sortMapper);
 };
 
-export const addTypeToTableData = (data, type) => {
+export const addTypeToFormData = (data, type) => {
   const [[key, value]] = transformObjectDataIntoArray(data, "entries");
 
   return {

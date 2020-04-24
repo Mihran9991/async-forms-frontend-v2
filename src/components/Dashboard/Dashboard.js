@@ -23,7 +23,9 @@ function SiderDemo({ match }) {
         <Menu theme="dark" defaultSelectedKeys={["1"]} mode="inline">
           <Menu.Item key="1">
             <FileOutlined />
-            <Link to={`${match.path}/create`}>Create Table</Link>
+            <span>
+              <Link to={`${match.path}/create`}>Create Form</Link>
+            </span>
           </Menu.Item>
         </Menu>
       </Sider>

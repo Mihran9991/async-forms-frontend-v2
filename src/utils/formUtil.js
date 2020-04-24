@@ -5,7 +5,7 @@ import {
   DROP_DOWN,
   DROP_DOWN_INITIAL_VALUE,
   INPUT_INITIAL_VALUE,
-} from "../constants/tableConstants";
+} from "../constants/formConstants";
 
 export const generateRowByColumns = (columns) => {
   return transformObjectDataIntoArray(columns, "entries").reduce(
