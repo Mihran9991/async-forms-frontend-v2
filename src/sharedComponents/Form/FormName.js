@@ -18,7 +18,6 @@ function FormName({ saveTitle, title: titleFromProps }) {
       saveTitle(currentTitle);
     }
 
-    setCurrentTitle("");
     setIsEditingEnabled(!isEditingEnabled);
   };
 
@@ -31,9 +30,10 @@ function FormName({ saveTitle, title: titleFromProps }) {
             cb={setCurrentTitle}
             propName="form-name"
             type="text"
-            defaultValue={title}
             callbackResponseOnlyValue
+            defaultValue={currentTitle}
             fullWidth
+            placeholder={title}
           />
           <Button onClick={editActionHandler}>Save</Button>
         </Then>

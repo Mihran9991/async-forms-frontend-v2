@@ -8,7 +8,9 @@ import isEqual from "lodash/isEqual";
 
 import FormName from "../../sharedComponents/Form/FormName";
 import Card from "../../sharedComponents/Card";
-import Form from "../../sharedComponents/Form";
+import Column from "../../sharedComponents/Form/Column";
+import EditabelTable from "../../sharedComponents/editabelTable";
+
 import {
   transformObjectDataIntoArray,
   renameObjectKey,
@@ -21,8 +23,49 @@ import {
   deleteColumnFromExistingRowsByName,
 } from "../../utils/formUtil";
 
+const originData = [];
+
+for (let i = 0; i < 100; i++) {
+  originData.push({
+    key: i.toString(),
+    name: `Edrward ${i}`,
+    age: 32,
+    address: `London Park no. ${i}`,
+  });
+}
+
+// {
+//   title: () => (
+//     <Column
+//       name="test"
+//       editColumnHandler={editColumnHandler}
+//       deleteColumnByNameHandler={deleteColumnByNameHandler}
+//     />
+//   ),
+//   dataIndex: "address",
+//   width: "40%",
+//   editable: true,
+// },
+
+function generateTitle(
+  editColumnHandler,
+  deleteColumnByNameHandler,
+  columns,
+  name
+) {
+  return (
+    <Column
+      name={name}
+      editColumnHandler={(editedData) =>
+        editColumnHandler(columns.length, editedData)
+      }
+      deleteColumnByNameHandler={deleteColumnByNameHandler}
+    />
+  );
+}
+
 function Create() {
-  const [columns, setColumns] = useState({});
+  const [columns, setColumns] = useState([]);
   const [rows, setRows] = useState([]);
   const [title, setTitle] = useState("");
 
@@ -35,51 +78,51 @@ function Create() {
    * @param {Object | string} editedData
    * @param {string} structurePiece ("name" | "type")
    */
-  const editColumnHandler = (oldName, editedData) => {
-    if (isEmpty(editedData)) return;
-    const columnsCopy = { ...columns };
-    const [[newName, value]] = transformObjectDataIntoArray(
-      editedData,
-      "entries"
-    );
-    const constructedValue = has(value, "uid")
-      ? value
-      : { ...value, uid: uuidv4() };
-    const isColumnExists =
-      has(columnsCopy, newName) &&
-      get(columnsCopy, `${newName}.uid`) !== get(constructedValue, "uid");
+  // const editColumnHandler = (oldName, editedData) => {
+  //   if (isEmpty(editedData)) return;
+  //   const columnsCopy = { ...columns };
+  //   const [[newName, value]] = transformObjectDataIntoArray(
+  //     editedData,
+  //     "entries"
+  //   );
+  //   const constructedValue = has(value, "uid")
+  //     ? value
+  //     : { ...value, uid: uuidv4() };
+  //   const isColumnExists =
+  //     has(columnsCopy, newName) &&
+  //     get(columnsCopy, `${newName}.uid`) !== get(constructedValue, "uid");
 
-    if (isColumnExists) {
-      // TODO:: handle with modal | notification
-      alert("DUPICATE COLUMN ERROR");
-      return;
-    }
+  //   if (isColumnExists) {
+  //     // TODO:: handle with modal | notification
+  //     alert("DUPICATE COLUMN ERROR");
+  //     return;
+  //   }
 
-    // case, when column name has been modified
-    if (!isEqual(oldName, newName)) {
-      const modifiedColumnsCopy = renameObjectKey(
-        columnsCopy,
-        oldName,
-        newName
-      );
+  //   // case, when column name has been modified
+  //   if (!isEqual(oldName, newName)) {
+  //     const modifiedColumnsCopy = renameObjectKey(
+  //       columnsCopy,
+  //       oldName,
+  //       newName
+  //     );
 
-      modifiedColumnsCopy[newName] = constructedValue;
-      setColumns(modifiedColumnsCopy);
-    } else {
-      columnsCopy[newName] = constructedValue;
-      setColumns(columnsCopy);
-    }
+  //     modifiedColumnsCopy[newName] = constructedValue;
+  //     setColumns(modifiedColumnsCopy);
+  //   } else {
+  //     columnsCopy[newName] = constructedValue;
+  //     setColumns(columnsCopy);
+  //   }
 
-    // updating existing rows with new column
-    if (rows.length) {
-      const updatedRows = deleteColumnFromExistingRowsByName(rows, oldName);
-      setRows(
-        addNewColumnsToExistingRows([...updatedRows], {
-          [newName]: filterObjectByKey(value, "uid"),
-        })
-      );
-    }
-  };
+  //   // updating existing rows with new column
+  //   if (rows.length) {
+  //     const updatedRows = deleteColumnFromExistingRowsByName(rows, oldName);
+  //     setRows(
+  //       addNewColumnsToExistingRows([...updatedRows], {
+  //         [newName]: filterObjectByKey(value, "uid"),
+  //       })
+  //     );
+  //   }
+  // };
 
   const deleteColumnByNameHandler = (name) => {
     const columnsCopy = { ...columns };
@@ -90,20 +133,51 @@ function Create() {
   };
 
   const createColumnHandler = () => {
-    if (formHasInvalidColumn) {
-      // TODO:: handle with modal | notification
-      alert("Please fill pending column before trying to create new");
-      return;
+    const emptyColumn = {
+      title: () =>
+        generateTitle(
+          editColumnHandler,
+          deleteColumnByNameHandler,
+          columns,
+          ""
+        ),
+      dataIndex: "",
+      width: "25%",
+      editable: true,
+    };
+    const emptyColumnWithId = { ...emptyColumn, uid: uuidv4() };
+
+    setColumns([...columns, emptyColumnWithId]);
+  };
+
+  const editColumnHandler = (id, { name }) => {
+    const columnsCopy = [...columns];
+
+    if (columnsCopy[id]) {
+      columnsCopy[id] = {
+        ...columnsCopy[id],
+        title: generateTitle(
+          editColumnHandler,
+          deleteColumnByNameHandler,
+          columns,
+          name
+        ),
+      };
+    } else {
+      columnsCopy[id] = {
+        title: generateTitle(
+          editColumnHandler,
+          deleteColumnByNameHandler,
+          columns,
+          name
+        ),
+        dataIndex: name,
+        width: "40%",
+        editable: true,
+      };
     }
 
-    const emptyColumn = { "": { type: "" } };
-    const emptyColumnWithId = { "": { type: "", uid: uuidv4() } };
-
-    if (rows.length) {
-      setRows(addNewColumnsToExistingRows([...rows], emptyColumn));
-    }
-
-    setColumns({ ...columns, ...emptyColumnWithId });
+    setColumns(columnsCopy);
   };
 
   const editRowHandler = (index, editedData) => {
@@ -128,10 +202,19 @@ function Create() {
 
     setRows(updatedRows);
   };
+
   return (
     <Card>
-      <FormName saveTitle={setTitle} title={title} />
-      <Form
+      {/* <FormName saveTitle={setTitle} title={title} /> */}
+      <EditabelTable
+        deleteColumnByNameHandler={deleteColumnByNameHandler}
+        editColumnHandler={editColumnHandler}
+        createColumnHandler={createColumnHandler}
+        createRowHandler={createRowHandler}
+        rows={[]}
+        columns={columns}
+      />
+      {/* <Form
         title={title}
         columns={columns}
         rows={rows}
@@ -142,7 +225,7 @@ function Create() {
         deleteColumnByNameHandler={deleteColumnByNameHandler}
         createColumnHandler={createColumnHandler}
         isInvalidColumnAvailable={formHasInvalidColumn}
-      />
+      /> */}
     </Card>
   );
 }

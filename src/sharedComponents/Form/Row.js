@@ -16,6 +16,8 @@ function Row({ properties, deleteRowHandler, editRowHandler }) {
     "entries"
   );
 
+  console.log("row", formattedProperties);
+
   return (
     <tr>
       {formattedProperties.map(([name, { value, type }], idx) => {
@@ -24,13 +26,13 @@ function Row({ properties, deleteRowHandler, editRowHandler }) {
             <If condition={type === DROP_DOWN}>
               <Then>
                 <DropDown
-                  cb={(editedData) =>
-                    editRowHandler(addTypeToFormData(editedData, DROP_DOWN))
-                  }
+                  cb={(editedData) => {
+                    editRowHandler(addTypeToFormData(editedData, DROP_DOWN));
+                  }}
                   fullWidth
                   items={value}
                   propName={name}
-                  editable
+                  editable={true}
                 />
               </Then>
               <Else>

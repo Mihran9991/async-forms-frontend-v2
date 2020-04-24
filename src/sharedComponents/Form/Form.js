@@ -5,6 +5,7 @@ import isEmpty from "lodash/isEmpty";
 
 import Header from "../../sharedComponents/Form/Header";
 import Body from "../../sharedComponents/Form/Body";
+import { create } from "../../services/request/formService";
 
 function Form({
   title,
@@ -27,7 +28,8 @@ function Form({
   const isRowReadyForSubmit = !(
     isEmpty(title) ||
     isEmpty(columns) ||
-    isEmpty(rows)
+    isEmpty(rows) ||
+    isInvalidColumnAvailable
   );
 
   useEffect(() => {
@@ -74,7 +76,7 @@ function Form({
             <Button
               variant="outline-success"
               onClick={() => {
-                console.log(formData);
+                create(formData);
               }}
             >
               Save Form

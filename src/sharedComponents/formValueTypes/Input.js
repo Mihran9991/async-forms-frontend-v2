@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Input as AInput } from "antd";
 
 function Input({
   type,
@@ -11,6 +12,7 @@ function Input({
   resetCallback = () => {},
   fullWidth,
   customWidth,
+  placeholder,
 }) {
   const [currentValue, setCurrentValue] = useState("");
   const [defaultValue, setDefaultValue] = useState(defaultValueFromProps);
@@ -51,14 +53,17 @@ function Input({
   }, [defaultValueFromProps]);
 
   return (
-    <input
-      style={{ width: getWidth() }}
-      type={type}
-      className="form-control"
-      onChange={onChangeHandler}
-      value={defaultValue || currentValue}
-      aria-label={size}
-    />
+    <>
+      <AInput
+        style={{ width: getWidth() }}
+        type={type}
+        className="form-control"
+        onChange={onChangeHandler}
+        value={defaultValue || currentValue}
+        aria-label={size}
+        placeholder={placeholder}
+      />
+    </>
   );
 }
 
