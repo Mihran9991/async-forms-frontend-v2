@@ -1,12 +1,23 @@
-export function addCookie(key, value) {
+export const addCookie = (key, value) => {
   document.cookie = `${key}=${value}`;
-}
+};
 
-export function removeCookie(key) {
+export const removeCookie = (key) => {
   document.cookie = `${key}=;`;
-}
+};
+
+export const getCookie = (name) => {
+  const value = "; " + document.cookie;
+  const parts = value.split("; " + name + "=");
+  if (parts.length === 2) {
+    return parts.pop().split(";").shift();
+  }
+
+  return null;
+};
 
 export default {
   addCookie,
-  removeCookie
+  removeCookie,
+  getCookie,
 };

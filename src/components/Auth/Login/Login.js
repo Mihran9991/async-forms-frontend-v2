@@ -1,9 +1,12 @@
 import React, { useState } from "react";
+import { withRouter } from "react-router-dom";
+
 import { renderDOM as commonRenderDom } from "../Auth";
 import authService from "../../../services/request/authService";
 import cookieService from "../../../services/cookie/cookieService";
+import routeConstants from "../../../constants/routeConstants";
 
-const LoginForm = () => {
+const LoginForm = ({ history }) => {
   const DOM = [
     {
       className: "form-group",
@@ -42,12 +45,14 @@ const LoginForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // todd:: wrap in try/catch block
     const response = await authService.loginRequest(formData);
     console.log("Got response: " + response.data);
     if (response.status === 200) {
       const token = response.data.token;
       cookieService.addCookie("user", token);
       console.log(token);
+      history.push(routeConstants.DASHBOARD);
     }
   };
 
@@ -74,4 +79,4 @@ const initialFormData = Object.freeze({
   password: "",
 });
 
-export default LoginForm;
+export default withRouter(LoginForm);

@@ -1,8 +1,11 @@
 import React, { useState } from "react";
+import { withRouter } from "react-router-dom";
+
 import { renderDOM as commonRenderMap } from "../Auth";
+import routeConstants from "../../../constants/routeConstants";
 import authService from "../../../services/request/authService";
 
-const RegisterForm = () => {
+const RegisterForm = ({ history }) => {
   const DOM = [
     {
       className: "form-group",
@@ -80,6 +83,8 @@ const RegisterForm = () => {
     if (response.status === 200) {
       console.log(response.data.message);
       // todo: code for redirecting to login page //
+
+      history.push(routeConstants.LOGIN);
     } else {
       // todo: code for showing error message //
     }
@@ -113,4 +118,4 @@ const initialFormData = Object.freeze({
   password2: "",
 });
 
-export default RegisterForm;
+export default withRouter(RegisterForm);
