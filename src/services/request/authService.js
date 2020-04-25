@@ -1,5 +1,5 @@
-import { axiosInstance } from "../components";
-import { LOGIN_ROUTE, REGISTER_ROUTE } from "../constants/backendConstants";
+import { axiosInstance } from "./requestService";
+import { LOGIN_ROUTE, REGISTER_ROUTE } from "../../constants/backendConstants";
 
 export async function registerRequest(formData) {
   return axiosInstance.post(`${REGISTER_ROUTE}`, {

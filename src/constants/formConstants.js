@@ -6,7 +6,7 @@ export const INPUT = "Input";
 export const DROP_DOWN_INITIAL_VALUE = [];
 export const INPUT_INITIAL_VALUE = "";
 
-export const TABLE_DATA_TYPES = [
+export const FORM_DATA_TYPES = [
   { value: DROP_DOWN, component: DropDown, key: "type" },
   { value: INPUT, component: Input, key: "type" },
 ];

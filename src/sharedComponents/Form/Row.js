@@ -4,9 +4,9 @@ import { If, Else, Then } from "react-if";
 
 import {
   transformObjectDataIntoArray,
-  addTypeToTableData,
+  addTypeToFormData,
 } from "../../utils/dataTransformUtil";
-import { DROP_DOWN, INPUT } from "../../constants/tableConstants";
+import { DROP_DOWN, INPUT } from "../../constants/formConstants";
 import DropDown from "../../sharedComponents/formValueTypes/DropDown";
 import Input from "../../sharedComponents/formValueTypes/Input";
 
@@ -16,6 +16,8 @@ function Row({ properties, deleteRowHandler, editRowHandler }) {
     "entries"
   );
 
+  console.log("row", formattedProperties);
+
   return (
     <tr>
       {formattedProperties.map(([name, { value, type }], idx) => {
@@ -24,19 +26,19 @@ function Row({ properties, deleteRowHandler, editRowHandler }) {
             <If condition={type === DROP_DOWN}>
               <Then>
                 <DropDown
-                  cb={(editedData) =>
-                    editRowHandler(addTypeToTableData(editedData, DROP_DOWN))
-                  }
+                  cb={(editedData) => {
+                    editRowHandler(addTypeToFormData(editedData, DROP_DOWN));
+                  }}
                   fullWidth
                   items={value}
                   propName={name}
-                  editable
+                  editable={true}
                 />
               </Then>
               <Else>
                 <Input
                   cb={(editedData) =>
-                    editRowHandler(addTypeToTableData(editedData, INPUT))
+                    editRowHandler(addTypeToFormData(editedData, INPUT))
                   }
                   fullWidth
                   defaultValue={value}

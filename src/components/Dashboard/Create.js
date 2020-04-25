@@ -1,33 +1,28 @@
 import React, { useState } from "react";
+import { If, Then } from "react-if";
 import { v4 as uuidv4 } from "uuid";
-import get from "lodash/get";
-import has from "lodash/has";
-import remove from "lodash/remove";
-import isEmpty from "lodash/isEmpty";
-import isEqual from "lodash/isEqual";
 
-import AddTableName from "./AddTableName";
+import FormName from "../../sharedComponents/Form/FormName";
 import Card from "../../sharedComponents/Card";
-import Table from "../../sharedComponents/Table";
+import EditabelTable from "../../sharedComponents/editabelTable";
+
 import {
   transformObjectDataIntoArray,
-  renameObjectKey,
   filterObjectByKey,
 } from "../../utils/dataTransformUtil";
 import {
   generateRowByColumns,
   isInvalidColumnAvailable,
-  addNewColumnsToExistingRows,
-  deleteColumnFromExistingRowsByName,
-} from "../../utils/tableUtil";
+  isDuplicateColumnAvailable,
+} from "../../utils/formUtil";
 
 function Create() {
-  const [columns, setColumns] = useState({});
+  const [columns, setColumns] = useState([]);
   const [rows, setRows] = useState([]);
   const [title, setTitle] = useState("");
+  const [specificData, setSpecificData] = useState({});
 
   const transformedColumns = transformObjectDataIntoArray(columns, "values");
-  const tableHasInvalidColumn = isInvalidColumnAvailable(transformedColumns);
 
   /**
    *
@@ -35,114 +30,147 @@ function Create() {
    * @param {Object | string} editedData
    * @param {string} structurePiece ("name" | "type")
    */
-  const editColumnHandler = (oldName, editedData) => {
-    if (isEmpty(editedData)) return;
-    const columnsCopy = { ...columns };
-    const [[newName, value]] = transformObjectDataIntoArray(
-      editedData,
-      "entries"
-    );
-    const constructedValue = has(value, "uid")
-      ? value
-      : { ...value, uid: uuidv4() };
-    const isColumnExists =
-      has(columnsCopy, newName) &&
-      get(columnsCopy, `${newName}.uid`) !== get(constructedValue, "uid");
+  // const editColumnHandler = (oldName, editedData) => {
+  //   if (isEmpty(editedData)) return;
+  //   const columnsCopy = { ...columns };
+  //   const [[newName, value]] = transformObjectDataIntoArray(
+  //     editedData,
+  //     "entries"
+  //   );
+  //   const constructedValue = has(value, "uid")
+  //     ? value
+  //     : { ...value, uid: uuidv4() };
+  //   const isColumnExists =
+  //     has(columnsCopy, newName) &&
+  //     get(columnsCopy, `${newName}.uid`) !== get(constructedValue, "uid");
 
-    if (isColumnExists) {
-      // TODO:: handle with modal | notification
-      alert("DUPICATE COLUMN ERROR");
-      return;
-    }
+  //   if (isColumnExists) {
+  //     // TODO:: handle with modal | notification
+  //     alert("DUPICATE COLUMN ERROR");
+  //     return;
+  //   }
 
-    // case, when column name has been modified
-    if (!isEqual(oldName, newName)) {
-      const modifiedColumnsCopy = renameObjectKey(
-        columnsCopy,
-        oldName,
-        newName
-      );
+  //   // case, when column name has been modified
+  //   if (!isEqual(oldName, newName)) {
+  //     const modifiedColumnsCopy = renameObjectKey(
+  //       columnsCopy,
+  //       oldName,
+  //       newName
+  //     );
 
-      modifiedColumnsCopy[newName] = constructedValue;
-      setColumns(modifiedColumnsCopy);
-    } else {
-      columnsCopy[newName] = constructedValue;
-      setColumns(columnsCopy);
-    }
+  //     modifiedColumnsCopy[newName] = constructedValue;
+  //     setColumns(modifiedColumnsCopy);
+  //   } else {
+  //     columnsCopy[newName] = constructedValue;
+  //     setColumns(columnsCopy);
+  //   }
 
-    // updating existing rows with new column
-    if (rows.length) {
-      const updatedRows = deleteColumnFromExistingRowsByName(rows, oldName);
-      setRows(
-        addNewColumnsToExistingRows([...updatedRows], {
-          [newName]: filterObjectByKey(value, "uid"),
-        })
-      );
-    }
-  };
+  //   // updating existing rows with new column
+  //   if (rows.length) {
+  //     const updatedRows = deleteColumnFromExistingRowsByName(rows, oldName);
+  //     setRows(
+  //       addNewColumnsToExistingRows([...updatedRows], {
+  //         [newName]: filterObjectByKey(value, "uid"),
+  //       })
+  //     );
+  //   }
+  // };
 
-  const deleteColumnByNameHandler = (name) => {
-    const columnsCopy = { ...columns };
+  const deleteColumnByNameHandler = (id) => {
+    const columnsCopy = [...columns].filter((col) => {
+      return col.dataIndex !== id;
+    });
 
-    delete columnsCopy[name];
     setColumns(columnsCopy);
-    setRows(deleteColumnFromExistingRowsByName([...rows], name));
   };
 
   const createColumnHandler = () => {
-    if (tableHasInvalidColumn) {
-      // TODO:: handle with modal | notification
-      alert("Please fill pending column before trying to create new");
+    if (isInvalidColumnAvailable(transformedColumns)) {
+      alert("Please fill current column before trying to create news");
       return;
     }
 
-    const emptyColumn = { "": { type: "" } };
-    const emptyColumnWithId = { "": { type: "", uid: uuidv4() } };
-
-    if (rows.length) {
-      setRows(addNewColumnsToExistingRows([...rows], emptyColumn));
-    }
-
-    setColumns({ ...columns, ...emptyColumnWithId });
-  };
-
-  const editRowHandler = (index, editedData) => {
-    const rowsCopy = [...rows];
-    rowsCopy[index] = {
-      ...rowsCopy[index],
-      ...editedData,
+    const emptyColumn = {
+      dataIndex: "",
+      width: "25%",
+      editable: true,
+      type: "",
+      uid: uuidv4(),
     };
 
-    setRows(rowsCopy);
+    setColumns([...columns, emptyColumn]);
+  };
+
+  const editColumnHandler = (oldName, uid, { name, type }) => {
+    if (isDuplicateColumnAvailable(columns, { name, uid })) {
+      alert("Duplicate column");
+      return;
+    }
+
+    const columnsCopy = [...columns];
+
+    for (let i = 0; i < columnsCopy.length; ++i) {
+      if (
+        columnsCopy[i].dataIndex === oldName ||
+        columnsCopy[i].dataIndex === ""
+      ) {
+        columnsCopy[i] = {
+          ...columnsCopy[i],
+          dataIndex: name,
+          type,
+        };
+        break;
+      }
+    }
+
+    setColumns(columnsCopy);
   };
 
   const createRowHandler = () => {
-    setRows([...rows, generateRowByColumns(columns)]);
+    setRows([
+      ...rows,
+      { key: String(rows.length), ...generateRowByColumns(columns) },
+    ]);
   };
 
   const deleteRowHandler = (rowId) => {
-    const updatedRows = remove(
-      rows,
-      (_, currentRowId) => rowId !== currentRowId
-    );
+    const specificDataCopy = { ...specificData };
+    const keys = Object.keys(specificData);
+    for (let i = 0; i < keys.length; ++i) {
+      const extractedKey = keys[i].split("-")[0];
+      if (extractedKey == rowId) {
+        const newData = filterObjectByKey(specificDataCopy, keys[i]);
+        setSpecificData(newData);
+        break;
+      }
+    }
+
+    const updatedRows = [...rows].filter(({ key }, idx) => key !== rowId);
 
     setRows(updatedRows);
   };
+
   return (
     <Card>
-      <AddTableName saveTitle={setTitle} title={title} />
-      <Table
-        title={title}
-        columns={columns}
-        rows={rows}
-        createRowHandler={createRowHandler}
-        deleteRowHandler={deleteRowHandler}
-        editRowHandler={editRowHandler}
-        editColumnHandler={editColumnHandler}
-        deleteColumnByNameHandler={deleteColumnByNameHandler}
-        createColumnHandler={createColumnHandler}
-        isInvalidColumnAvailable={tableHasInvalidColumn}
-      />
+      <FormName saveTitle={setTitle} title={title} />
+      <If condition={title.length}>
+        <Then>
+          <EditabelTable
+            deleteColumnByNameHandler={deleteColumnByNameHandler}
+            editColumnHandler={editColumnHandler}
+            createRowHandler={createRowHandler}
+            deleteRowHandler={deleteRowHandler}
+            editRowHandler={setRows}
+            createColumnHandler={createColumnHandler}
+            rows={rows}
+            columns={columns}
+            specificData={specificData}
+            specificDataHandler={(newData) => {
+              setSpecificData({ ...specificData, ...newData });
+            }}
+          />
+        </Then>
+      </If>
     </Card>
   );
 }

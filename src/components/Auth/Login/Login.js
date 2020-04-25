@@ -1,7 +1,7 @@
-import React, {useState} from "react";
-import {renderDOM as commonRenderDom} from "../Auth";
-import authService from "../../../services/authService";
-import cookieService from "../../../services/cookieService";
+import React, { useState } from "react";
+import { renderDOM as commonRenderDom } from "../Auth";
+import authService from "../../../services/request/authService";
+import cookieService from "../../../services/cookie/cookieService";
 
 const LoginForm = () => {
   const DOM = [
@@ -24,7 +24,7 @@ const LoginForm = () => {
         className: "form-control",
         placeholder: "Enter password",
       },
-    }
+    },
   ];
 
   function renderDOM() {
@@ -36,7 +36,7 @@ const LoginForm = () => {
   const handleChange = (e) => {
     updateFormData({
       ...formData,
-      [e.target.name]: e.target.value.trim()
+      [e.target.name]: e.target.value.trim(),
     });
   };
 
@@ -60,7 +60,9 @@ const LoginForm = () => {
           Log In
         </button>
         <p className="forgot-password text-right">
-          <u><a href="#">Forgot password?</a></u>
+          <u>
+            <a href="#">Forgot password?</a>
+          </u>
         </p>
       </form>
     </div>
@@ -69,7 +71,7 @@ const LoginForm = () => {
 
 const initialFormData = Object.freeze({
   email: "",
-  password: ""
+  password: "",
 });
 
 export default LoginForm;
