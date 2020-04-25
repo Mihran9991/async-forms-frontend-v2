@@ -1,165 +1,176 @@
-import React, { useState, useEffect } from "react";
-import isEqual from "lodash/isEqual";
-import has from "lodash/has";
+import React, { useState } from "react";
+import { If, Then } from "react-if";
+import { v4 as uuidv4 } from "uuid";
 
-import AddTableName from "./AddTableName";
-import AddTableColumns from "./AddTableColumns";
-import AddTableRows from "./AddTableRows";
-import Stepper from "../../sharedComponents/Stepper";
+import FormName from "../../sharedComponents/Form/FormName";
 import Card from "../../sharedComponents/Card";
-import Table from "../../sharedComponents/Table";
+import EditabelTable from "../../sharedComponents/editabelTable";
 import {
   transformObjectDataIntoArray,
-  sortfObjectByKey,
-} from "../../utils/dataTransform";
-import { COLUMN_KEYS } from "../../constants/tableConstants";
+  filterObjectByKey,
+} from "../../utils/dataTransformUtil";
+import {
+  generateRowByColumns,
+  isInvalidColumnAvailable,
+  isDuplicateColumnAvailable,
+} from "../../utils/formUtil";
 
 function Create() {
-  const [isPendingColumn, setIsPendingColumn] = useState(false);
-  const [isPendingRow, setIsPendingRow] = useState(false);
-  const [currentColumn, setCurrentColumn] = useState({ name: "", type: "" });
-  const [currentRow, setCurrentRow] = useState({});
-
-  // We are representing columns as a hashMap({}) in order to avoid
-  // duplicate column names.
-  const [columns, setColumns] = useState({});
+  const [columns, setColumns] = useState([]);
   const [rows, setRows] = useState([]);
   const [title, setTitle] = useState("");
-  const [isResetRowInputGroup, setIsResetRowInputGroup] = useState(false);
+  const [specificData, setSpecificData] = useState({});
 
-  const editRowHandler = (index, editedData) => {
-    const rowsCopy = [...rows];
+  const transformedColumns = transformObjectDataIntoArray(columns, "values");
 
-    rowsCopy[index] = {
-      ...rowsCopy[index],
-      ...editedData,
+  /**
+   *
+   * @param {string} name
+   * @param {Object | string} editedData
+   * @param {string} structurePiece ("name" | "type")
+   */
+  // const editColumnHandler = (oldName, editedData) => {
+  //   if (isEmpty(editedData)) return;
+  //   const columnsCopy = { ...columns };
+  //   const [[newName, value]] = transformObjectDataIntoArray(
+  //     editedData,
+  //     "entries"
+  //   );
+  //   const constructedValue = has(value, "uid")
+  //     ? value
+  //     : { ...value, uid: uuidv4() };
+  //   const isColumnExists =
+  //     has(columnsCopy, newName) &&
+  //     get(columnsCopy, `${newName}.uid`) !== get(constructedValue, "uid");
+
+  //   if (isColumnExists) {
+  //     // TODO:: handle with modal | notification
+  //     alert("DUPICATE COLUMN ERROR");
+  //     return;
+  //   }
+
+  //   // case, when column name has been modified
+  //   if (!isEqual(oldName, newName)) {
+  //     const modifiedColumnsCopy = renameObjectKey(
+  //       columnsCopy,
+  //       oldName,
+  //       newName
+  //     );
+
+  //     modifiedColumnsCopy[newName] = constructedValue;
+  //     setColumns(modifiedColumnsCopy);
+  //   } else {
+  //     columnsCopy[newName] = constructedValue;
+  //     setColumns(columnsCopy);
+  //   }
+
+  //   // updating existing rows with new column
+  //   if (rows.length) {
+  //     const updatedRows = deleteColumnFromExistingRowsByName(rows, oldName);
+  //     setRows(
+  //       addNewColumnsToExistingRows([...updatedRows], {
+  //         [newName]: filterObjectByKey(value, "uid"),
+  //       })
+  //     );
+  //   }
+  // };
+
+  const deleteColumnByNameHandler = (id) => {
+    const columnsCopy = [...columns].filter((col) => {
+      return col.dataIndex !== id;
+    });
+
+    setColumns(columnsCopy);
+  };
+
+  const createColumnHandler = () => {
+    if (isInvalidColumnAvailable(transformedColumns)) {
+      alert("Please fill current column before trying to create news");
+      return;
+    }
+
+    const emptyColumn = {
+      dataIndex: "",
+      width: "25%",
+      editable: true,
+      type: "",
+      uid: uuidv4(),
     };
 
-    setRows(rowsCopy);
+    setColumns([...columns, emptyColumn]);
   };
 
-  const isDuplicateColumn = (name) => has(columns, name);
-
-  const saveColumn = () => {
-    const { name, type } = currentColumn;
-    if (isDuplicateColumn(name)) {
-      // TODO:: handle with modal | notification
-      alert("DUPICATE COLUMN ERROR");
+  const editColumnHandler = (oldName, uid, { name, type }) => {
+    if (isDuplicateColumnAvailable(columns, { name, uid })) {
+      alert("Duplicate column");
       return;
     }
 
-    setColumns({ ...columns, [name]: { type } });
-    setIsPendingColumn(false);
-    setCurrentColumn({});
-  };
+    const columnsCopy = [...columns];
 
-  const setColumnData = (data) => {
-    const [[key, value]] = transformObjectDataIntoArray(data);
-
-    removeEmptyValuedColumnByKey(key, value);
-    setCurrentColumn({
-      ...currentColumn,
-      ...data,
-    });
-  };
-
-  const saveRow = () => {
-    setRows([...rows, sortfObjectByKey(currentRow)]);
-    setIsPendingRow(false);
-    setCurrentRow({});
-  };
-
-  const setRowData = (data) => {
-    console.log("setRowData");
-
-    const [[key, { type, value }]] = Object.entries(data);
-    const currentRowCopy = { ...currentRow };
-
-    if (!value && currentRowCopy[key]) {
-      delete currentRowCopy[key];
-      setCurrentRow(currentRowCopy);
-      return;
+    for (let i = 0; i < columnsCopy.length; ++i) {
+      if (
+        columnsCopy[i].dataIndex === oldName ||
+        columnsCopy[i].dataIndex === ""
+      ) {
+        columnsCopy[i] = {
+          ...columnsCopy[i],
+          dataIndex: name,
+          type,
+        };
+        break;
+      }
     }
 
-    setCurrentRow({
-      ...currentRow,
-      ...data,
-    });
+    setColumns(columnsCopy);
   };
 
-  const removeEmptyValuedColumnByKey = (key, value) => {
-    const currentColumnCopy = { ...currentColumn };
+  const createRowHandler = () => {
+    setRows([
+      ...rows,
+      { key: String(rows.length), ...generateRowByColumns(columns) },
+    ]);
+  };
 
-    if (!value && has(currentColumnCopy, key)) {
-      delete currentColumnCopy[key];
-      setCurrentColumn(currentColumnCopy);
+  const deleteRowHandler = (rowId) => {
+    const specificDataCopy = { ...specificData };
+    const keys = Object.keys(specificData);
+    for (let i = 0; i < keys.length; ++i) {
+      const extractedKey = keys[i].split("-")[0];
+      if (extractedKey == rowId) {
+        const newData = filterObjectByKey(specificDataCopy, keys[i]);
+        setSpecificData(newData);
+        break;
+      }
     }
+
+    const updatedRows = [...rows].filter(({ key }, idx) => key !== rowId);
+
+    setRows(updatedRows);
   };
-
-  const isCurrentColumnValid = () => {
-    const currentColumnPropertyKeys = Object.keys(currentColumn).sort();
-    const areKeysPresent = isEqual(currentColumnPropertyKeys, COLUMN_KEYS);
-    const areValuesNotEmpty = Object.values(currentColumn).every(
-      (val) => val.length > 0
-    );
-
-    return areKeysPresent && areValuesNotEmpty;
-  };
-
-  const isCurrentRowValid = () => {
-    const currentRowProperties = Object.keys(currentRow)
-      .filter((key) => key !== "type")
-      .sort();
-    const columnNames = transformObjectDataIntoArray(columns, "keys")
-      .map((name) => name)
-      .sort();
-
-    return isEqual(currentRowProperties, columnNames);
-  };
-
-  useEffect(() => {
-    setIsResetRowInputGroup(Boolean(!isPendingRow && rows.length));
-  }, [isPendingRow, rows]);
 
   return (
-    <>
-      <Card>
-        <Stepper
-          allowNextSteps={[
-            Boolean(title),
-            Boolean(transformObjectDataIntoArray(columns, "keys").length),
-            true,
-          ]}
-        >
-          <AddTableName setTitle={setTitle} title={title} />
-          <AddTableColumns
-            isPendingColumn={isPendingColumn}
-            setColumnData={setColumnData}
-            currentColumn={currentColumn}
-            isCurrentColumnValid={isCurrentColumnValid}
-            saveColumn={saveColumn}
-            setIsPendingColumn={setIsPendingColumn}
-          />
-          <AddTableRows
-            setRowData={setRowData}
-            isResetRowInputGroup={isResetRowInputGroup}
-            setIsResetRowInputGroup={setIsResetRowInputGroup}
-            currentRow={currentRow}
-            isPendingRow={isPendingRow}
-            setIsPendingRow={setIsPendingRow}
-            isCurrentRowValid={isCurrentRowValid}
-            saveRow={saveRow}
+    <Card>
+      <FormName saveTitle={setTitle} title={title} />
+      <If condition={title.length}>
+        <Then>
+          <EditabelTable
+            deleteColumnByNameHandler={deleteColumnByNameHandler}
+            editColumnHandler={editColumnHandler}
+            createRowHandler={createRowHandler}
+            deleteRowHandler={deleteRowHandler}
+            editRowHandler={setRows}
+            createColumnHandler={createColumnHandler}
+            rows={rows}
             columns={columns}
+            specificData={specificData}
+            specificDataHandler={(newData) => {
+              setSpecificData({ ...specificData, ...newData });
+            }}
           />
-        </Stepper>
-      </Card>
-      <Table
-        title={title}
-        columns={sortfObjectByKey(columns)}
-        rows={rows}
-        editRowHandler={editRowHandler}
-      />
-    </>
+        </Then>
+      </If>
+    </Card>
   );
 }
 

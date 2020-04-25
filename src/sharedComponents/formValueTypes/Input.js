@@ -1,32 +1,44 @@
 import React, { useState, useEffect } from "react";
-import isFunction from "lodash/isFunction";
+import { Input as AInput } from "antd";
 
-function TextInput({
+function Input({
   type,
   size,
   cb,
   propName,
-  onlyValue,
+  callbackResponseOnlyValue,
   defaultValue: defaultValueFromProps,
   reset,
   resetCallback = () => {},
   fullWidth,
+  customWidth,
+  placeholder,
+  editItem,
 }) {
   const [currentValue, setCurrentValue] = useState("");
   const [defaultValue, setDefaultValue] = useState(defaultValueFromProps);
+  const getWidth = () => {
+    if (customWidth) {
+      return customWidth;
+    }
+
+    if (fullWidth) {
+      return "100%";
+    }
+
+    return "inherit";
+  };
 
   const onChangeHandler = ({ target: { value } }) => {
     setDefaultValue("");
     setCurrentValue(value);
 
-    if (isFunction(cb)) {
-      if (onlyValue) {
-        cb(value);
-      } else {
-        cb({
-          [propName]: value,
-        });
-      }
+    if (callbackResponseOnlyValue) {
+      cb(value);
+    } else {
+      cb({
+        [propName]: value,
+      });
     }
   };
 
@@ -42,15 +54,18 @@ function TextInput({
   }, [defaultValueFromProps]);
 
   return (
-    <input
-      style={{ width: fullWidth ? "100%" : "inherit" }}
-      type={type}
-      className="form-control"
-      onChange={onChangeHandler}
-      value={defaultValue || currentValue}
-      aria-label={size}
-    />
+    <>
+      <AInput
+        style={{ width: getWidth() }}
+        type={type}
+        className="form-control"
+        onChange={onChangeHandler}
+        value={defaultValue || currentValue}
+        aria-label={size}
+        placeholder={placeholder}
+      />
+    </>
   );
 }
 
-export default TextInput;
+export default Input;

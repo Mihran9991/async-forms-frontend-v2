@@ -1,156 +1,192 @@
-import React, { useState, useEffect } from "react";
-import { Dropdown, Button } from "react-bootstrap";
+/* eslint-disable jsx-a11y/anchor-is-valid */
+import React, { useState } from "react";
+import { Select, Divider } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 import { If, Then, Else } from "react-if";
-import filter from "lodash/filter";
+import isEmpty from "lodash/isEmpty";
 
 import Input from "./Input";
 import styles from "./types.module.scss";
 
-function ItemList({
-  items,
-  cb,
-  setCurrentValue,
-  propName,
-  removeItem,
-  editable,
-}) {
-  return items.map(({ value, key }, idx) => {
-    const onClickHandler = () => {
-      if (!editable) {
-        setCurrentValue(value);
-
-        if (!propName) {
-          cb({
-            [key]: value,
-          });
-          return;
-        }
-
-        cb({
-          [propName]: {
-            [key]: value,
-          },
-        });
-      }
-    };
-
-    return (
-      <Dropdown.Item
-        className={styles["item"]}
-        onClick={onClickHandler}
-        key={idx}
-      >
-        <If condition={Boolean(editable)}>
-          <Then>
-            <Input
-              defaultValue={value}
-              cb={(editedItem) => cb(editedItem, idx)}
-              propName={propName}
-            />
-            <Button
-              onClick={() => {
-                removeItem(idx);
-              }}
-            >
-              X
-            </Button>
-          </Then>
-          <Else>{value}</Else>
-        </If>
-      </Dropdown.Item>
-    );
-  });
-}
+const { Option } = Select;
 
 function DropDown({
-  items: itemsFromProps,
+  items = [],
   cb,
   defaultValue,
-  fullWidth,
   propName,
   editable,
+  menuItems,
 }) {
-  const [showDropDown, setShowDropDown] = useState(false);
+  const [editabelMenuItems, setEditabelMenuItems] = useState(menuItems || []);
   const [currentValue, setCurrentValue] = useState(
     defaultValue || "Select an Item"
   );
-  const [items, setItems] = useState(itemsFromProps);
 
-  const removeItem = (deletableItemIdx) => {
-    if (items.length === 1) {
-      alert(`${propName} can't be empty`);
-      return;
-    }
-
-    const updatedItems = filter(items, (_, id) => id !== deletableItemIdx);
-
-    setItems(updatedItems);
-    setCurrentValue(updatedItems[0].value);
-    cb({
-      [propName]: updatedItems,
-    });
-  };
-
-  const addItem = () => {
-    const updatedItems = [...items, { key: propName, value: "" }];
-
-    setItems(updatedItems);
-    cb({
-      [propName]: updatedItems,
-    });
-    setShowDropDown(true);
-  };
+  const [currentItem, setCurrentItem] = useState({});
 
   const editItem = (editedData, idx) => {
-    const updatedItems = [...items];
-    updatedItems[idx] = {
-      ...updatedItems[idx],
-      value: editedData[propName],
-    };
+    setCurrentItem(editedData);
+  };
 
-    setItems(updatedItems);
+  const dataCallback = editable ? editItem : cb;
+
+  // const removeItem = (deletableItemIdx) => {
+  //   if (items.length === 1) {
+  //     alert(`${propName} can't be empty`);
+  //     return;
+  //   }
+  //   const updatedItems = filter(items, (_, id) => id !== deletableItemIdx);
+
+  //   setEditabelMenuItems(updatedItems);
+  //   setCurrentValue(updatedItems[0].value);
+  //   cb({
+  //     [propName]: updatedItems,
+  //   });
+  // };
+
+  const addItem = () => {
+    const [[key, value]] = Object.entries(currentItem);
+    const updatedItems = [...editabelMenuItems, { key, value }];
+
+    setEditabelMenuItems(updatedItems);
+    setCurrentItem({});
     cb({
       [propName]: updatedItems,
     });
   };
 
-  const dropDownToggleHandler = (isOpen, event, { source }) => {
-    if (editable && source === "select") {
-      return;
-    }
+  const onClickHandler = (value, { children }) => {
+    const {
+      props: { itemKey },
+    } = Array.isArray(children) ? children[0] : children;
 
-    setShowDropDown(isOpen);
+    if (!editable) {
+      setCurrentValue(value);
+
+      if (!propName) {
+        dataCallback({
+          [itemKey]: value,
+        });
+        return;
+      }
+
+      dataCallback({
+        [propName]: {
+          [itemKey]: value,
+        },
+      });
+    }
   };
 
-  useEffect(() => {
-    setItems(itemsFromProps);
-  }, [itemsFromProps]);
+  const resetItemsList = () => {
+    setEditabelMenuItems([]);
+    cb({
+      [propName]: [],
+    });
+  };
+
+  const OptionItem = ({ value, idx }) => {
+    return (
+      <If condition={Boolean(editable)}>
+        <Then>
+          <Input
+            defaultValue={value}
+            cb={(editedItem) => cb(editedItem, idx)}
+            propName={propName}
+          />
+        </Then>
+        <Else>{value}</Else>
+      </If>
+    );
+  };
 
   return (
-    <Dropdown show={showDropDown} onToggle={dropDownToggleHandler}>
-      <Dropdown.Toggle
-        variant="primary"
-        id="dropdown-basic"
-        style={{ width: fullWidth ? "100%" : "inherit" }}
-      >
-        {currentValue}
-      </Dropdown.Toggle>
-      <Dropdown.Menu>
-        <ItemList
-          items={items}
-          cb={editable ? editItem : cb}
-          removeItem={removeItem}
-          setCurrentValue={setCurrentValue}
-          propName={propName}
-          editable={editable}
-        />
-        <If condition={Boolean(editable)}>
-          <Dropdown.Item onClick={addItem}>
-            <Button style={{ width: "100%" }}>+</Button>
-          </Dropdown.Item>
-        </If>
-      </Dropdown.Menu>
-    </Dropdown>
+    <If condition={!editable && items.length > 0}>
+      <Then>
+        <Select
+          onChange={onClickHandler}
+          defaultValue={currentValue}
+          style={{ width: "100%" }}
+        >
+          {items.map(({ value: itemValue, key: itemKey }, idx) => {
+            return (
+              <Option value={itemValue} key={idx}>
+                <OptionItem value={itemValue} itemKey={itemKey} idx={idx} />
+              </Option>
+            );
+          })}
+        </Select>
+      </Then>
+      <Else>
+        <Select
+          allowClear={true}
+          style={{ width: "100%" }}
+          placeholder="custom dropdown render"
+          dropdownRender={(menu) => (
+            <div>
+              {menu}
+              <Divider style={{ margin: "4px 0" }} />
+              <div style={{ display: "flex", flexWrap: "nowrap", padding: 8 }}>
+                <Input
+                  style={{ flex: "auto" }}
+                  cb={editItem}
+                  propName={propName}
+                  reset={isEmpty(currentItem)}
+                  fullWidth
+                />
+                <a
+                  style={{
+                    flex: "none",
+                    padding: "8px",
+                    display: "block",
+                    cursor: "pointer",
+                  }}
+                  onClick={addItem}
+                >
+                  <PlusOutlined /> Add item
+                </a>
+
+                <a
+                  style={{
+                    flex: "none",
+                    padding: "8px",
+                    display: "block",
+                    cursor: "pointer",
+                  }}
+                  onClick={resetItemsList}
+                >
+                  <PlusOutlined /> Reset items
+                </a>
+              </div>
+            </div>
+          )}
+        >
+          {editabelMenuItems.map(({ value, key }, idx) => (
+            <Option key={idx}>
+              {value}
+              {/* <Input
+                defaultValue={value}
+                propName={key}
+                cb={(val) => {
+                  const copy = [...editabelMenuItems];
+
+                  for (let i = 0; i < copy.length; ++i) {
+                    if (copy[i].key === key) {
+                      copy[i].value = val;
+                      setEditabelMenuItems(copy);
+                      break;
+                    }
+                  }
+                }}
+                callbackResponseOnlyValue
+                fullWidth
+              /> */}
+            </Option>
+          ))}
+        </Select>
+      </Else>
+    </If>
   );
 }
 

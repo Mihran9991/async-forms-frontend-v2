@@ -1,36 +1,47 @@
-import React from "react";
-import { Route, withRouter, Switch } from "react-router-dom";
-import { AiOutlineMenu } from "react-icons/ai";
-import { Navbar, Nav } from "react-bootstrap";
+import React, { useState } from "react";
+import { Route, withRouter, Switch, Link } from "react-router-dom";
+import { Layout, Menu } from "antd";
+import { FileOutlined } from "@ant-design/icons";
+
 import Create from "./Create";
-import Sidebar from "../../sharedComponents/Sidebar";
 import styles from "./dashboard.module.scss";
 
-function Dashboard({ match }) {
+const { Header, Content, Footer, Sider } = Layout;
+
+function SiderDemo({ match }) {
+  const [collapsed, setIsCollapsed] = useState(false);
+
+  const onCollapse = (collapsed) => {
+    console.log(collapsed);
+    setIsCollapsed(collapsed);
+  };
+
   return (
-    <div className={styles["dashboard"]}>
-      <div className={styles["wrapper"]}>
-        <Sidebar />
-        <div className={styles["content"]}>
-          <Navbar
-            bg="light"
-            variant="light"
-            className={styles["custom-navbar"]}
-          >
-            <AiOutlineMenu className="icon" color="#000" />
-            <Nav className="ml-auto">
-              <Nav.Link href="#home">Profile</Nav.Link>
-            </Nav>
-          </Navbar>
-          <main className={styles["main"]}>
-            <Switch>
-              <Route path={`${match.path}/create`} component={Create} />
-            </Switch>
-          </main>
-        </div>
-      </div>
-    </div>
+    <Layout style={{ minHeight: "100vh" }} className={styles["dashboard"]}>
+      <Sider collapsible collapsed={collapsed} onCollapse={onCollapse}>
+        <div className={styles["logo"]}>logo</div>
+        <Menu theme="dark" defaultSelectedKeys={["1"]} mode="inline">
+          <Menu.Item key="1">
+            <FileOutlined />
+            <span>
+              <Link to={`${match.path}/create`}>Create Form</Link>
+            </span>
+          </Menu.Item>
+        </Menu>
+      </Sider>
+      <Layout className="site-layout">
+        <Header className="site-layout-background" style={{ padding: 0 }} />
+        <Content style={{ margin: "0 16px" }}>
+          <Switch>
+            <Route path={`${match.path}/create`} component={Create} />
+          </Switch>
+        </Content>
+        <Footer style={{ textAlign: "center" }}>
+          RAU ©2020 Created by Mihran/Adrian
+        </Footer>
+      </Layout>
+    </Layout>
   );
 }
 
-export default withRouter(Dashboard);
+export default withRouter(SiderDemo);

@@ -1,0 +1,25 @@
+.add-row-properties {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.add-form-name {
+  margin-bottom: 20px;
+}
+
+.border-bottom {
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 20px;
+}
+
+.title {
+  margin-top: 20px;
+}
+
+.column {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}

@@ -1,8 +1,14 @@
 import React, { useState } from "react";
 import { renderDOM as commonRenderMap } from "../Auth";
 import authService from "../../../services/authService";
+import React, { useState } from "react";
+import { withRouter } from "react-router-dom";
 
-const RegisterForm = () => {
+import { renderDOM as commonRenderMap } from "../Auth";
+import routeConstants from "../../../constants/routeConstants";
+import authService from "../../../services/request/authService";
+
+const RegisterForm = ({ history }) => {
   const DOM = [
     {
       className: "form-group",
@@ -88,6 +94,8 @@ const RegisterForm = () => {
     if (response.status === 200) {
       console.log(response.data.message);
       // todo: code for redirecting to login page //
+
+      history.push(routeConstants.LOGIN);
     } else {
       // todo: code for showing error message //
     }
@@ -102,7 +110,8 @@ const RegisterForm = () => {
           Register
         </button>
         <p className="forgot-password text-right">
-          Already registered?
+          {/*somehow use param with ${} instead of hardcoded text*/}
+          Already registered?{" "}
           <u>
             <a href="/login">Log in</a>
           </u>
@@ -112,4 +121,4 @@ const RegisterForm = () => {
   );
 };
 
-export default RegisterForm;
+export default withRouter(RegisterForm);
