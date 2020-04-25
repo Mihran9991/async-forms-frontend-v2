@@ -22,8 +22,16 @@ function App() {
             component={Register}
           />
           <ProtectedRoute exact path={routeConstants.LOGIN} component={Login} />
-          <ProtectedRoute exact path={routeConstants.FORGOT_SEND} component={ForgotSend}/>
-          <ProtectedRoute exact path={routeConstants.FORGOT_RESET} component={ForgotReset}/>
+          <ProtectedRoute
+            exact
+            path={routeConstants.FORGOT_SEND}
+            component={ForgotSend}
+          />
+          <ProtectedRoute
+            exact
+            path={routeConstants.FORGOT_RESET}
+            component={ForgotReset}
+          />
           <ProtectedRoute
             path={routeConstants.DASHBOARD}
             component={Dashboard}

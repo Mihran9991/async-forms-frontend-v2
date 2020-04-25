@@ -1,12 +1,11 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useState } from "react";
-import { Select, Divider } from "antd";
+import { Divider, Select } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-import { If, Then, Else } from "react-if";
+import { Else, If, Then } from "react-if";
 import isEmpty from "lodash/isEmpty";
 
 import Input from "./Input";
-import styles from "./types.module.scss";
 
 const { Option } = Select;
 

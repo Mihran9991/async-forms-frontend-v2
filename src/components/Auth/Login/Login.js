@@ -3,13 +3,7 @@ import { renderDOM as commonRenderDom } from "../Auth";
 import authService from "../../../services/request/authService";
 import cookieService from "../../../services/cookie/cookieService";
 import routeConstants from "../../../constants/routeConstants";
-import React, { useState } from "react";
 import { withRouter } from "react-router-dom";
-
-import { renderDOM as commonRenderDom } from "../Auth";
-import authService from "../../../services/request/authService";
-import cookieService from "../../../services/cookie/cookieService";
-import routeConstants from "../../../constants/routeConstants";
 
 const LoginForm = ({ history }) => {
   const DOM = [

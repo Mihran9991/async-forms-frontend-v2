@@ -1,10 +1,6 @@
 import React, { useState } from "react";
 import { renderDOM as commonRenderMap } from "../Auth";
-import authService from "../../../services/authService";
-import React, { useState } from "react";
 import { withRouter } from "react-router-dom";
-
-import { renderDOM as commonRenderMap } from "../Auth";
 import routeConstants from "../../../constants/routeConstants";
 import authService from "../../../services/request/authService";
 
