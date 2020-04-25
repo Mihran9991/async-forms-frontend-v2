@@ -2,7 +2,16 @@
 /* eslint-disable no-script-url */
 import React, { useState, useEffect } from "react";
 import { If, Then, Else } from "react-if";
-import { Table, Input, InputNumber, Popconfirm, Form, Button } from "antd";
+import { Table, Popconfirm, Form, Button } from "antd";
+
+import Column from "../sharedComponents/Form/Column";
+import DropDown from "./formValueTypes/DropDown";
+import Input from "./formValueTypes/Input";
+import {
+  prepareRowDataForApi,
+  preparColumnDataForApi,
+} from "../utils/formUtil";
+import { INPUT } from "../constants/formConstants";
 
 const EditableCell = ({
   editing,
@@ -12,11 +21,41 @@ const EditableCell = ({
   record,
   index,
   children,
+  edit,
+  editRowHandler,
+  data,
+  specificData,
+  specificDataHandler,
   ...restProps
 }) => {
-  console.log();
+  const ddkey = record && `${record.key}-${dataIndex}`;
+  const inputNode =
+    inputType === INPUT ? (
+      <Input
+        propName={dataIndex}
+        cb={(data) => {
+          edit({
+            key: record.key,
+            [dataIndex]: data[dataIndex],
+          });
+        }}
+        defaultValue={record && record[dataIndex]}
+      />
+    ) : (
+      <DropDown
+        menuItems={specificData ? specificData[ddkey] : []}
+        editable
+        propName={dataIndex}
+        cb={(data) => {
+          specificDataHandler({ [ddkey]: data[dataIndex] });
+          edit({
+            key: record.key,
+            [dataIndex]: data[dataIndex][0].value || "",
+          });
+        }}
+      />
+    );
 
-  const inputNode = inputType === "number" ? <InputNumber /> : <Input />;
   return (
     <td {...restProps}>
       {editing ? (
@@ -28,7 +67,7 @@ const EditableCell = ({
           rules={[
             {
               required: true,
-              message: `Please Input ${title}!`,
+              message: `Please Input ${dataIndex}!`,
             },
           ]}
         >
@@ -41,71 +80,74 @@ const EditableCell = ({
   );
 };
 
-function transformColumns(columns, data) {
-  return [...columns, data];
-}
-function EditActoins({ record, cancel, save, isEditing, editingKey, edit }) {
-  const editable = isEditing(record);
-  return editable ? (
-    <span>
-      <a
-        href="javascript:;"
-        onClick={() => save(record.key)}
-        style={{
-          marginRight: 8,
-        }}
-      >
-        Save
-      </a>
-      <Popconfirm title="Sure to cancel?" onConfirm={cancel}>
-        <a>Cancel</a>
-      </Popconfirm>
-    </span>
-  ) : (
-    <a disabled={editingKey !== ""} onClick={() => edit(record)}>
-      Edit
-    </a>
+function GenerateTitle({
+  editColumnHandler,
+  deleteColumnByNameHandler,
+  columns,
+  name,
+  editable,
+}) {
+  return (
+    <Column
+      name={name}
+      editColumnHandler={(editedData) => {
+        editColumnHandler(columns.length, editedData);
+      }}
+      deleteColumnByNameHandler={deleteColumnByNameHandler}
+      editable={editable}
+    />
   );
 }
 
 const EditableTable = ({
-  createColumnHandler,
-  editColumnHandler,
   deleteColumnByNameHandler,
+  editColumnHandler,
+  createColumnHandler,
+  deleteRowHandler,
   createRowHandler,
+  editRowHandler,
   columns,
   rows,
+  specificData,
+  specificDataHandler,
 }) => {
+  const addTitle = (columns, editable) => {
+    const withTitle = [...columns].reduce((acc, col) => {
+      return [
+        ...acc,
+        {
+          ...col,
+          title: () => (
+            <GenerateTitle
+              editColumnHandler={editColumnHandler}
+              deleteColumnByNameHandler={deleteColumnByNameHandler}
+              columns={columns}
+              name={col.dataIndex}
+              editable={editable}
+            />
+          ),
+        },
+      ];
+    }, []);
+
+    return withTitle;
+  };
+
   const [form] = Form.useForm();
   const [data, setData] = useState(rows);
-  const [transformedColumns, setTransformedColumns] = useState([
-    ...columns,
-    {
-      title: "operation",
-      dataIndex: "operation",
-      render: (_, record) => (
-        <EditActoins
-          record={record}
-          save={save}
-          edit={edit}
-          cancel={cancel}
-          isEditing={isEditing}
-          editingKey={editingKey}
-        />
-      ),
-    },
-  ]);
   const [editingKey, setEditingKey] = useState("");
+  const [transformedColumns, setTransformedColumns] = useState(
+    addTitle(columns, !data.length)
+  );
 
   const isEditing = (record) => record.key === editingKey;
 
   const edit = (record) => {
     form.setFieldsValue({
-      name: "",
-      age: "",
-      address: "",
+      ...form.getFieldValue(),
       ...record,
     });
+
     setEditingKey(record.key);
   };
 
@@ -129,49 +171,86 @@ const EditableTable = ({
         setData(newData);
         setEditingKey("");
       }
+
+      editRowHandler(newData);
     } catch (errInfo) {
       console.log("Validate Failed:", errInfo);
     }
   };
 
   useEffect(() => {
-    setTransformedColumns([
-      ...columns,
-      transformedColumns[transformedColumns.length - 1],
-    ]);
+    setTransformedColumns(addTitle(columns, !data.length));
   }, [columns]);
 
-  const mergedColumns = transformedColumns.map((col) => {
+  useEffect(() => {
+    setData(rows);
+    setTransformedColumns(addTitle(columns, !rows.length));
+  }, [rows]);
+
+  const mergedColumns = [
+    ...transformedColumns,
+    {
+      title: "operation",
+      dataIndex: "operation",
+      render: (_, record) => {
+        const editable = isEditing(record);
+        return (
+          <If condition={editable}>
+            <Then>
+              <span>
+                <a
+                  href="javascript:;"
+                  onClick={() => save(record.key)}
+                  style={{
+                    marginRight: 8,
+                  }}
+                >
+                  Save
+                </a>
+                <Popconfirm title="Sure to cancel?" onConfirm={cancel}>
+                  <a>Cancel</a>
+                </Popconfirm>
+              </span>
+            </Then>
+            <Else>
+              <a disabled={editingKey !== ""} onClick={() => edit(record)}>
+                Edit
+              </a>
+              <a
+                disabled={editingKey !== ""}
+                onClick={() => deleteRowHandler(record.key)}
+              >
+                Delete
+              </a>
+            </Else>
+          </If>
+        );
+      },
+    },
+  ].map((col) => {
     if (!col.editable) {
       return col;
     }
 
-    // TODO:: handle row types here
     return {
       ...col,
       onCell: (record) => ({
         record,
-        inputType: col.dataIndex === "age" ? "number" : "text",
+        inputType: col.type,
         dataIndex: col.dataIndex,
         title: col.title,
         editing: isEditing(record),
+        edit,
+        editRowHandler,
+        data,
+        specificData,
+        specificDataHandler,
       }),
     };
   });
 
-  console.log("transformedColumns", transformedColumns);
-
   return (
     <Form form={form} component={false}>
-      <Button
-        onClick={createRowHandler}
-        type="primary"
-        style={{
-          marginBottom: 16,
-        }}
-      >
-        Add a row
-      </Button>
       <Button
         onClick={createColumnHandler}
         type="primary"
@@ -181,6 +260,20 @@ const EditableTable = ({
       >
         Add a Column
       </Button>
+      <If condition={columns.length > 0}>
+        <Then>
+          <Button
+            onClick={createRowHandler}
+            type="primary"
+            style={{
+              marginBottom: 16,
+            }}
+          >
+            Add a row
+          </Button>
+        </Then>
+      </If>
+
       <Table
         components={{
           body: {
@@ -194,6 +287,7 @@ const EditableTable = ({
         pagination={{
           onChange: cancel,
         }}
+        scroll={{ x: 900 }}
       />
     </Form>
   );

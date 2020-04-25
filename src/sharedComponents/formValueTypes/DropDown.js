@@ -3,31 +3,39 @@ import React, { useState, useEffect } from "react";
 import { Select, Button, Divider } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { If, Then, Else } from "react-if";
-import filter from "lodash/filter";
+import isEmpty from "lodash/isEmpty";
 
 import Input from "./Input";
 import styles from "./types.module.scss";
 
 const { Option } = Select;
 
-function DropDown({ items, cb, defaultValue, propName, editable }) {
+function DropDown({
+  items = [],
+  cb,
+  defaultValue,
+  propName,
+  editable,
+  menuItems,
+}) {
+  const [editabelMenuItems, setEditabelMenuItems] = useState(menuItems || []);
   const [currentValue, setCurrentValue] = useState(
     defaultValue || "Select an Item"
   );
-  // const [items, setItems] = useState(itemsFromProps);
-  const [editabelMenuItems, setEditabelMenuItems] = useState([]);
+
+  const [currentItem, setCurrentItem] = useState({});
 
   const editItem = (editedData, idx) => {
-    const updatedItems = [...editabelMenuItems];
-    updatedItems[idx] = {
-      ...updatedItems[idx],
-      value: editedData[propName],
-    };
-
-    editabelMenuItems(updatedItems);
-    dataCallback({
-      [propName]: updatedItems,
-    });
+    setCurrentItem(editedData);
+    // const updatedItems = [...editabelMenuItems];
+    // updatedItems[idx] = {
+    //   ...updatedItems[idx],
+    //   value: editedData[propName],
+    // };
+    // console.log("updatedItems", updatedItems);
+    // dataCallback({
+    //   [propName]: updatedItems,
+    // });
   };
 
   const dataCallback = editable ? editItem : cb;
@@ -47,12 +55,15 @@ function DropDown({ items, cb, defaultValue, propName, editable }) {
   // };
 
   const addItem = () => {
-    const updatedItems = [...editabelMenuItems, { key: propName, value: "" }];
+    console.log("addItem", currentItem);
+    const [[key, value]] = Object.entries(currentItem);
+    const updatedItems = [...editabelMenuItems, { key, value }];
 
     setEditabelMenuItems(updatedItems);
-    // cb({
-    //   [propName]: updatedItems,
-    // });
+    setCurrentItem({});
+    cb({
+      [propName]: updatedItems,
+    });
   };
 
   const onClickHandler = (value, { children }) => {
@@ -93,12 +104,6 @@ function DropDown({ items, cb, defaultValue, propName, editable }) {
     );
   };
 
-  const onNameChange = (event) => {
-    setCurrentValue(event.target.value);
-  };
-
-  console.log("items", items);
-
   return (
     <If condition={!editable && items.length > 0}>
       <Then>
@@ -118,7 +123,7 @@ function DropDown({ items, cb, defaultValue, propName, editable }) {
       </Then>
       <Else>
         <Select
-          style={{ width: 240 }}
+          style={{ width: "100%" }}
           placeholder="custom dropdown render"
           dropdownRender={(menu) => (
             <div>
@@ -127,8 +132,9 @@ function DropDown({ items, cb, defaultValue, propName, editable }) {
               <div style={{ display: "flex", flexWrap: "nowrap", padding: 8 }}>
                 <Input
                   style={{ flex: "auto" }}
-                  value={currentValue}
-                  onChange={onNameChange}
+                  cb={editItem}
+                  propName={propName}
+                  reset={isEmpty(currentItem)}
                 />
                 <a
                   style={{

@@ -4,7 +4,7 @@ import { Input as AInput } from "antd";
 function Input({
   type,
   size,
-  cb = () => {},
+  cb,
   propName,
   callbackResponseOnlyValue,
   defaultValue: defaultValueFromProps,
@@ -13,6 +13,7 @@ function Input({
   fullWidth,
   customWidth,
   placeholder,
+  editItem,
 }) {
   const [currentValue, setCurrentValue] = useState("");
   const [defaultValue, setDefaultValue] = useState(defaultValueFromProps);

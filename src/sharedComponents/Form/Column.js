@@ -60,7 +60,7 @@ function Column({
               callbackResponseOnlyValue
               fullWidth
             />
-            <If condition={Boolean(editable || !isColumnValid(properties))}>
+            <If condition={Boolean(editable)}>
               <DropDown
                 items={FORM_DATA_TYPES}
                 cb={(editedData) => structureCurrentData(editedData, "type")}
@@ -74,5 +74,5 @@ function Column({
     </div>
   );
 }
-
+// || !isColumnValid(properties)
 export default Column;

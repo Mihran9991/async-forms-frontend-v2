@@ -1,76 +1,26 @@
 import React, { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import get from "lodash/get";
-import has from "lodash/has";
-import remove from "lodash/remove";
-import isEmpty from "lodash/isEmpty";
-import isEqual from "lodash/isEqual";
 
 import FormName from "../../sharedComponents/Form/FormName";
 import Card from "../../sharedComponents/Card";
-import Column from "../../sharedComponents/Form/Column";
 import EditabelTable from "../../sharedComponents/editabelTable";
 
 import {
   transformObjectDataIntoArray,
-  renameObjectKey,
   filterObjectByKey,
 } from "../../utils/dataTransformUtil";
 import {
   generateRowByColumns,
   isInvalidColumnAvailable,
-  addNewColumnsToExistingRows,
-  deleteColumnFromExistingRowsByName,
 } from "../../utils/formUtil";
-
-const originData = [];
-
-for (let i = 0; i < 100; i++) {
-  originData.push({
-    key: i.toString(),
-    name: `Edrward ${i}`,
-    age: 32,
-    address: `London Park no. ${i}`,
-  });
-}
-
-// {
-//   title: () => (
-//     <Column
-//       name="test"
-//       editColumnHandler={editColumnHandler}
-//       deleteColumnByNameHandler={deleteColumnByNameHandler}
-//     />
-//   ),
-//   dataIndex: "address",
-//   width: "40%",
-//   editable: true,
-// },
-
-function generateTitle(
-  editColumnHandler,
-  deleteColumnByNameHandler,
-  columns,
-  name
-) {
-  return (
-    <Column
-      name={name}
-      editColumnHandler={(editedData) =>
-        editColumnHandler(columns.length, editedData)
-      }
-      deleteColumnByNameHandler={deleteColumnByNameHandler}
-    />
-  );
-}
 
 function Create() {
   const [columns, setColumns] = useState([]);
   const [rows, setRows] = useState([]);
   const [title, setTitle] = useState("");
+  const [specificData, setSpecificData] = useState({});
 
   const transformedColumns = transformObjectDataIntoArray(columns, "values");
-  const formHasInvalidColumn = isInvalidColumnAvailable(transformedColumns);
 
   /**
    *
@@ -124,81 +74,72 @@ function Create() {
   //   }
   // };
 
-  const deleteColumnByNameHandler = (name) => {
-    const columnsCopy = { ...columns };
+  const deleteColumnByNameHandler = (id) => {
+    const columnsCopy = [...columns].filter((col) => {
+      return col.dataIndex !== id;
+    });
 
-    delete columnsCopy[name];
     setColumns(columnsCopy);
-    setRows(deleteColumnFromExistingRowsByName([...rows], name));
   };
 
   const createColumnHandler = () => {
+    if (isInvalidColumnAvailable(transformedColumns)) {
+      alert("Please fill current column before trying to create news");
+      return;
+    }
+
     const emptyColumn = {
-      title: () =>
-        generateTitle(
-          editColumnHandler,
-          deleteColumnByNameHandler,
-          columns,
-          ""
-        ),
       dataIndex: "",
       width: "25%",
       editable: true,
+      type: "",
     };
-    const emptyColumnWithId = { ...emptyColumn, uid: uuidv4() };
 
-    setColumns([...columns, emptyColumnWithId]);
+    setColumns([...columns, emptyColumn]);
   };
 
-  const editColumnHandler = (id, { name }) => {
+  const editColumnHandler = (id, { name, type }) => {
     const columnsCopy = [...columns];
 
-    if (columnsCopy[id]) {
-      columnsCopy[id] = {
-        ...columnsCopy[id],
-        title: generateTitle(
-          editColumnHandler,
-          deleteColumnByNameHandler,
-          columns,
-          name
-        ),
-      };
-    } else {
-      columnsCopy[id] = {
-        title: generateTitle(
-          editColumnHandler,
-          deleteColumnByNameHandler,
-          columns,
-          name
-        ),
+    if (!columnsCopy[id - 1]) {
+      columnsCopy[id - 1] = {
         dataIndex: name,
         width: "40%",
         editable: true,
+        uid: uuidv4(),
+        type,
+      };
+    } else {
+      columnsCopy[id - 1] = {
+        ...columnsCopy[id - 1],
+        dataIndex: name,
+        type,
       };
     }
 
     setColumns(columnsCopy);
   };
 
-  const editRowHandler = (index, editedData) => {
-    const rowsCopy = [...rows];
-    rowsCopy[index] = {
-      ...rowsCopy[index],
-      ...editedData,
-    };
-
-    setRows(rowsCopy);
-  };
-
   const createRowHandler = () => {
-    setRows([...rows, generateRowByColumns(columns)]);
+    setRows([
+      ...rows,
+      { key: String(rows.length), ...generateRowByColumns(columns) },
+    ]);
   };
 
   const deleteRowHandler = (rowId) => {
-    const updatedRows = remove(
-      rows,
-      (_, currentRowId) => rowId !== currentRowId
-    );
+    const specificDataCopy = { ...specificData };
+    const keys = Object.keys(specificData);
+    for (let i = 0; i < keys.length; ++i) {
+      const extractedKey = keys[i].split("-")[0];
+      if (extractedKey == rowId) {
+        const newData = filterObjectByKey(specificDataCopy, keys[i]);
+        setSpecificData(newData);
+        break;
+      }
+    }
+
+    const updatedRows = [...rows].filter(({ key }, idx) => key !== rowId);
 
     setRows(updatedRows);
   };
@@ -209,23 +150,17 @@ function Create() {
       <EditabelTable
         deleteColumnByNameHandler={deleteColumnByNameHandler}
         editColumnHandler={editColumnHandler}
-        createColumnHandler={createColumnHandler}
-        createRowHandler={createRowHandler}
-        rows={[]}
-        columns={columns}
-      />
-      {/* <Form
-        title={title}
-        columns={columns}
-        rows={rows}
         createRowHandler={createRowHandler}
         deleteRowHandler={deleteRowHandler}
-        editRowHandler={editRowHandler}
-        editColumnHandler={editColumnHandler}
-        deleteColumnByNameHandler={deleteColumnByNameHandler}
+        editRowHandler={setRows}
         createColumnHandler={createColumnHandler}
-        isInvalidColumnAvailable={formHasInvalidColumn}
-      /> */}
+        rows={rows}
+        columns={columns}
+        specificData={specificData}
+        specificDataHandler={(newData) => {
+          setSpecificData({ ...specificData, ...newData });
+        }}
+      />
     </Card>
   );
 }

@@ -78,6 +78,8 @@ export const renameObjectKey = (obj, oldKey, newKey) => {
 };
 
 export const filterObjectByKey = (object, filterKey) => {
+  console.log("filterObjectByKey", object, filterKey);
+
   return pickBy(object, (_, key) => {
     return key !== filterKey;
   });
