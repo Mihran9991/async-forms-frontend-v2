@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useState, useEffect } from "react";
-import { Select, Button, Divider } from "antd";
+import React, { useState } from "react";
+import { Select, Divider } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { If, Then, Else } from "react-if";
 import isEmpty from "lodash/isEmpty";
@@ -27,15 +27,6 @@ function DropDown({
 
   const editItem = (editedData, idx) => {
     setCurrentItem(editedData);
-    // const updatedItems = [...editabelMenuItems];
-    // updatedItems[idx] = {
-    //   ...updatedItems[idx],
-    //   value: editedData[propName],
-    // };
-    // console.log("updatedItems", updatedItems);
-    // dataCallback({
-    //   [propName]: updatedItems,
-    // });
   };
 
   const dataCallback = editable ? editItem : cb;
@@ -55,7 +46,6 @@ function DropDown({
   // };
 
   const addItem = () => {
-    console.log("addItem", currentItem);
     const [[key, value]] = Object.entries(currentItem);
     const updatedItems = [...editabelMenuItems, { key, value }];
 
@@ -87,6 +77,13 @@ function DropDown({
         },
       });
     }
+  };
+
+  const resetItemsList = () => {
+    setEditabelMenuItems([]);
+    cb({
+      [propName]: [],
+    });
   };
 
   const OptionItem = ({ value, idx }) => {
@@ -123,6 +120,7 @@ function DropDown({
       </Then>
       <Else>
         <Select
+          allowClear={true}
           style={{ width: "100%" }}
           placeholder="custom dropdown render"
           dropdownRender={(menu) => (
@@ -135,6 +133,7 @@ function DropDown({
                   cb={editItem}
                   propName={propName}
                   reset={isEmpty(currentItem)}
+                  fullWidth
                 />
                 <a
                   style={{
@@ -147,12 +146,43 @@ function DropDown({
                 >
                   <PlusOutlined /> Add item
                 </a>
+
+                <a
+                  style={{
+                    flex: "none",
+                    padding: "8px",
+                    display: "block",
+                    cursor: "pointer",
+                  }}
+                  onClick={resetItemsList}
+                >
+                  <PlusOutlined /> Reset items
+                </a>
               </div>
             </div>
           )}
         >
-          {editabelMenuItems.map(({ value: itemValue, key: itemKey }, idx) => (
-            <Option key={idx}>{itemValue}</Option>
+          {editabelMenuItems.map(({ value, key }, idx) => (
+            <Option key={idx}>
+              {value}
+              {/* <Input
+                defaultValue={value}
+                propName={key}
+                cb={(val) => {
+                  const copy = [...editabelMenuItems];
+
+                  for (let i = 0; i < copy.length; ++i) {
+                    if (copy[i].key === key) {
+                      copy[i].value = val;
+                      setEditabelMenuItems(copy);
+                      break;
+                    }
+                  }
+                }}
+                callbackResponseOnlyValue
+                fullWidth
+              /> */}
+            </Option>
           ))}
         </Select>
       </Else>

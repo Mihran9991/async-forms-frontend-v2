@@ -19,20 +19,13 @@ export const generateRowByColumns = (columns) => {
 export const isColumnValid = (column) => {
   return (
     get(column, "dataIndex", false).length &&
-    // get(column, "uid", false).length &&
+    get(column, "uid", false).length &&
     get(column, "type", false).length
   );
 };
 
-export const isInvalidColumnAvailable = (columns) => {
-  for (let i = 0; i < columns.length; ++i) {
-    if (!isColumnValid(columns[i])) {
-      return true;
-    }
-  }
-
-  return false;
-};
+export const isInvalidColumnAvailable = (columns) =>
+  columns.some((col) => !isColumnValid(col));
 
 export const addNewColumnsToExistingRows = (rows, newColumn) => {
   return rows.reduce((acc, currentRow) => {
@@ -69,8 +62,9 @@ export const deleteColumnFromExistingRowsByName = (rows, name) => {
 
 export const prepareRowDataForApi = (rows, specificData) => {
   const rowsCopy = [...rows];
+
   return rowsCopy.reduce((acc, row) => {
-    let rowCopy = { ...row };
+    const rowCopy = { ...row };
     const rowKeys = transformObjectDataIntoArray(row, "keys");
     const key = row.key;
     for (let i = 0; i < rowKeys.length; ++i) {
@@ -86,8 +80,14 @@ export const prepareRowDataForApi = (rows, specificData) => {
   }, []);
 };
 
-export const preparColumnDataForApi = (columns) => {
+export const prepareColumnDataForApi = (columns) => {
   return columns.reduce((acc, { dataIndex, type, uid }) => {
     return [...acc, { name: dataIndex, type, uid }];
   }, []);
+};
+
+export const isDuplicateColumnAvailable = (columns, { name, uid }) => {
+  return columns.some(({ dataIndex, uid: colUid }) => {
+    return dataIndex === name && colUid !== uid;
+  });
 };

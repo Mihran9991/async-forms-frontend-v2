@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { If, Then } from "react-if";
+import { If, Then, Else } from "react-if";
 
 import { FORM_DATA_TYPES, EMPTY_VALUE } from "../../constants/formConstants";
 import { isColumnValid } from "../../utils/formUtil";
@@ -15,9 +15,10 @@ function Column({
   editColumnHandler,
   deleteColumnByNameHandler,
   maxWidth,
+  type: typeFromProps = null,
 }) {
   const [isEditingEnabled, setIsEditingEnabled] = useState(false);
-  const [currentType, setCurrentType] = useState("Input");
+  const [currentType, setCurrentType] = useState(typeFromProps);
   const [currentName, setCurrentName] = useState(name);
 
   const structureCurrentData = (editedData, structurePiece) => {
@@ -28,22 +29,40 @@ function Column({
     }
   };
 
-  const editActionHandler = () => {
+  const save = () => {
     if (isEditingEnabled) {
       editColumnHandler({ name: currentName, type: currentType });
     }
 
-    // setCurrentData({});
     setIsEditingEnabled(!isEditingEnabled);
   };
+
+  const edit = () => {
+    setIsEditingEnabled(!isEditingEnabled);
+  };
+
+  const isValid = currentName.length > 0 && currentType.length;
 
   return (
     <div className={styels["column"]}>
       <div>{name ? name : EMPTY_VALUE}</div>
       <div>
-        <Button onClick={editActionHandler}>
-          {isEditingEnabled ? "Save" : "Edit"}
-        </Button>
+        <If condition={isValid && isEditingEnabled}>
+          <Then>
+            <Button onClick={save}>Save</Button>
+          </Then>
+        </If>
+
+        <If condition={!isValid || editable}>
+          <Then>
+            <If condition={!isEditingEnabled}>
+              <Then>
+                <Button onClick={edit}>Edit</Button>
+              </Then>
+            </If>
+          </Then>
+        </If>
+
         <Button
           onClick={() => {
             deleteColumnByNameHandler(name);
@@ -52,6 +71,7 @@ function Column({
           Delete
         </Button>
         <br />
+
         <If condition={isEditingEnabled}>
           <Then>
             <Input
@@ -60,14 +80,12 @@ function Column({
               callbackResponseOnlyValue
               fullWidth
             />
-            <If condition={Boolean(editable)}>
-              <DropDown
-                items={FORM_DATA_TYPES}
-                cb={(editedData) => structureCurrentData(editedData, "type")}
-                defaultValue={"Edit column type"}
-                fullWidth
-              />
-            </If>
+            <DropDown
+              items={FORM_DATA_TYPES}
+              cb={(editedData) => structureCurrentData(editedData, "type")}
+              defaultValue={"Edit column type"}
+              fullWidth
+            />
           </Then>
         </If>
       </div>

@@ -9,7 +9,8 @@ import DropDown from "./formValueTypes/DropDown";
 import Input from "./formValueTypes/Input";
 import {
   prepareRowDataForApi,
-  preparColumnDataForApi,
+  prepareColumnDataForApi,
+  isInvalidColumnAvailable,
 } from "../utils/formUtil";
 import { INPUT } from "../constants/formConstants";
 
@@ -40,6 +41,7 @@ const EditableCell = ({
           });
         }}
         defaultValue={record && record[dataIndex]}
+        fullWidth
       />
     ) : (
       <DropDown
@@ -50,9 +52,13 @@ const EditableCell = ({
           specificDataHandler({ [ddkey]: data[dataIndex] });
           edit({
             key: record.key,
-            [dataIndex]: data[dataIndex][0].value || "",
+            [dataIndex]:
+              data[dataIndex] && data[dataIndex].length
+                ? data[dataIndex][0].value
+                : "",
           });
         }}
+        fullWidth
       />
     );
 
@@ -83,18 +89,20 @@ const EditableCell = ({
 function GenerateTitle({
   editColumnHandler,
   deleteColumnByNameHandler,
-  columns,
   name,
   editable,
+  type,
+  uid,
 }) {
   return (
     <Column
       name={name}
-      editColumnHandler={(editedData) => {
-        editColumnHandler(columns.length, editedData);
-      }}
+      editColumnHandler={(editedData) =>
+        editColumnHandler(name, uid, editedData)
+      }
       deleteColumnByNameHandler={deleteColumnByNameHandler}
       editable={editable}
+      type={type}
     />
   );
 }
@@ -124,6 +132,8 @@ const EditableTable = ({
               columns={columns}
               name={col.dataIndex}
               editable={editable}
+              type={col.type}
+              uid={col.uid}
             />
           ),
         },
@@ -260,7 +270,7 @@ const EditableTable = ({
       >
         Add a Column
       </Button>
-      <If condition={columns.length > 0}>
+      <If condition={columns.length > 0 && !isInvalidColumnAvailable(columns)}>
         <Then>
           <Button
             onClick={createRowHandler}
@@ -287,7 +297,7 @@ const EditableTable = ({
         pagination={{
           onChange: cancel,
         }}
-        scroll={{ x: 900 }}
+        scroll={{ x: 700 }}
       />
     </Form>
   );

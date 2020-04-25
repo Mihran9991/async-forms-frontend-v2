@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { If, Then } from "react-if";
 import { v4 as uuidv4 } from "uuid";
 
 import FormName from "../../sharedComponents/Form/FormName";
@@ -12,6 +13,7 @@ import {
 import {
   generateRowByColumns,
   isInvalidColumnAvailable,
+  isDuplicateColumnAvailable,
 } from "../../utils/formUtil";
 
 function Create() {
@@ -93,28 +95,32 @@ function Create() {
       width: "25%",
       editable: true,
       type: "",
+      uid: uuidv4(),
     };
 
     setColumns([...columns, emptyColumn]);
   };
 
-  const editColumnHandler = (id, { name, type }) => {
+  const editColumnHandler = (oldName, uid, { name, type }) => {
+    if (isDuplicateColumnAvailable(columns, { name, uid })) {
+      alert("Duplicate column");
+      return;
+    }
+
     const columnsCopy = [...columns];
 
-    if (!columnsCopy[id - 1]) {
-      columnsCopy[id - 1] = {
-        dataIndex: name,
-        width: "40%",
-        editable: true,
-        uid: uuidv4(),
-        type,
-      };
-    } else {
-      columnsCopy[id - 1] = {
-        ...columnsCopy[id - 1],
-        dataIndex: name,
-        type,
-      };
+    for (let i = 0; i < columnsCopy.length; ++i) {
+      if (
+        columnsCopy[i].dataIndex === oldName ||
+        columnsCopy[i].dataIndex === ""
+      ) {
+        columnsCopy[i] = {
+          ...columnsCopy[i],
+          dataIndex: name,
+          type,
+        };
+        break;
+      }
     }
 
     setColumns(columnsCopy);
@@ -146,21 +152,25 @@ function Create() {
 
   return (
     <Card>
-      {/* <FormName saveTitle={setTitle} title={title} /> */}
-      <EditabelTable
-        deleteColumnByNameHandler={deleteColumnByNameHandler}
-        editColumnHandler={editColumnHandler}
-        createRowHandler={createRowHandler}
-        deleteRowHandler={deleteRowHandler}
-        editRowHandler={setRows}
-        createColumnHandler={createColumnHandler}
-        rows={rows}
-        columns={columns}
-        specificData={specificData}
-        specificDataHandler={(newData) => {
-          setSpecificData({ ...specificData, ...newData });
-        }}
-      />
+      <FormName saveTitle={setTitle} title={title} />
+      <If condition={title.length}>
+        <Then>
+          <EditabelTable
+            deleteColumnByNameHandler={deleteColumnByNameHandler}
+            editColumnHandler={editColumnHandler}
+            createRowHandler={createRowHandler}
+            deleteRowHandler={deleteRowHandler}
+            editRowHandler={setRows}
+            createColumnHandler={createColumnHandler}
+            rows={rows}
+            columns={columns}
+            specificData={specificData}
+            specificDataHandler={(newData) => {
+              setSpecificData({ ...specificData, ...newData });
+            }}
+          />
+        </Then>
+      </If>
     </Card>
   );
 }
