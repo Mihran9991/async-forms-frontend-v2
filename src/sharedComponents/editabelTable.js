@@ -1,17 +1,13 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable no-script-url */
-import React, { useState, useEffect } from "react";
-import { If, Then, Else } from "react-if";
-import { Table, Popconfirm, Form, Button } from "antd";
+import React, { useEffect, useState } from "react";
+import { Else, If, Then } from "react-if";
+import { Button, Form, Popconfirm, Table } from "antd";
 
 import Column from "../sharedComponents/Form/Column";
 import DropDown from "./formValueTypes/DropDown";
 import Input from "./formValueTypes/Input";
-import {
-  prepareRowDataForApi,
-  prepareColumnDataForApi,
-  isInvalidColumnAvailable,
-} from "../utils/formUtil";
+import { isInvalidColumnAvailable } from "../utils/formUtil";
 import { INPUT } from "../constants/formConstants";
 
 const EditableCell = ({

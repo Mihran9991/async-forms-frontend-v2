@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { withRouter } from "react-router-dom";
-
 import { renderDOM as commonRenderDom } from "../Auth";
 import authService from "../../../services/request/authService";
 import cookieService from "../../../services/cookie/cookieService";
 import routeConstants from "../../../constants/routeConstants";
+import { withRouter } from "react-router-dom";
 
 const LoginForm = ({ history }) => {
   const DOM = [
@@ -34,7 +33,12 @@ const LoginForm = ({ history }) => {
     return commonRenderDom(DOM, handleChange);
   }
 
-  const [formData, updateFormData] = useState(initialFormData);
+  const [formData, updateFormData] = useState(
+    Object.freeze({
+      email: "",
+      password: "",
+    })
+  );
 
   const handleChange = (e) => {
     updateFormData({
@@ -73,10 +77,5 @@ const LoginForm = ({ history }) => {
     </div>
   );
 };
-
-const initialFormData = Object.freeze({
-  email: "",
-  password: "",
-});
 
 export default withRouter(LoginForm);

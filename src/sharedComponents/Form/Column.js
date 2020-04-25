@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { If, Then, Else } from "react-if";
+import { If, Then } from "react-if";
 
-import { FORM_DATA_TYPES, EMPTY_VALUE } from "../../constants/formConstants";
-import { isColumnValid } from "../../utils/formUtil";
+import { EMPTY_VALUE, FORM_DATA_TYPES } from "../../constants/formConstants";
 import { Button } from "antd";
 import Input from "../formValueTypes/Input";
 import DropDown from "../formValueTypes/DropDown";
@@ -92,5 +91,6 @@ function Column({
     </div>
   );
 }
+
 // || !isColumnValid(properties)
 export default Column;
