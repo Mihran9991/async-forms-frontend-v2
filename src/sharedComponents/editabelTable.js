@@ -27,6 +27,9 @@ const EditableCell = ({
   data,
   specificData,
   specificDataHandler,
+  save,
+  isEditableRowAvailable,
+  forFocus,
   ...restProps
 }) => {
   const ddkey = record && `${record.key}-${dataIndex}`;
@@ -34,6 +37,8 @@ const EditableCell = ({
     inputType === INPUT ? (
       <Input
         propName={dataIndex}
+        onBlurHandler={() => save(record.key)}
+        onFocusHandler={() => isEditableRowAvailable && edit(record)}
         cb={(data) => {
           edit({
             key: record.key,
@@ -48,6 +53,8 @@ const EditableCell = ({
         menuItems={specificData ? specificData[ddkey] : []}
         editable
         propName={dataIndex}
+        onBlurHandler={() => save(record.key)}
+        onFocusHandler={() => isEditableRowAvailable && edit(record)}
         cb={(data) => {
           specificDataHandler({ [ddkey]: data[dataIndex] });
           edit({
@@ -70,9 +77,10 @@ const EditableCell = ({
           style={{
             margin: 0,
           }}
+          // TODO:: set dynamic required value
           rules={[
             {
-              required: true,
+              required: false,
               message: `Please Input ${dataIndex}!`,
             },
           ]}
@@ -146,11 +154,14 @@ const EditableTable = ({
   const [form] = Form.useForm();
   const [data, setData] = useState(rows);
   const [editingKey, setEditingKey] = useState("");
+
+  const [forFocus, setForFocus] = useState({});
+
   const [transformedColumns, setTransformedColumns] = useState(
     addTitle(columns, !data.length)
   );
 
-  const isEditing = (record) => record.key === editingKey;
+  const isEditing = (record) => editingKey === "" || record.key === editingKey;
 
   const edit = (record) => {
     form.setFieldsValue({
@@ -165,9 +176,19 @@ const EditableTable = ({
     setEditingKey("");
   };
 
+  const resetErrors = (errors, key) => {
+    for (let i = 0; i < errors.length; ++i) {
+      if (errors[i].errors.length) {
+        setForFocus({ key, fieldName: errors[i].name[0] });
+        return;
+      }
+    }
+  };
+
   const save = async (key) => {
     try {
-      const row = await form.validateFields();
+      const row = await form.validateFields(); // form.getFieldsValue();
+      setForFocus({});
       const newData = [...data];
       const index = newData.findIndex((item) => key === item.key);
 
@@ -184,7 +205,9 @@ const EditableTable = ({
 
       editRowHandler(newData);
     } catch (errInfo) {
-      console.log("Validate Failed:", errInfo);
+      const errors = form.getFieldsError();
+
+      resetErrors(errors, key);
     }
   };
 
@@ -204,34 +227,40 @@ const EditableTable = ({
       dataIndex: "operation",
       render: (_, record) => {
         const editable = isEditing(record);
+        // edit(record);
         return (
           <If condition={editable}>
             <Then>
               <span>
-                <a
-                  href="javascript:;"
+                <Button
                   onClick={() => save(record.key)}
                   style={{
                     marginRight: 8,
                   }}
                 >
                   Save
-                </a>
-                <Popconfirm title="Sure to cancel?" onConfirm={cancel}>
+                </Button>
+                <Button
+                  disabled={editingKey !== ""}
+                  onClick={() => deleteRowHandler(record.key)}
+                >
+                  Delete
+                </Button>
+                {/* <Popconfirm title="Sure to cancel?" onConfirm={cancel}>
                   <a>Cancel</a>
-                </Popconfirm>
+                </Popconfirm> */}
               </span>
             </Then>
             <Else>
               <a disabled={editingKey !== ""} onClick={() => edit(record)}>
                 Edit
               </a>
-              <a
+              {/* <a
                 disabled={editingKey !== ""}
                 onClick={() => deleteRowHandler(record.key)}
               >
                 Delete
-              </a>
+              </a> */}
             </Else>
           </If>
         );
@@ -255,9 +284,14 @@ const EditableTable = ({
         data,
         specificData,
         specificDataHandler,
+        isEditableRowAvailable: editingKey === "",
+        save,
+        forFocus,
       }),
     };
   });
+
+  console.log("rows", data);
 
   return (
     <Form form={form} component={false}>
@@ -270,7 +304,7 @@ const EditableTable = ({
       >
         Add a Column
       </Button>
-      <If condition={columns.length > 0 && !isInvalidColumnAvailable(columns)}>
+      {/* <If condition={columns.length > 0 && !isInvalidColumnAvailable(columns)}>
         <Then>
           <Button
             onClick={createRowHandler}
@@ -282,7 +316,7 @@ const EditableTable = ({
             Add a row
           </Button>
         </Then>
-      </If>
+      </If> */}
 
       <Table
         components={{

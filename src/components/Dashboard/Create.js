@@ -1,10 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { If, Then } from "react-if";
 import { v4 as uuidv4 } from "uuid";
 
 import FormName from "../../sharedComponents/Form/FormName";
 import Card from "../../sharedComponents/Card";
 import EditabelTable from "../../sharedComponents/editabelTable";
+import DropDown from "../../sharedComponents/formValueTypes/DropDown";
+import Input from "../../sharedComponents/formValueTypes/Input";
+import isEmpty from "lodash/isEmpty";
+
 import {
   transformObjectDataIntoArray,
   filterObjectByKey,
@@ -14,66 +18,104 @@ import {
   isInvalidColumnAvailable,
   isDuplicateColumnAvailable,
 } from "../../utils/formUtil";
+import { DROP_DOWN, INPUT, TABLE } from "../../constants/formConstants";
+import { Button } from "antd";
+
+const DDItems = [
+  { key: "structPiece", value: DROP_DOWN },
+  { key: "structPiece", value: INPUT },
+  { key: "structPiece", value: TABLE },
+];
+
+function FieldByType({ type, uid, removeHandler, saveStructure }) {
+  const [name, setName] = useState("");
+  const [structure, setStructure] = useState({});
+
+  const structureBuilder = (data) => {
+    setStructure({ ...structure, ...data });
+  };
+
+  const saveStructureHandler = () => {
+    saveStructure({ value: type === INPUT ? name : structure, type, name });
+  };
+
+  let component;
+  let withName = false;
+  switch (type) {
+    case INPUT: {
+      component = null;
+      withName = true;
+      break;
+    }
+    case DROP_DOWN: {
+      component = (
+        <DropDown
+          propName={name}
+          disabled={!name.length}
+          items={[]}
+          cb={structureBuilder}
+        />
+      );
+      withName = true;
+      break;
+    }
+    case TABLE: {
+      component = (
+        <EditabelTable
+          propName={name}
+          disabled={!name.length}
+          title=""
+          rows={[]}
+          columns={[]}
+        />
+      );
+      withName = true;
+      break;
+    }
+    default: {
+      component = null;
+      withName = true;
+      break;
+    }
+  }
+
+  return (
+    <div key={uid} style={{ marginBottom: 10, marginTop: 10 }}>
+      <If condition={withName}>
+        <Then>
+          <Input
+            disabled={!isEmpty(structure) && type !== INPUT}
+            cb={setName}
+            callbackResponseOnlyValue
+            placeholder={"Type field name"}
+          />
+          <br />
+        </Then>
+      </If>
+      {component}
+      <If condition={name.length > 0}>
+        <Then>
+          <Button onClick={saveStructureHandler}>Save</Button>
+        </Then>
+      </If>
+      <Button onClick={() => removeHandler(uid)}>Remove</Button>
+    </div>
+  );
+}
 
 function Create() {
+  // Form name
+  const [title, setTitle] = useState("");
+
+  // Form table props
   const [columns, setColumns] = useState([]);
   const [rows, setRows] = useState([]);
-  const [title, setTitle] = useState("");
+
+  const [structureComponents, setStructureComponents] = useState([]);
+  const [structure, setStructure] = useState({ name: title, fields: [] });
+
   const [specificData, setSpecificData] = useState({});
-
   const transformedColumns = transformObjectDataIntoArray(columns, "values");
-
-  /**
-   *
-   * @param {string} name
-   * @param {Object | string} editedData
-   * @param {string} structurePiece ("name" | "type")
-   */
-  // const editColumnHandler = (oldName, editedData) => {
-  //   if (isEmpty(editedData)) return;
-  //   const columnsCopy = { ...columns };
-  //   const [[newName, value]] = transformObjectDataIntoArray(
-  //     editedData,
-  //     "entries"
-  //   );
-  //   const constructedValue = has(value, "uid")
-  //     ? value
-  //     : { ...value, uid: uuidv4() };
-  //   const isColumnExists =
-  //     has(columnsCopy, newName) &&
-  //     get(columnsCopy, `${newName}.uid`) !== get(constructedValue, "uid");
-
-  //   if (isColumnExists) {
-  //     // TODO:: handle with modal | notification
-  //     alert("DUPICATE COLUMN ERROR");
-  //     return;
-  //   }
-
-  //   // case, when column name has been modified
-  //   if (!isEqual(oldName, newName)) {
-  //     const modifiedColumnsCopy = renameObjectKey(
-  //       columnsCopy,
-  //       oldName,
-  //       newName
-  //     );
-
-  //     modifiedColumnsCopy[newName] = constructedValue;
-  //     setColumns(modifiedColumnsCopy);
-  //   } else {
-  //     columnsCopy[newName] = constructedValue;
-  //     setColumns(columnsCopy);
-  //   }
-
-  //   // updating existing rows with new column
-  //   if (rows.length) {
-  //     const updatedRows = deleteColumnFromExistingRowsByName(rows, oldName);
-  //     setRows(
-  //       addNewColumnsToExistingRows([...updatedRows], {
-  //         [newName]: filterObjectByKey(value, "uid"),
-  //       })
-  //     );
-  //   }
-  // };
 
   const deleteColumnByNameHandler = (id) => {
     const columnsCopy = [...columns].filter((col) => {
@@ -149,12 +191,63 @@ function Create() {
     setRows(updatedRows);
   };
 
+  const addStructureComponent = ({ structPiece }) => {
+    setStructureComponents([
+      ...structureComponents,
+      { structPiece, uid: uuidv4() },
+    ]);
+  };
+
+  const removeStructurePieceHandler = (id) => {
+    const structureCopy = [...structureComponents].filter(
+      ({ uid }) => uid !== id
+    );
+
+    setStructureComponents(structureCopy);
+  };
+
+  //
+  const saveStructure = ({ type, name, optional, value }) => {
+    const copyStructure = { ...structure };
+
+    const currentStructPiece = {
+      name,
+      type: {
+        name: type,
+        [value && "values"]: value,
+      },
+      style: {},
+      optional,
+    };
+    copyStructure.fields.push(currentStructPiece);
+    setStructure(copyStructure);
+  };
+
+  console.log("structure", structure);
+
+  useEffect(() => {
+    setStructure({ ...structure, name: title });
+  }, [title]);
+
   return (
     <Card>
       <FormName saveTitle={setTitle} title={title} />
+
       <If condition={title.length}>
         <Then>
-          <EditabelTable
+          <DropDown items={DDItems} cb={addStructureComponent} />
+          {structureComponents.map(({ structPiece, uid }) => {
+            return (
+              <FieldByType
+                type={structPiece}
+                uid={uid}
+                removeHandler={removeStructurePieceHandler}
+                saveStructure={saveStructure}
+              />
+            );
+          })}
+
+          {/* <EditabelTable
             deleteColumnByNameHandler={deleteColumnByNameHandler}
             editColumnHandler={editColumnHandler}
             createRowHandler={createRowHandler}
@@ -167,7 +260,7 @@ function Create() {
             specificDataHandler={(newData) => {
               setSpecificData({ ...specificData, ...newData });
             }}
-          />
+          /> */}
         </Then>
       </If>
     </Card>

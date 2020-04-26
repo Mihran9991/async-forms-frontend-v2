@@ -9,11 +9,13 @@ function Input({
   callbackResponseOnlyValue,
   defaultValue: defaultValueFromProps,
   reset,
-  resetCallback = () => {},
   fullWidth,
   customWidth,
   placeholder,
-  editItem,
+  disabled,
+  resetCallback = () => {},
+  onBlurHandler = () => {},
+  onFocusHandler = () => {},
 }) {
   const [currentValue, setCurrentValue] = useState("");
   const [defaultValue, setDefaultValue] = useState(defaultValueFromProps);
@@ -60,9 +62,12 @@ function Input({
         type={type}
         className="form-control"
         onChange={onChangeHandler}
+        onBlur={onBlurHandler}
+        onFocus={onFocusHandler}
         value={defaultValue || currentValue}
         aria-label={size}
         placeholder={placeholder}
+        disabled={disabled}
       />
     </>
   );

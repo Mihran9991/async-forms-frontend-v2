@@ -17,6 +17,9 @@ function DropDown({
   propName,
   editable,
   menuItems,
+  disabled,
+  onBlurHandler = () => {},
+  onFocusHandler = () => {},
 }) {
   const [editabelMenuItems, setEditabelMenuItems] = useState(menuItems || []);
   const [currentValue, setCurrentValue] = useState(
@@ -105,7 +108,10 @@ function DropDown({
     <If condition={!editable && items.length > 0}>
       <Then>
         <Select
+          disabled={disabled}
           onChange={onClickHandler}
+          onBlur={onBlurHandler}
+          onFocus={onFocusHandler}
           defaultValue={currentValue}
           style={{ width: "100%" }}
         >
@@ -120,6 +126,9 @@ function DropDown({
       </Then>
       <Else>
         <Select
+          disabled={disabled}
+          onBlur={onBlurHandler}
+          onFocus={onFocusHandler}
           allowClear={true}
           style={{ width: "100%" }}
           placeholder="custom dropdown render"
