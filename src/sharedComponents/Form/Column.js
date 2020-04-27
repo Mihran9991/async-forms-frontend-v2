@@ -1,39 +1,63 @@
-import React, { useState } from "react";
-import { If, Then, Else } from "react-if";
+import React, { useState, useEffect } from "react";
+import { If, Then } from "react-if";
 
-import { FORM_DATA_TYPES, EMPTY_VALUE } from "../../constants/formConstants";
+import {
+  FORM_DATA_TYPES,
+  EMPTY_VALUE,
+  DROP_DOWN,
+} from "../../constants/formConstants";
 import { isColumnValid } from "../../utils/formUtil";
 import { Button } from "antd";
 import Input from "../formValueTypes/Input";
 import DropDown from "../formValueTypes/DropDown";
 import styels from "./form.module.scss";
+import {
+  formatDropDownData,
+  formatColumnProperties,
+  reconstructDropDownData,
+} from "../../utils/formUtil";
 
 function Column({
   name,
-  properties,
+  propName,
   editable,
+  values,
   editColumnHandler,
   deleteColumnByNameHandler,
-  maxWidth,
+  saveStructureHandler,
   type: typeFromProps = null,
 }) {
   const [isEditingEnabled, setIsEditingEnabled] = useState(false);
   const [currentType, setCurrentType] = useState(typeFromProps);
   const [currentName, setCurrentName] = useState(name);
+  const [currentValues, setCurrentValues] = useState(values || []);
 
   const structureCurrentData = (editedData, structurePiece) => {
     if (structurePiece === "name") {
       setCurrentName(editedData);
-    } else {
+    }
+
+    if (structurePiece === "type") {
       setCurrentType(editedData.type);
+    }
+
+    if (structurePiece === "values") {
+      setCurrentValues(formatDropDownData(editedData));
     }
   };
 
   const save = () => {
     if (isEditingEnabled) {
-      editColumnHandler({ name: currentName, type: currentType });
+      editColumnHandler(
+        formatColumnProperties({
+          name: currentName,
+          type: currentType,
+          fields: currentValues,
+        })
+      );
     }
 
+    saveStructureHandler();
     setIsEditingEnabled(!isEditingEnabled);
   };
 
@@ -41,7 +65,16 @@ function Column({
     setIsEditingEnabled(!isEditingEnabled);
   };
 
+  // useEffect(() => {
+  //   console.log("values ###########>", values);
+
+  //   setCurrentValues(values);
+  // }, [values]);
+
+  console.log("values =====>", values);
+
   const isValid = currentName.length > 0 && currentType.length;
+  const reconstructed = reconstructDropDownData(values, propName);
 
   return (
     <div className={styels["column"]}>
@@ -52,7 +85,6 @@ function Column({
             <Button onClick={save}>Save</Button>
           </Then>
         </If>
-
         <If condition={!isValid || editable}>
           <Then>
             <If condition={!isEditingEnabled}>
@@ -62,7 +94,6 @@ function Column({
             </If>
           </Then>
         </If>
-
         <Button
           onClick={() => {
             deleteColumnByNameHandler(name);
@@ -71,26 +102,43 @@ function Column({
           Delete
         </Button>
         <br />
-
         <If condition={isEditingEnabled}>
           <Then>
+            Type field name
             <Input
               defaultValue={name}
               cb={(editedData) => structureCurrentData(editedData, "name")}
               callbackResponseOnlyValue
               fullWidth
             />
+            Select field type
+            <br />
             <DropDown
               items={FORM_DATA_TYPES}
               cb={(editedData) => structureCurrentData(editedData, "type")}
-              defaultValue={"Edit column type"}
+              defaultValue={"Select field type"}
               fullWidth
             />
+            <If condition={currentType === DROP_DOWN}>
+              <Then>
+                <br />
+                Add field values
+                <DropDown
+                  menuItems={reconstructed}
+                  cb={(editedData) =>
+                    structureCurrentData(editedData, "values")
+                  }
+                  defaultValue={"Add field values"}
+                  fullWidth
+                  callbackResponseOnlyValue
+                />
+              </Then>
+            </If>
           </Then>
         </If>
       </div>
     </div>
   );
 }
-// || !isColumnValid(properties)
+
 export default Column;

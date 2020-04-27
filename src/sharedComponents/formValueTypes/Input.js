@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Input as AInput } from "antd";
 
 function Input({
+  style,
   type,
   size,
   cb,
@@ -58,7 +59,7 @@ function Input({
   return (
     <>
       <AInput
-        style={{ width: getWidth() }}
+        style={{ width: getWidth(), ...(style && style) }}
         type={type}
         className="form-control"
         onChange={onChangeHandler}

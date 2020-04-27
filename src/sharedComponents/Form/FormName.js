@@ -8,7 +8,9 @@ import styles from "./form.module.scss";
 function FormName({ saveTitle, title: titleFromProps }) {
   const [currentTitle, setCurrentTitle] = useState("");
   const [isEditingEnabled, setIsEditingEnabled] = useState(true);
-
+  const commonBtnStyle = {
+    marginBottom: 10,
+  };
   const title = titleFromProps
     ? `Edit ${titleFromProps}'s value`
     : "Add form Name";
@@ -33,11 +35,24 @@ function FormName({ saveTitle, title: titleFromProps }) {
             defaultValue={currentTitle}
             fullWidth
             placeholder={title}
+            style={{ marginBottom: 10 }}
           />
-          <Button onClick={editActionHandler}>Save</Button>
+          <If condition={currentTitle.length > 0}>
+            <Then>
+              <Button
+                type="primary"
+                style={commonBtnStyle}
+                onClick={editActionHandler}
+              >
+                Save
+              </Button>
+            </Then>
+          </If>
         </Then>
         <Else>
-          <Button onClick={editActionHandler}>Edit Form Name</Button>
+          <Button type="primary" onClick={editActionHandler}>
+            Edit Form Name
+          </Button>
         </Else>
       </If>
       <h4 className={styles["title"]}>{titleFromProps}</h4>
