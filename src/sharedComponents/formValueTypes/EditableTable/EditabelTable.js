@@ -263,8 +263,6 @@ const EditableTable = ({ cb, propName, saveStructureHandler, structure }) => {
     };
   });
 
-  console.log("columns =====~~~~~>", columns);
-
   return (
     <Form form={form} component={false}>
       <Button
@@ -272,10 +270,29 @@ const EditableTable = ({ cb, propName, saveStructureHandler, structure }) => {
         type="primary"
         style={{
           marginBottom: 16,
+          marginRight: 10,
         }}
       >
         Add a Column
       </Button>
+      <If
+        condition={Boolean(
+          columns.length && !isInvalidColumnAvailable(columns)
+        )}
+      >
+        <Then>
+          <Button
+            onClick={saveStructureHandler}
+            type="primary"
+            style={{
+              marginBottom: 16,
+            }}
+          >
+            Save Table data
+          </Button>
+        </Then>
+      </If>
+
       <Table
         components={{
           body: {

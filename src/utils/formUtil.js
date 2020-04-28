@@ -1,6 +1,5 @@
 import get from "lodash/get";
 import isEmpty from "lodash/isEmpty";
-
 import { v4 as uuid } from "uuid";
 
 import { transformObjectDataIntoArray } from "./dataTransformUtil";
@@ -23,8 +22,6 @@ export const generateRowByColumns = (columns) => {
 };
 
 export const isColumnValid = (column) => {
-  console.log("column -------->", column);
-
   const typeObj = get(column, "type", {});
   const dataIndex = get(column, "dataIndex", "");
   const typeName = get(typeObj, "name", "");
@@ -138,24 +135,13 @@ export const isDuplicateColumnAvailable = (columns, { name, uid }) => {
 export const formatDropDownData = (data) => {
   const formattedData = transformObjectDataIntoArray(data, "values")[0];
   return formattedData;
-  // return modifiedData.reduce((acc, { value }) => {
-  //   return [...acc, value];
-  // }, []);
 };
 
 export const reconstructDropDownData = (data, key) => {
-  console.log("reconstruct", data);
-
   return data.reduce((acc, value) => [...acc, { key, value }], []);
 };
 
 export const validateField = (field, type) => {
-  console.log("field ------->", field, type);
-  if (type === TABLE) {
-    // return isInvalidColumnAvailable(nonPrimitiveValue);
-    return true;
-  }
-
   if (isEmpty(field)) {
     return false;
   }
@@ -167,6 +153,10 @@ export const validateField = (field, type) => {
   const nonPrimitiveValue = transformObjectDataIntoArray(field, "values")[0];
   if (type === DROP_DOWN) {
     return nonPrimitiveValue.length;
+  }
+
+  if (type === TABLE) {
+    return isInvalidColumnAvailable(nonPrimitiveValue);
   }
 
   return false;

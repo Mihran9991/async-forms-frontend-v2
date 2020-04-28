@@ -10,6 +10,7 @@ import GenericFieldType from "../../sharedComponents/formValueTypes/GenericValue
 import DropDown from "../../sharedComponents/formValueTypes/DropDown";
 import { DROP_DOWN, INPUT, TABLE } from "../../constants/formConstants";
 import { transformObjectDataIntoArray } from "../../utils/dataTransformUtil";
+import { create } from "../../services/request/formService";
 
 const DDItems = [
   { key: "structPiece", value: DROP_DOWN },
@@ -44,7 +45,7 @@ function Create() {
     setStructureComponents(structureComponentsCopy);
   };
 
-  const saveStructure = ({ type, name, oldName, optional, value }) => {
+  const saveStructure = ({ type, name, oldName, optional = true, value }) => {
     const copyStructure = { ...structure };
     const valueByType = () => {
       if (isObject(value)) {
@@ -83,13 +84,12 @@ function Create() {
     setStructure({ ...structure, name: title });
   }, [title]);
 
-  console.log("areAllFieldsValid", areAllFieldsValid);
-
   return (
     <Card>
       <FormName saveTitle={setTitle} title={title} />
       <If condition={title.length > 0}>
         <Then>
+          <span>Add new fields</span>
           <DropDown
             style={{ marginBottom: 10 }}
             items={DDItems}
@@ -101,6 +101,7 @@ function Create() {
               <>
                 {idx === 0 && <Divider className="divider" />}
                 <GenericFieldType
+                  key={`${structPiece}_${idx}`}
                   type={structPiece}
                   uid={uid}
                   removeHandler={removeStructurePieceHandler}
@@ -116,10 +117,7 @@ function Create() {
 
           <If condition={areAllFieldsValid}>
             <Then>
-              <Button
-                type="primary"
-                onClick={() => console.log("save structure", structure)}
-              >
+              <Button type="primary" onClick={() => create(structure)}>
                 Save Structure
               </Button>
             </Then>

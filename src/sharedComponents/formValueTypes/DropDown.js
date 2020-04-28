@@ -152,13 +152,14 @@ function DropDown({
                   fullWidth
                 />
               </div>
-
               <div
                 style={{
                   display: "flex",
                   justifyContent: "flex-end",
                   alignItems: "center",
                   paddingRight: 2,
+                  marginBottom: 5,
+                  marginTop: 5,
                 }}
               >
                 <Button

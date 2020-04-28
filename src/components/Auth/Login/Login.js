@@ -51,7 +51,6 @@ const LoginForm = ({ history }) => {
     if (response.status === 200) {
       const token = response.data.token;
       cookieService.addCookie("user", token);
-      console.log(token);
       history.push(routeConstants.DASHBOARD);
     }
   };
