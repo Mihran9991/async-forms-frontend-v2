@@ -12,13 +12,22 @@ import {
   getColumnsTypeObj,
   isInvalidColumnAvailable,
   isDuplicateColumnAvailable,
+  generateRowByColumns,
 } from "../../../utils/formUtil";
 import {
   transformObjectDataIntoArray,
   filterObjectByKey,
 } from "../../../utils/dataTransformUtil";
 
-const EditableTable = ({ cb, propName, saveStructureHandler, structure }) => {
+const EditableTable = ({
+  cb,
+  propName,
+  saveStructureHandler,
+  structure,
+  rows: rowsFromProps,
+  columns: columnsFromProps,
+  forInstance,
+}) => {
   // TODO::
   const withTitle = (columns, editable, saveStructureHandler) => {
     const title = [...columns].reduce((acc, col) => {
@@ -51,12 +60,16 @@ const EditableTable = ({ cb, propName, saveStructureHandler, structure }) => {
     return title;
   };
 
-  const [columns, setColumns] = useState([]);
-  const [rows, setRows] = useState([]);
   const [form] = Form.useForm();
+  const [columns, setColumns] = useState(columnsFromProps || []);
+  const [rows, setRows] = useState(rowsFromProps || []);
   const [editingKey, setEditingKey] = useState("");
   const [forFocus, setForFocus] = useState({});
   const [specificData, setSpecificData] = useState({});
+
+  const createRowHandler = () => {
+    setRows([...rows, generateRowByColumns(columns)]);
+  };
 
   const deleteColumnByNameHandler = (id) => {
     const columnsCopy = [...columns].filter((col) => {
@@ -198,51 +211,53 @@ const EditableTable = ({ cb, propName, saveStructureHandler, structure }) => {
       title: "operation",
       dataIndex: "operation",
       render: (_, record) => {
-        const editable = isEditing(record);
-        // edit(record);
+        // const editable = isEditing(record);
         return (
-          <If condition={editable}>
-            <Then>
-              <span>
-                <Button
-                  onClick={() => save(record.key)}
-                  style={{
-                    marginRight: 8,
-                  }}
-                >
-                  Save
-                </Button>
-                <Button
-                  disabled={editingKey !== ""}
-                  onClick={() => deleteRowHandler(record.key)}
-                >
-                  Delete
-                </Button>
-                {/* <Popconfirm title="Sure to cancel?" onConfirm={cancel}>
-                  <a>Cancel</a>
-                </Popconfirm> */}
-              </span>
-            </Then>
-            <Else>
-              <a disabled={editingKey !== ""} onClick={() => edit(record)}>
-                Edit
-              </a>
-              {/* <a
-                disabled={editingKey !== ""}
-                onClick={() => deleteRowHandler(record.key)}
-              >
-                Delete
-              </a> */}
-            </Else>
-          </If>
+          <Button
+            type="danger"
+            disabled={false}
+            onClick={() => deleteRowHandler(record.key)}
+          >
+            Delete
+          </Button>
+          // <If condition={editable}>
+          //   <Then>
+          //     <span>
+          //       <Button
+          //         onClick={() => save(record.key)}
+          //         style={{
+          //           marginRight: 8,
+          //         }}
+          //       >
+          //         Save
+          //       </Button>
+          //       <Button
+          //         disabled={editingKey !== ""}
+          //         onClick={() => deleteRowHandler(record.key)}
+          //       >
+          //         Delete
+          //       </Button>
+          //       {/* <Popconfirm title="Sure to cancel?" onConfirm={cancel}>
+          //         <a>Cancel</a>
+          //       </Popconfirm> */}
+          //     </span>
+          //   </Then>
+          //   <Else>
+          //     <a disabled={editingKey !== ""} onClick={() => edit(record)}>
+          //       Edit
+          //     </a>
+          //     {/* <a
+          //       disabled={editingKey !== ""}
+          //       onClick={() => deleteRowHandler(record.key)}
+          //     >
+          //       Delete
+          //     </a> */}
+          //   </Else>
+          // </If>
         );
       },
     },
   ].map((col) => {
-    if (!col.editable) {
-      return col;
-    }
-
     return {
       ...col,
       onCell: (record) => ({
@@ -250,6 +265,7 @@ const EditableTable = ({ cb, propName, saveStructureHandler, structure }) => {
         inputType: col.type,
         dataIndex: col.dataIndex,
         title: col.title,
+        value: col.value,
         editing: isEditing(record),
         edit,
         setRows,
@@ -265,16 +281,35 @@ const EditableTable = ({ cb, propName, saveStructureHandler, structure }) => {
 
   return (
     <Form form={form} component={false}>
-      <Button
-        onClick={createColumnHandler}
-        type="primary"
-        style={{
-          marginBottom: 16,
-          marginRight: 10,
-        }}
-      >
-        Add a Column
-      </Button>
+      <If condition={Boolean(forInstance)}>
+        <Then>
+          <If condition={columns.length > 0}>
+            <Then>
+              <Button
+                onClick={createRowHandler}
+                type="primary"
+                style={{
+                  marginBottom: 16,
+                }}
+              >
+                Add a row
+              </Button>
+            </Then>
+          </If>
+        </Then>
+        <Else>
+          <Button
+            onClick={createColumnHandler}
+            type="primary"
+            style={{
+              marginBottom: 16,
+              marginRight: 10,
+            }}
+          >
+            Add a Column
+          </Button>
+        </Else>
+      </If>
       <If
         condition={Boolean(
           columns.length && !isInvalidColumnAvailable(columns)
@@ -292,7 +327,6 @@ const EditableTable = ({ cb, propName, saveStructureHandler, structure }) => {
           </Button>
         </Then>
       </If>
-
       <Table
         components={{
           body: {
@@ -313,20 +347,3 @@ const EditableTable = ({ cb, propName, saveStructureHandler, structure }) => {
 };
 
 export default EditableTable;
-
-// eslint-disable-next-line no-lone-blocks
-{
-  /* <If condition={columns.length > 0 && !isInvalidColumnAvailable(columns)}>
-        <Then>
-          <Button
-            onClick={createRowHandler}
-            type="primary"
-            style={{
-              marginBottom: 16,
-            }}
-          >
-            Add a row
-          </Button>
-        </Then>
-      </If> */
-}

@@ -21,6 +21,7 @@ function DropDown({
   callbackResponseOnlyValue,
   onBlurHandler = () => {},
   onFocusHandler = () => {},
+  forInstance,
 }) {
   const commonActionsStyle = {
     marginRight: 5,
@@ -114,7 +115,7 @@ function DropDown({
     <If condition={!editable && items.length > 0}>
       <Then>
         <Select
-          disabled={disabled}
+          disabled={!forInstance && disabled}
           onChange={onClickHandler}
           onBlur={onBlurHandler}
           onFocus={onFocusHandler}
@@ -133,7 +134,7 @@ function DropDown({
       </Then>
       <Else>
         <Select
-          disabled={disabled}
+          disabled={!forInstance && disabled}
           onBlur={onBlurHandler}
           onFocus={onFocusHandler}
           allowClear={true}
@@ -183,9 +184,19 @@ function DropDown({
           )}
         >
           {editabelMenuItems.map(({ value, key }, idx) => (
-            <Option key={idx}>
-              {value}
-              {/* <Input
+            <Option key={idx}>{value}</Option>
+          ))}
+        </Select>
+      </Else>
+    </If>
+  );
+}
+
+export default DropDown;
+
+// eslint-disable-next-line no-lone-blocks
+{
+  /* <Input
                 defaultValue={value}
                 propName={key}
                 cb={(val) => {
@@ -201,13 +212,5 @@ function DropDown({
                 }}
                 callbackResponseOnlyValue
                 fullWidth
-              /> */}
-            </Option>
-          ))}
-        </Select>
-      </Else>
-    </If>
-  );
+              /> */
 }
-
-export default DropDown;

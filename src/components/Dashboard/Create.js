@@ -69,7 +69,7 @@ function Create() {
       name,
       type: {
         name: type,
-        [value && "fields"]: valueByType(),
+        [value && type === DROP_DOWN ? "values" : "fields"]: valueByType(),
       },
       style: {},
       optional,
@@ -115,7 +115,9 @@ function Create() {
             );
           })}
 
-          <If condition={areAllFieldsValid}>
+          <If
+            condition={Boolean(areAllFieldsValid && structureComponents.length)}
+          >
             <Then>
               <Button type="primary" onClick={() => create(structure)}>
                 Save Structure

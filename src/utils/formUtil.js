@@ -26,7 +26,7 @@ export const isColumnValid = (column) => {
   const dataIndex = get(column, "dataIndex", "");
   const typeName = get(typeObj, "name", "");
   const uid = get(typeObj, "uid", "");
-  const fields = get(typeObj, "fields", []);
+  const fields = get(typeObj, "values", []);
 
   if (!isEmpty(typeObj)) {
     if (typeName === INPUT) {
@@ -101,7 +101,9 @@ export const formatColumnProperties = ({ name, fields, type, uid }) => {
     type: {
       name: type,
       uid: uid ? uid : uuid(),
-      ...(type !== INPUT && { fields }),
+      ...(type !== INPUT && {
+        [type === DROP_DOWN ? "values" : "fields"]: fields,
+      }),
     },
   };
 };
@@ -120,7 +122,9 @@ export const prepareColumnDataForApi = (columns) => {
         name: dataIndex,
         type,
         uid,
-        ...(type !== INPUT && { fields }),
+        ...(type !== INPUT && {
+          [type === DROP_DOWN ? "values" : "fields"]: fields,
+        }),
       }),
     ];
   }, []);
@@ -139,6 +143,23 @@ export const formatDropDownData = (data) => {
 
 export const reconstructDropDownData = (data, key) => {
   return data.reduce((acc, value) => [...acc, { key, value }], []);
+};
+
+export const reconstructColumn = ({ name, values, type }, key) => {
+  return {
+    key,
+    dataIndex: name,
+    title: name,
+    value: values,
+    type: type.name,
+  };
+};
+
+export const reconstructColumnsData = (columns) => {
+  return columns.reduce(
+    (acc, col, idx) => [...acc, reconstructColumn(col, idx)],
+    []
+  );
 };
 
 export const validateField = (field, type) => {

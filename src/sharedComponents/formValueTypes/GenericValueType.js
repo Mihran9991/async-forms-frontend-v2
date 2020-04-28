@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { If, Then } from "react-if";
-import { Button, notification } from "antd";
+import { Button } from "antd";
 
 import Input from "./Input";
-import { GetComponentByType } from "../../utils/commonUtil";
+import ComponentByType from "./ComponentByType";
 import { validateField } from "../../utils/formUtil";
-
 import { INPUT } from "../../constants/formConstants";
 
 function GenericFieldType({
@@ -14,6 +13,8 @@ function GenericFieldType({
   removeHandler,
   saveStructure,
   setAreAllFieldsValid,
+  forInstance,
+  value,
 }) {
   const [name, setName] = useState("");
   const [oldName, setOldName] = useState(name);
@@ -54,36 +55,65 @@ function GenericFieldType({
 
   return (
     <div key={uid} style={{ marginBottom: 10, marginTop: 10 }}>
-      <div className="main-text" style={{ marginBottom: 5 }}>
-        <b>{type}</b>
-      </div>
-      <If condition={type !== INPUT}>
-        <Then>
-          <Input
-            style={{ marginBottom: 10 }}
-            onBlurHandler={() => {
-              saveStructureHandler();
-            }}
-            cb={setName}
-            callbackResponseOnlyValue
-            placeholder={"Type field name"}
-          />
-          <br />
-        </Then>
+      <If condition={!Boolean(forInstance)}>
+        <div className="main-text" style={{ marginBottom: 5 }}>
+          <b>{type}</b>
+        </div>
+        <If condition={type !== INPUT}>
+          <Then>
+            <Input
+              style={{ marginBottom: 10 }}
+              onBlurHandler={() => {
+                saveStructureHandler();
+              }}
+              cb={setName}
+              callbackResponseOnlyValue
+              placeholder={"Type field name"}
+            />
+            <br />
+          </Then>
+        </If>
       </If>
-      <GetComponentByType
+      <ComponentByType
         type={type}
         name={name}
-        structureBuilder={structureBuilder}
+        structureBuilder={!forInstance ? structureBuilder : () => {}}
         setName={setName}
-        saveStructureHandler={saveStructureHandler}
+        saveStructureHandler={!forInstance ? saveStructureHandler : () => {}}
         structure={structure}
         error={error}
+        forInstance={Boolean(forInstance)}
+        value={value}
       />
       {error && <p style={{ color: "red" }}>{error}</p>}
       <br />
-      {/* && isEditing */}
-      {/* <If condition={name.length > 0}>
+      <If condition={!Boolean(forInstance)}>
+        <Then>
+          <Button
+            style={{ marginTop: 10 }}
+            onClick={() => {
+              removeHandler(uid, name);
+              setAreAllFieldsValid(true);
+            }}
+            type="danger"
+          >
+            Remove
+          </Button>
+        </Then>
+      </If>
+    </div>
+  );
+}
+
+export default GenericFieldType;
+
+// eslint-disable-next-line no-lone-blocks
+{
+  /* && isEditing */
+}
+// eslint-disable-next-line no-lone-blocks
+{
+  /* <If condition={name.length > 0}>
           <Then>
             <Button
               onClick={saveStructureHandler}
@@ -93,16 +123,5 @@ function GenericFieldType({
               Save
             </Button>
           </Then>
-        </If> */}
-      <Button
-        style={{ marginTop: 10 }}
-        onClick={() => removeHandler(uid, name)}
-        type="danger"
-      >
-        Remove
-      </Button>
-    </div>
-  );
+        </If> */
 }
-
-export default GenericFieldType;
