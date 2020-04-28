@@ -6,7 +6,7 @@ function Register() {
   return (
     <div className={styles["auth-wrapper"]}>
       <div className={styles["auth-inner"]}>
-        <RegisterComponent/>
+        <RegisterComponent />
       </div>
     </div>
   );

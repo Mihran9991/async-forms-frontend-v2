@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, Redirect } from "react-router-dom";
+import { Redirect, Route } from "react-router-dom";
 
 import routeConstants from "../../constants/routeConstants";
 import useUser from "../../hooks/useUser";

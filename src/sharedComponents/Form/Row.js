@@ -1,10 +1,10 @@
 import React from "react";
 import Button from "react-bootstrap/Button";
-import { If, Else, Then } from "react-if";
+import { Else, If, Then } from "react-if";
 
 import {
-  transformObjectDataIntoArray,
   addTypeToFormData,
+  transformObjectDataIntoArray,
 } from "../../utils/dataTransformUtil";
 import { DROP_DOWN, INPUT } from "../../constants/formConstants";
 import DropDown from "../../sharedComponents/formValueTypes/DropDown";

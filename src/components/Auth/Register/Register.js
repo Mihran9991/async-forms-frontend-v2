@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { withRouter } from "react-router-dom";
-
 import { renderDOM as commonRenderMap } from "../Auth";
+import { withRouter } from "react-router-dom";
 import routeConstants from "../../../constants/routeConstants";
 import authService from "../../../services/request/authService";
 
@@ -63,7 +62,15 @@ const RegisterForm = ({ history }) => {
     return commonRenderMap(DOM, handleChange);
   }
 
-  const [formData, updateFormData] = useState(initialFormData);
+  const [formData, updateFormData] = useState(
+    Object.freeze({
+      name: "",
+      surname: "",
+      email: "",
+      password1: "",
+      password2: "",
+    })
+  );
 
   const handleChange = (e) => {
     updateFormData({
@@ -109,13 +116,5 @@ const RegisterForm = ({ history }) => {
     </div>
   );
 };
-
-const initialFormData = Object.freeze({
-  name: "",
-  surname: "",
-  email: "",
-  password1: "",
-  password2: "",
-});
 
 export default withRouter(RegisterForm);

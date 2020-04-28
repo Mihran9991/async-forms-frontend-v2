@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { If, Then, Else } from "react-if";
+import { Else, If, Then } from "react-if";
 import { Button } from "antd";
 
 import Input from "../formValueTypes/Input";
