@@ -7,8 +7,6 @@ import useUser from "../../hooks/useUser";
 const ProtectedRoute = ({ component: Component, path, ...rest }) => {
   const user = useUser();
 
-  console.log("user", user);
-
   return (
     <Route
       {...rest}
@@ -29,8 +27,6 @@ const ProtectedRoute = ({ component: Component, path, ...rest }) => {
               />
             );
           }
-
-          console.log("saraaaaaa");
           return <Component path={path} {...rest} {...props} />;
         } else {
           if (

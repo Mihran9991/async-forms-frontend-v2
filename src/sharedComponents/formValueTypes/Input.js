@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Input as AInput } from "antd";
 
 function Input({
+  style,
   type,
   size,
   cb,
@@ -9,11 +10,13 @@ function Input({
   callbackResponseOnlyValue,
   defaultValue: defaultValueFromProps,
   reset,
-  resetCallback = () => {},
   fullWidth,
   customWidth,
   placeholder,
-  editItem,
+  disabled,
+  resetCallback = () => {},
+  onBlurHandler = () => {},
+  onFocusHandler = () => {},
 }) {
   const [currentValue, setCurrentValue] = useState("");
   const [defaultValue, setDefaultValue] = useState(defaultValueFromProps);
@@ -56,13 +59,16 @@ function Input({
   return (
     <>
       <AInput
-        style={{ width: getWidth() }}
+        style={{ width: getWidth(), ...(style && style) }}
         type={type}
         className="form-control"
         onChange={onChangeHandler}
+        onBlur={onBlurHandler}
+        onFocus={onFocusHandler}
         value={defaultValue || currentValue}
         aria-label={size}
         placeholder={placeholder}
+        disabled={disabled}
       />
     </>
   );

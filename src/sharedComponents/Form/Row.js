@@ -16,8 +16,6 @@ function Row({ properties, deleteRowHandler, editRowHandler }) {
     "entries"
   );
 
-  console.log("row", formattedProperties);
-
   return (
     <tr>
       {formattedProperties.map(([name, { value, type }], idx) => {

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, Route, Switch, withRouter } from "react-router-dom";
 import { Layout, Menu } from "antd";
-import { FileOutlined } from "@ant-design/icons";
+import { FileOutlined, FormOutlined, UserOutlined } from "@ant-design/icons";
 
 import Create from "./Create";
 import styles from "./dashboard.module.scss";
@@ -12,7 +12,6 @@ function SiderDemo({ match }) {
   const [collapsed, setIsCollapsed] = useState(false);
 
   const onCollapse = (collapsed) => {
-    console.log(collapsed);
     setIsCollapsed(collapsed);
   };
 
@@ -23,9 +22,21 @@ function SiderDemo({ match }) {
         <Menu theme="dark" defaultSelectedKeys={["1"]} mode="inline">
           <Menu.Item key="1">
             <FileOutlined />
-            <span>
-              <Link to={`${match.path}/create`}>Create Form</Link>
-            </span>
+            <Link to={`${match.path}/create`}>
+              <span>Create Form</span>
+            </Link>
+          </Menu.Item>
+          <Menu.Item key="2">
+            <FormOutlined />
+            <Link to={`${match.path}/forms`}>
+              <span>Forms</span>
+            </Link>
+          </Menu.Item>
+          <Menu.Item key="3">
+            <UserOutlined />
+            <Link to={`${match.path}/profile`}>
+              <span>User Profile</span>
+            </Link>
           </Menu.Item>
         </Menu>
       </Sider>

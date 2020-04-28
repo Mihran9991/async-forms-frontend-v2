@@ -1,9 +1,9 @@
 @import "~bootstrap/scss/bootstrap";
 @import url("https://fonts.googleapis.com/css?family=Fira+Sans:400,500,600,700,800");
 
-$primary-color: #353958;
+$primary-color: #00000040;
+$secondary-color: #000;
 $primary-text-color: #ffffff;
-$secondary-text-color: #000;
 
 * {
   box-sizing: border-box;
@@ -26,11 +26,6 @@ label,
 span {
   font-weight: 500;
   font-family: "Fira Sans", sans-serif;
-  color: $secondary-text-color;
-}
-
-a {
-  color: $primary-text-color;
 }
 
 body,
@@ -39,11 +34,14 @@ html,
 #root {
   width: 100%;
   height: 100%;
-  color: $primary-text-color;
 }
 
 input {
   border-radius: 5px !important;
+}
+
+a {
+  color: #ffffff !important;
 }
 
 .icon {
@@ -52,4 +50,12 @@ input {
 
 .table-responsive {
   min-height: 300px;
+}
+
+.main-text {
+  color: $secondary-color;
+}
+
+.divider {
+  background-color: $secondary-color !important;
 }

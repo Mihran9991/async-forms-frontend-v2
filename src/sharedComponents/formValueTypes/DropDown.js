@@ -1,58 +1,68 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useState } from "react";
-import { Divider, Select } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
-import { Else, If, Then } from "react-if";
+import { Select, Divider, Button } from "antd";
+import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
+import { If, Then, Else } from "react-if";
 import isEmpty from "lodash/isEmpty";
-
+import get from "lodash/get";
 import Input from "./Input";
 
 const { Option } = Select;
 
 function DropDown({
+  style,
   items = [],
   cb,
   defaultValue,
   propName,
   editable,
   menuItems,
+  disabled,
+  callbackResponseOnlyValue,
+  onBlurHandler = () => {},
+  onFocusHandler = () => {},
 }) {
-  const [editabelMenuItems, setEditabelMenuItems] = useState(menuItems || []);
-  const [currentValue, setCurrentValue] = useState(
-    defaultValue || "Select an Item"
-  );
+  const commonActionsStyle = {
+    marginRight: 5,
+    padding: 8,
+    display: "flex",
+    cursor: "pointer",
+    lineHeight: 1,
+  };
 
+  const [editabelMenuItems, setEditabelMenuItems] = useState(menuItems || []);
+  const [formattedItems, setFormattedItems] = useState([]);
+  const [currentValue, setCurrentValue] = useState(defaultValue);
   const [currentItem, setCurrentItem] = useState({});
 
-  const editItem = (editedData, idx) => {
+  const editItem = (editedData) => {
     setCurrentItem(editedData);
   };
 
   const dataCallback = editable ? editItem : cb;
 
-  // const removeItem = (deletableItemIdx) => {
-  //   if (items.length === 1) {
-  //     alert(`${propName} can't be empty`);
-  //     return;
-  //   }
-  //   const updatedItems = filter(items, (_, id) => id !== deletableItemIdx);
-
-  //   setEditabelMenuItems(updatedItems);
-  //   setCurrentValue(updatedItems[0].value);
-  //   cb({
-  //     [propName]: updatedItems,
-  //   });
-  // };
-
   const addItem = () => {
+    if (isEmpty(currentItem)) {
+      alert("Empty");
+      return;
+    }
+
     const [[key, value]] = Object.entries(currentItem);
-    const updatedItems = [...editabelMenuItems, { key, value }];
+    const newItem = { key, value };
+    const updatedItems = [...editabelMenuItems, newItem];
+
+    if (callbackResponseOnlyValue) {
+      const updatedFormattedItems = [...formattedItems, value];
+      setFormattedItems(updatedFormattedItems);
+      cb({ [propName]: updatedFormattedItems });
+    } else {
+      cb({
+        [propName]: updatedItems,
+      });
+    }
 
     setEditabelMenuItems(updatedItems);
     setCurrentItem({});
-    cb({
-      [propName]: updatedItems,
-    });
   };
 
   const onClickHandler = (value, { children }) => {
@@ -104,9 +114,13 @@ function DropDown({
     <If condition={!editable && items.length > 0}>
       <Then>
         <Select
+          disabled={disabled}
           onChange={onClickHandler}
+          onBlur={onBlurHandler}
+          onFocus={onFocusHandler}
           defaultValue={currentValue}
-          style={{ width: "100%" }}
+          style={{ width: "100%", ...(style && style) }}
+          placeholder={get(items, "[0].value", "Select an item")}
         >
           {items.map(({ value: itemValue, key: itemKey }, idx) => {
             return (
@@ -119,9 +133,12 @@ function DropDown({
       </Then>
       <Else>
         <Select
+          disabled={disabled}
+          onBlur={onBlurHandler}
+          onFocus={onFocusHandler}
           allowClear={true}
-          style={{ width: "100%" }}
-          placeholder="custom dropdown render"
+          style={{ width: "100%", ...(style && style) }}
+          placeholder={get(menuItems, "[0].value", "Add items")}
           dropdownRender={(menu) => (
             <div>
               {menu}
@@ -134,29 +151,33 @@ function DropDown({
                   reset={isEmpty(currentItem)}
                   fullWidth
                 />
-                <a
-                  style={{
-                    flex: "none",
-                    padding: "8px",
-                    display: "block",
-                    cursor: "pointer",
-                  }}
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  alignItems: "center",
+                  paddingRight: 2,
+                  marginBottom: 5,
+                  marginTop: 5,
+                }}
+              >
+                <Button
+                  type="primary"
+                  style={commonActionsStyle}
                   onClick={addItem}
                 >
-                  <PlusOutlined /> Add item
-                </a>
-
-                <a
-                  style={{
-                    flex: "none",
-                    padding: "8px",
-                    display: "block",
-                    cursor: "pointer",
-                  }}
+                  Add item
+                  <PlusOutlined style={{ marginRight: 2 }} />
+                </Button>
+                <Button
+                  type="danger"
+                  style={commonActionsStyle}
                   onClick={resetItemsList}
                 >
-                  <PlusOutlined /> Reset items
-                </a>
+                  Reset items
+                  <DeleteOutlined style={{ marginRight: 2 }} />
+                </Button>
               </div>
             </div>
           )}
