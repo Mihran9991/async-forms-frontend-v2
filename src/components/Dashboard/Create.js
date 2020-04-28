@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { If, Then } from "react-if";
-import { Divider } from "antd";
+import { Divider, Button } from "antd";
 import { v4 as uuidv4 } from "uuid";
 import isObject from "lodash/isObject";
 
@@ -21,7 +21,7 @@ function Create() {
   const [title, setTitle] = useState("");
   const [structureComponents, setStructureComponents] = useState([]);
   const [structure, setStructure] = useState({ name: title, fields: [] });
-  const [areAllFieldsValid, setAreAllFieldsValid] = useState(true);
+  const [areAllFieldsValid, setAreAllFieldsValid] = useState(false);
 
   const addStructureComponent = ({ structPiece }) => {
     setStructureComponents([
@@ -30,12 +30,18 @@ function Create() {
     ]);
   };
 
-  const removeStructurePieceHandler = (id) => {
-    const structureCopy = [...structureComponents].filter(
+  const removeStructurePieceHandler = (id, name) => {
+    const structureComponentsCopy = [...structureComponents].filter(
       ({ uid }) => uid !== id
     );
+    const structureCopy = { ...structure };
 
-    setStructureComponents(structureCopy);
+    structureCopy.fields = structureCopy.fields.filter(
+      ({ name: fieldName }) => name !== fieldName
+    );
+
+    setStructure(structureCopy);
+    setStructureComponents(structureComponentsCopy);
   };
 
   const saveStructure = ({ type, name, oldName, optional, value }) => {
@@ -73,11 +79,11 @@ function Create() {
     setStructure(copyStructure);
   };
 
-  console.log("sturct ======>", structure);
-
   useEffect(() => {
     setStructure({ ...structure, name: title });
   }, [title]);
+
+  console.log("areAllFieldsValid", areAllFieldsValid);
 
   return (
     <Card>
@@ -107,6 +113,17 @@ function Create() {
               </>
             );
           })}
+
+          <If condition={areAllFieldsValid}>
+            <Then>
+              <Button
+                type="primary"
+                onClick={() => console.log("save structure", structure)}
+              >
+                Save Structure
+              </Button>
+            </Then>
+          </If>
         </Then>
       </If>
     </Card>

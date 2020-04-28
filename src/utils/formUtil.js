@@ -23,6 +23,8 @@ export const generateRowByColumns = (columns) => {
 };
 
 export const isColumnValid = (column) => {
+  console.log("column -------->", column);
+
   const typeObj = get(column, "type", {});
   const dataIndex = get(column, "dataIndex", "");
   const typeName = get(typeObj, "name", "");
@@ -97,8 +99,6 @@ export const prepareRowDataForApi = (rows, specificData) => {
 };
 
 export const formatColumnProperties = ({ name, fields, type, uid }) => {
-  console.log("formatColumnProperties ------->", { name, fields, type, uid });
-
   return {
     name,
     type: {
@@ -136,13 +136,11 @@ export const isDuplicateColumnAvailable = (columns, { name, uid }) => {
 };
 
 export const formatDropDownData = (data) => {
-  const modifiedData = transformObjectDataIntoArray(data, "values")[0];
-
-  console.log("modifiedData", modifiedData);
-
-  return modifiedData.reduce((acc, { value }) => {
-    return [...acc, value];
-  }, []);
+  const formattedData = transformObjectDataIntoArray(data, "values")[0];
+  return formattedData;
+  // return modifiedData.reduce((acc, { value }) => {
+  //   return [...acc, value];
+  // }, []);
 };
 
 export const reconstructDropDownData = (data, key) => {
@@ -152,7 +150,11 @@ export const reconstructDropDownData = (data, key) => {
 };
 
 export const validateField = (field, type) => {
-  console.log("field ------->", field);
+  console.log("field ------->", field, type);
+  if (type === TABLE) {
+    // return isInvalidColumnAvailable(nonPrimitiveValue);
+    return true;
+  }
 
   if (isEmpty(field)) {
     return false;
@@ -165,10 +167,6 @@ export const validateField = (field, type) => {
   const nonPrimitiveValue = transformObjectDataIntoArray(field, "values")[0];
   if (type === DROP_DOWN) {
     return nonPrimitiveValue.length;
-  }
-
-  if (type === TABLE) {
-    return isInvalidColumnAvailable(nonPrimitiveValue);
   }
 
   return false;

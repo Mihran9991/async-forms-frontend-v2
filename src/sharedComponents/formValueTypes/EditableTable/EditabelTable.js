@@ -18,11 +18,10 @@ import {
   filterObjectByKey,
 } from "../../../utils/dataTransformUtil";
 
-const EditableTable = ({ cb, propName, saveStructureHandler }) => {
-  const withTitle = (columns, editable) => {
+const EditableTable = ({ cb, propName, saveStructureHandler, structure }) => {
+  // TODO::
+  const withTitle = (columns, editable, saveStructureHandler) => {
     const title = [...columns].reduce((acc, col) => {
-      console.log("col ==========>", col);
-
       return [
         ...acc,
         {
@@ -41,7 +40,8 @@ const EditableTable = ({ cb, propName, saveStructureHandler }) => {
               editable={editable}
               type={col.type}
               uid={col.uid}
-              data={get(col, "type.type.fields", [])}
+              data={get(col, "type.fields", [])}
+              structure={structure}
             />
           ),
         },
@@ -65,7 +65,8 @@ const EditableTable = ({ cb, propName, saveStructureHandler }) => {
 
     const transformedColumns = withTitle(
       transformObjectDataIntoArray(columnsCopy, "values"),
-      !rows.length
+      !rows.length,
+      saveStructureHandler
     );
 
     setColumns(transformedColumns);
@@ -88,7 +89,8 @@ const EditableTable = ({ cb, propName, saveStructureHandler }) => {
 
     const transformedColumns = withTitle(
       transformObjectDataIntoArray([...columns, emptyColumn], "values"),
-      !rows.length
+      !rows.length,
+      saveStructureHandler
     );
 
     setColumns(transformedColumns);
@@ -118,7 +120,8 @@ const EditableTable = ({ cb, propName, saveStructureHandler }) => {
 
     const transformedColumns = withTitle(
       transformObjectDataIntoArray(columnsCopy, "values"),
-      !rows.length
+      !rows.length,
+      saveStructureHandler
     );
 
     setColumns(transformedColumns);

@@ -3,7 +3,7 @@ import { If, Then } from "react-if";
 import { Button, notification } from "antd";
 
 import Input from "./Input";
-import { getComponentByType } from "../../utils/commonUtil";
+import { GetComponentByType } from "../../utils/commonUtil";
 import { validateField } from "../../utils/formUtil";
 
 import { INPUT } from "../../constants/formConstants";
@@ -18,17 +18,10 @@ function GenericFieldType({
   const [name, setName] = useState("");
   const [oldName, setOldName] = useState(name);
   const [structure, setStructure] = useState({});
+  const [error, setError] = useState("");
 
   const structureBuilder = (data) => {
     setStructure({ ...structure, ...data });
-  };
-
-  const openNotification = (placement) => {
-    notification.info({
-      message: `Invalid field`,
-      description: "Please provide valid field properties",
-      placement,
-    });
   };
 
   const currentValue = () => {
@@ -40,28 +33,20 @@ function GenericFieldType({
   };
 
   const saveStructureHandler = () => {
-    console.log("saveStructureHandler");
     const value = currentValue();
     const isValid = validateField(value, type);
 
     if (!name.length || !isValid) {
-      openNotification("topRight");
+      setError("Please provide valid data");
       setAreAllFieldsValid(false);
       return;
     }
 
+    setError("");
     saveStructure({ value: value, type, name, oldName });
-    setAreAllFieldsValid(isValid);
+    setAreAllFieldsValid(Boolean(isValid));
     setOldName(name);
   };
-
-  const [component, withName] = getComponentByType({
-    type,
-    name,
-    structureBuilder,
-    setName,
-    saveStructureHandler,
-  });
 
   useEffect(() => {
     setAreAllFieldsValid(false);
@@ -72,7 +57,7 @@ function GenericFieldType({
       <div className="main-text" style={{ marginBottom: 5 }}>
         <b>{type}</b>
       </div>
-      <If condition={withName}>
+      <If condition={type !== INPUT}>
         <Then>
           <Input
             style={{ marginBottom: 10 }}
@@ -86,7 +71,16 @@ function GenericFieldType({
           <br />
         </Then>
       </If>
-      {component}
+      <GetComponentByType
+        type={type}
+        name={name}
+        structureBuilder={structureBuilder}
+        setName={setName}
+        saveStructureHandler={saveStructureHandler}
+        structure={structure}
+        error={error}
+      />
+      {error && <p style={{ color: "red" }}>{error}</p>}
       <br />
       {/* && isEditing */}
       {/* <If condition={name.length > 0}>
@@ -102,7 +96,7 @@ function GenericFieldType({
         </If> */}
       <Button
         style={{ marginTop: 10 }}
-        onClick={() => removeHandler(uid)}
+        onClick={() => removeHandler(uid, name)}
         type="danger"
       >
         Remove

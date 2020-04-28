@@ -6,7 +6,6 @@ import {
   EMPTY_VALUE,
   DROP_DOWN,
 } from "../../constants/formConstants";
-import { isColumnValid } from "../../utils/formUtil";
 import { Button } from "antd";
 import Input from "../formValueTypes/Input";
 import DropDown from "../formValueTypes/DropDown";
@@ -65,13 +64,9 @@ function Column({
     setIsEditingEnabled(!isEditingEnabled);
   };
 
-  // useEffect(() => {
-  //   console.log("values ###########>", values);
-
-  //   setCurrentValues(values);
-  // }, [values]);
-
-  console.log("values =====>", values);
+  useEffect(() => {
+    setCurrentValues(values);
+  }, [values]);
 
   const isValid = currentName.length > 0 && currentType.length;
   const reconstructed = reconstructDropDownData(values, propName);
@@ -125,9 +120,9 @@ function Column({
                 Add field values
                 <DropDown
                   menuItems={reconstructed}
-                  cb={(editedData) =>
-                    structureCurrentData(editedData, "values")
-                  }
+                  cb={(editedData) => {
+                    structureCurrentData(editedData, "values");
+                  }}
                   defaultValue={"Add field values"}
                   fullWidth
                   callbackResponseOnlyValue

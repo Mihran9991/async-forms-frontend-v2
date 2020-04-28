@@ -5,9 +5,7 @@ import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { If, Then, Else } from "react-if";
 import isEmpty from "lodash/isEmpty";
 import get from "lodash/get";
-
 import Input from "./Input";
-import { formatDropDownData } from "../../utils/formUtil";
 
 const { Option } = Select;
 
@@ -44,6 +42,11 @@ function DropDown({
   const dataCallback = editable ? editItem : cb;
 
   const addItem = () => {
+    if (isEmpty(currentItem)) {
+      alert("Empty");
+      return;
+    }
+
     const [[key, value]] = Object.entries(currentItem);
     const newItem = { key, value };
     const updatedItems = [...editabelMenuItems, newItem];
@@ -52,13 +55,14 @@ function DropDown({
       const updatedFormattedItems = [...formattedItems, value];
       setFormattedItems(updatedFormattedItems);
       cb({ [propName]: updatedFormattedItems });
+    } else {
+      cb({
+        [propName]: updatedItems,
+      });
     }
 
     setEditabelMenuItems(updatedItems);
     setCurrentItem({});
-    cb({
-      [propName]: formatDropDownData({ updatedItems }),
-    });
   };
 
   const onClickHandler = (value, { children }) => {
