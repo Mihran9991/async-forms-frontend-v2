@@ -9,6 +9,21 @@ import Input from "./Input";
 
 const { Option } = Select;
 
+const OptionItem = ({ value, idx, propName, editable, cb }) => {
+  return (
+    <If condition={editable}>
+      <Then>
+        <Input
+          defaultValue={value}
+          cb={(editedItem) => cb(editedItem, idx)}
+          propName={propName}
+        />
+      </Then>
+      <Else>{value}</Else>
+    </If>
+  );
+};
+
 function DropDown({
   style,
   items = [],
@@ -18,7 +33,7 @@ function DropDown({
   editable,
   menuItems,
   disabled,
-  callbackResponseOnlyValue,
+  isFormatted,
   onBlurHandler = () => {},
   onFocusHandler = () => {},
   forInstance,
@@ -30,7 +45,6 @@ function DropDown({
     cursor: "pointer",
     lineHeight: 1,
   };
-
   const [editabelMenuItems, setEditabelMenuItems] = useState(menuItems || []);
   const [formattedItems, setFormattedItems] = useState([]);
   const [currentValue, setCurrentValue] = useState(defaultValue);
@@ -52,7 +66,7 @@ function DropDown({
     const newItem = { key, value };
     const updatedItems = [...editabelMenuItems, newItem];
 
-    if (callbackResponseOnlyValue) {
+    if (isFormatted) {
       const updatedFormattedItems = [...formattedItems, value];
       setFormattedItems(updatedFormattedItems);
       cb({ [propName]: updatedFormattedItems });
@@ -73,6 +87,13 @@ function DropDown({
 
     if (!editable) {
       setCurrentValue(value);
+
+      if (isFormatted) {
+        dataCallback({
+          [propName]: value,
+        });
+        return;
+      }
 
       if (!propName) {
         dataCallback({
@@ -96,21 +117,6 @@ function DropDown({
     });
   };
 
-  const OptionItem = ({ value, idx }) => {
-    return (
-      <If condition={Boolean(editable)}>
-        <Then>
-          <Input
-            defaultValue={value}
-            cb={(editedItem) => cb(editedItem, idx)}
-            propName={propName}
-          />
-        </Then>
-        <Else>{value}</Else>
-      </If>
-    );
-  };
-
   return (
     <If condition={!editable && items.length > 0}>
       <Then>
@@ -119,14 +125,21 @@ function DropDown({
           onChange={onClickHandler}
           onBlur={onBlurHandler}
           onFocus={onFocusHandler}
-          defaultValue={currentValue}
+          defaultValue={currentValue ? currentValue : defaultValue}
           style={{ width: "100%", ...(style && style) }}
           placeholder={get(items, "[0].value", "Select an item")}
         >
           {items.map(({ value: itemValue, key: itemKey }, idx) => {
             return (
               <Option value={itemValue} key={idx}>
-                <OptionItem value={itemValue} itemKey={itemKey} idx={idx} />
+                <OptionItem
+                  value={itemValue}
+                  itemKey={itemKey}
+                  idx={idx}
+                  propName={propName}
+                  editable={Boolean(editable)}
+                  cb={cb}
+                />
               </Option>
             );
           })}
@@ -183,7 +196,7 @@ function DropDown({
             </div>
           )}
         >
-          {editabelMenuItems.map(({ value, key }, idx) => (
+          {editabelMenuItems.map(({ value }, idx) => (
             <Option key={idx}>{value}</Option>
           ))}
         </Select>
@@ -193,24 +206,3 @@ function DropDown({
 }
 
 export default DropDown;
-
-// eslint-disable-next-line no-lone-blocks
-{
-  /* <Input
-                defaultValue={value}
-                propName={key}
-                cb={(val) => {
-                  const copy = [...editabelMenuItems];
-
-                  for (let i = 0; i < copy.length; ++i) {
-                    if (copy[i].key === key) {
-                      copy[i].value = val;
-                      setEditabelMenuItems(copy);
-                      break;
-                    }
-                  }
-                }}
-                callbackResponseOnlyValue
-                fullWidth
-              /> */
-}

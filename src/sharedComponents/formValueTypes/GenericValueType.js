@@ -44,7 +44,7 @@ function GenericFieldType({
     }
 
     setError("");
-    saveStructure({ value: value, type, name, oldName });
+    saveStructure({ value, type, name, oldName });
     setAreAllFieldsValid(Boolean(isValid));
     setOldName(name);
   };
@@ -56,23 +56,23 @@ function GenericFieldType({
   return (
     <div key={uid} style={{ marginBottom: 10, marginTop: 10 }}>
       <If condition={!Boolean(forInstance)}>
-        <div className="main-text" style={{ marginBottom: 5 }}>
-          <b>{type}</b>
-        </div>
-        <If condition={type !== INPUT}>
-          <Then>
-            <Input
-              style={{ marginBottom: 10 }}
-              onBlurHandler={() => {
-                saveStructureHandler();
-              }}
-              cb={setName}
-              callbackResponseOnlyValue
-              placeholder={"Type field name"}
-            />
-            <br />
-          </Then>
-        </If>
+        <Then>
+          <div className="main-text" style={{ marginBottom: 5 }}>
+            <b>{type}</b>
+          </div>
+          <If condition={type !== INPUT}>
+            <Then>
+              <Input
+                style={{ marginBottom: 10 }}
+                onBlurHandler={saveStructureHandler}
+                cb={setName}
+                callbackResponseOnlyValue
+                placeholder={"Type field name"}
+              />
+              <br />
+            </Then>
+          </If>
+        </Then>
       </If>
       <ComponentByType
         type={type}

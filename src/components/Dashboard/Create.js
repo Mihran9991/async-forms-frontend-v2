@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { If, Then } from "react-if";
+import { If, Then, Switch, Case } from "react-if";
 import { Divider, Button } from "antd";
 import { v4 as uuidv4 } from "uuid";
 import isObject from "lodash/isObject";
@@ -12,11 +12,44 @@ import { DROP_DOWN, INPUT, TABLE } from "../../constants/formConstants";
 import { transformObjectDataIntoArray } from "../../utils/dataTransformUtil";
 import { create } from "../../services/request/formService";
 
+import styles from "./dashboard.module.scss";
+
 const DDItems = [
   { key: "structPiece", value: DROP_DOWN },
   { key: "structPiece", value: INPUT },
   { key: "structPiece", value: TABLE },
 ];
+
+function AddNewFieldsSection({ disabled, cb }) {
+  return (
+    <div className={styles["add-new-fields"]}>
+      <Button
+        disabled={disabled}
+        type="primary"
+        onClick={() => cb({ structPiece: INPUT })}
+        className={styles["add-new-fields-btn"]}
+      >
+        Add input field
+      </Button>
+      <Button
+        disabled={disabled}
+        type="primary"
+        onClick={() => cb({ structPiece: DROP_DOWN })}
+        className={styles["add-new-fields-btn"]}
+      >
+        Add drop down field
+      </Button>
+      <Button
+        disabled={disabled}
+        type="primary"
+        onClick={() => cb({ structPiece: TABLE })}
+        className={styles["add-new-fields-btn"]}
+      >
+        Add table field
+      </Button>
+    </div>
+  );
+}
 
 function Create() {
   const [title, setTitle] = useState("");
@@ -29,6 +62,7 @@ function Create() {
       ...structureComponents,
       { structPiece, uid: uuidv4() },
     ]);
+    setAreAllFieldsValid(false);
   };
 
   const removeStructurePieceHandler = (id, name) => {
@@ -90,11 +124,16 @@ function Create() {
       <If condition={title.length > 0}>
         <Then>
           <span>Add new fields</span>
-          <DropDown
+
+          {/* <DropDown
             style={{ marginBottom: 10 }}
             items={DDItems}
             cb={addStructureComponent}
             disabled={structureComponents.length && !areAllFieldsValid}
+          /> */}
+          <AddNewFieldsSection
+            disabled={structureComponents.length && !areAllFieldsValid}
+            cb={addStructureComponent}
           />
           {structureComponents.map(({ structPiece, uid }, idx) => {
             return (

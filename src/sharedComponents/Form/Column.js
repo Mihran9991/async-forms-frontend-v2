@@ -14,6 +14,7 @@ import {
   formatDropDownData,
   formatColumnProperties,
   reconstructDropDownData,
+  getDropDownDataValues,
 } from "../../utils/formUtil";
 
 function Column({
@@ -41,7 +42,7 @@ function Column({
     }
 
     if (structurePiece === "values") {
-      setCurrentValues(formatDropDownData(editedData));
+      setCurrentValues(getDropDownDataValues(formatDropDownData(editedData)));
     }
   };
 
@@ -75,7 +76,7 @@ function Column({
     <div className={styels["column"]}>
       <div>{name ? name : EMPTY_VALUE}</div>
       <div>
-        <If condition={isValid && isEditingEnabled}>
+        <If condition={Boolean(isValid && isEditingEnabled)}>
           <Then>
             <Button onClick={save}>Save</Button>
           </Then>

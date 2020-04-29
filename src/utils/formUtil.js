@@ -12,11 +12,12 @@ import {
 } from "../constants/formConstants";
 
 // TODO :: check if iterable before iterating over objects !!!!!!!!
-export const generateRowByColumns = (columns) => {
+export const generateRowByColumns = (columns, key) => {
   return columns.reduce((acc, { dataIndex }) => {
     return {
       ...acc,
       [dataIndex]: "",
+      key,
     };
   }, {});
 };
@@ -120,7 +121,7 @@ export const prepareColumnDataForApi = (columns) => {
       ...acc,
       formatColumnProperties({
         name: dataIndex,
-        type,
+        type: type !== INPUT ? type : { name: type.name },
         uid,
         ...(type !== INPUT && {
           [type === DROP_DOWN ? "values" : "fields"]: fields,
@@ -141,17 +142,21 @@ export const formatDropDownData = (data) => {
   return formattedData;
 };
 
+export const getDropDownDataValues = (data) => {
+  return data.reduce((acc, { value }) => [...acc, value], []);
+};
+
 export const reconstructDropDownData = (data, key) => {
   return data.reduce((acc, value) => [...acc, { key, value }], []);
 };
 
-export const reconstructColumn = ({ name, values, type }, key) => {
+export const reconstructColumn = (col, key) => {
   return {
     key,
-    dataIndex: name,
-    title: name,
-    value: values,
-    type: type.name,
+    dataIndex: col.name,
+    title: col.name,
+    value: col.type.values,
+    type: col.type.name,
   };
 };
 

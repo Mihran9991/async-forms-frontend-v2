@@ -13,8 +13,6 @@ function Title({
   data,
   structure,
 }) {
-  console.log("structure -------------->", structure);
-
   return (
     <Column
       name={name}

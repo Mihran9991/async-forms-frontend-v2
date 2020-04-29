@@ -1,14 +1,14 @@
 import { axiosInstance } from "../components";
-import BackendConfig from "../constants/backend.config";
+import backendConstants from "../constants/backendConstants";
 
 export async function sendRequest(formData) {
-  return axiosInstance.post(`${BackendConfig.FORGOT_SEND}`, {
+  return axiosInstance.post(`${backendConstants.FORGOT_SEND}`, {
     email: formData.email,
   });
 }
 
 export async function resetRequest(formData) {
-  return axiosInstance.post(`${BackendConfig.FORGOT_RESET}`, {
+  return axiosInstance.post(`${backendConstants.FORGOT_RESET}`, {
     requestId: formData.requestId,
     newPassword: formData.newPassword,
   });

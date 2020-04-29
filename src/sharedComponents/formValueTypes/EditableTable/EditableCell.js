@@ -1,45 +1,33 @@
-import React from "react";
+import React, { useState } from "react";
 import { If, Else, Then } from "react-if";
 import { Form } from "antd";
 
-import { INPUT, DROP_DOWN } from "../../../constants/formConstants";
+import { INPUT, DROP_DOWN, OPERATION } from "../../../constants/formConstants";
 import Input from "../Input";
 import DropDown from "../DropDown";
+import get from "lodash/get";
 
-function EditableCell({
+function EditableRow({
   value,
-  editing,
   dataIndex,
-  title,
   inputType,
   record,
-  index,
   children,
-  edit,
   editRowHandler,
-  data,
-  specificData,
-  specificDataHandler,
-  save,
-  isEditableRowAvailable,
-  forFocus,
-  ...restProps
 }) {
-  const ddkey = record && `${record.key}-${dataIndex}`;
-
-  console.log(">>>>>> inputType", inputType);
-
-  const isValidType = () => inputType === INPUT || inputType === DROP_DOWN;
+  // const ddkey = record && `${record.key}-${dataIndex}`;
+  const isValidType = () =>
+    inputType === INPUT || inputType === DROP_DOWN || dataIndex === OPERATION;
+  const [currentVal, setCurrentVal] = useState("");
+  const key = get(record, "key", "");
 
   if (!isValidType()) {
     return null;
   }
 
   return (
-    <td {...restProps}>
-      {/* <If condition={isValidType()}>
-        <Then> */}
-      <If condition={dataIndex === "operation"}>
+    <td>
+      <If condition={dataIndex === OPERATION}>
         <Then>{children}</Then>
         <Else>
           <Form.Item
@@ -59,46 +47,49 @@ function EditableCell({
               <Then>
                 <Input
                   propName={dataIndex}
-                  cb={(data) => {
-                    edit({
-                      key: record.key,
-                      [dataIndex]: data[dataIndex],
-                    });
-                  }}
+                  cb={setCurrentVal}
                   defaultValue={record && record[dataIndex]}
                   fullWidth
-                  //onBlurHandler={() => save(record.key)}
-                  //onFocusHandler={() => isEditableRowAvailable && edit(record)}
+                  onBlurHandler={() => {
+                    editRowHandler(key, currentVal);
+                    setCurrentVal("");
+                  }}
                 />
               </Then>
               <Else>
                 <DropDown
-                  propName={dataIndex}
-                  menuItems={[]}
-                  items={[]}
-                  cb={(data) => {
-                    specificDataHandler({ [ddkey]: data[dataIndex] });
-                    edit({
-                      key: record.key,
-                      [dataIndex]:
-                        data[dataIndex] && data[dataIndex].length
-                          ? data[dataIndex][0].value
-                          : "",
-                    });
-                  }}
+                  isFormatted
                   fullWidth
-                  //  onBlurHandler={() => save(get(record, "key", ""))}
-                  //onFocusHandler={() => isEditableRowAvailable && edit(record)}
+                  propName={dataIndex}
+                  defaultValue={
+                    record[dataIndex]
+                      ? record[dataIndex]
+                      : get(value, "[0].value", "")
+                  }
+                  menuItems={[]}
+                  items={value}
+                  cb={setCurrentVal}
+                  onBlurHandler={() => {
+                    editRowHandler(key, currentVal);
+                    setCurrentVal("");
+                  }}
                 />
               </Else>
             </If>
           </Form.Item>
         </Else>
       </If>
-      {/* </Then>
-      </If> */}
     </td>
   );
 }
 
-export default EditableCell;
+export default EditableRow;
+
+// specificDataHandler({ [ddkey]: data[dataIndex] });
+// edit({
+//   key: record.key,
+//   [dataIndex]:
+//     data[dataIndex] && data[dataIndex].length
+//       ? data[dataIndex][0].value
+//       : "",
+// });

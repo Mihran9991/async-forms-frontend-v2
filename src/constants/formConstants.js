@@ -4,6 +4,7 @@ import Input from "../sharedComponents/formValueTypes/Input";
 export const DROP_DOWN = "dropdown";
 export const INPUT = "input";
 export const TABLE = "table";
+export const OPERATION = "operation";
 export const DROP_DOWN_INITIAL_VALUE = [];
 export const INPUT_INITIAL_VALUE = "";
 

@@ -13,11 +13,10 @@ import {
   isInvalidColumnAvailable,
   isDuplicateColumnAvailable,
   generateRowByColumns,
+  reconstructDropDownData,
 } from "../../../utils/formUtil";
-import {
-  transformObjectDataIntoArray,
-  filterObjectByKey,
-} from "../../../utils/dataTransformUtil";
+import { transformObjectDataIntoArray } from "../../../utils/dataTransformUtil";
+import { OPERATION, DROP_DOWN } from "../../../constants/formConstants";
 
 const EditableTable = ({
   cb,
@@ -65,10 +64,28 @@ const EditableTable = ({
   const [rows, setRows] = useState(rowsFromProps || []);
   const [editingKey, setEditingKey] = useState("");
   const [forFocus, setForFocus] = useState({});
-  const [specificData, setSpecificData] = useState({});
 
   const createRowHandler = () => {
-    setRows([...rows, generateRowByColumns(columns)]);
+    const key = uuidv4();
+    setRows([...rows, generateRowByColumns(columns, key)]);
+  };
+
+  const saveRowHandler = (rowId, editedData) => {
+    const updatedRows = [...rows].reduce((acc, row) => {
+      if (row.key === rowId) {
+        return [...acc, { ...row, ...editedData }];
+      }
+
+      return [...acc, row];
+    }, []);
+
+    setRows(updatedRows);
+    //TODO:: socket(FILED_SAVE, {formId, rowId, columnId, editedData)
+  };
+
+  const editRowHandler = () => {
+    console.log("editRowHandler");
+    // TODO:: socket(FILED_EDIT, {formId, rowId, columnId)
   };
 
   const deleteColumnByNameHandler = (id) => {
@@ -142,18 +159,22 @@ const EditableTable = ({
   };
 
   const deleteRowHandler = (rowId) => {
-    const specificDataCopy = { ...specificData };
-    const keys = Object.keys(specificData);
-    for (let i = 0; i < keys.length; ++i) {
-      const extractedKey = keys[i].split("-")[0];
-      if (extractedKey == rowId) {
-        const newData = filterObjectByKey(specificDataCopy, keys[i]);
-        setSpecificData(newData);
-        break;
-      }
-    }
+    // const specificDataCopy = { ...specificData };
+    // const keys = Object.keys(specificData);
+    // for (let i = 0; i < keys.length; ++i) {
+    //   const extractedKey = keys[i].split("-")[0];
+    //   if (extractedKey == rowId) {
+    //     const newData = filterObjectByKey(specificDataCopy, keys[i]);
+    //     setSpecificData(newData);
+    //     break;
+    //   }
+    // }
+    console.log("rowId", rows);
 
-    const updatedRows = [...rows].filter(({ key }, idx) => key !== rowId);
+    const updatedRows = [...rows].filter((row) => {
+      console.log("row", row);
+      return row.key !== rowId;
+    });
 
     setRows(updatedRows);
   };
@@ -182,34 +203,34 @@ const EditableTable = ({
     }
   };
 
-  const save = async (key) => {
-    try {
-      const row = await form.validateFields();
-      setForFocus({});
-      const newData = [...rows];
-      const index = newData.findIndex((item) => key === item.key);
+  // const save = async (key) => {
+  //   try {
+  //     const row = await form.validateFields();
+  //     setForFocus({});
+  //     const newData = [...rows];
+  //     const index = newData.findIndex((item) => key === item.key);
 
-      if (index > -1) {
-        const item = newData[index];
-        newData.splice(index, 1, { ...item, ...row });
-        setEditingKey("");
-      } else {
-        newData.push(row);
-        setEditingKey("");
-      }
+  //     if (index > -1) {
+  //       const item = newData[index];
+  //       newData.splice(index, 1, { ...item, ...row });
+  //       setEditingKey("");
+  //     } else {
+  //       newData.push(row);
+  //       setEditingKey("");
+  //     }
 
-      setRows(newData);
-    } catch (errInfo) {
-      const errors = form.getFieldsError();
-      resetErrors(errors, key);
-    }
-  };
+  //     setRows(newData);
+  //   } catch (errInfo) {
+  //     const errors = form.getFieldsError();
+  //     resetErrors(errors, key);
+  //   }
+  // };
 
   const mergedColumns = [
     ...columns,
     {
-      title: "operation",
-      dataIndex: "operation",
+      title: OPERATION,
+      dataIndex: OPERATION,
       render: (_, record) => {
         // const editable = isEditing(record);
         return (
@@ -264,17 +285,12 @@ const EditableTable = ({
         record,
         inputType: col.type,
         dataIndex: col.dataIndex,
-        title: col.title,
-        value: col.value,
-        editing: isEditing(record),
-        edit,
-        setRows,
-        rows,
-        specificData,
-        setSpecificData,
-        isEditableRowAvailable: editingKey === "",
-        save,
-        forFocus,
+        value:
+          col.type === DROP_DOWN
+            ? reconstructDropDownData(col.value)
+            : col.value,
+        saveRowHandler,
+        editRowHandler,
       }),
     };
   });
