@@ -48,13 +48,13 @@ function Column({
 
   const save = () => {
     if (isEditingEnabled) {
-      editColumnHandler(
-        formatColumnProperties({
-          name: currentName,
-          type: currentType,
-          fields: currentValues,
-        })
-      );
+      const formattedCallbackData = formatColumnProperties({
+        name: currentName,
+        type: currentType,
+        fields: currentValues,
+      });
+
+      editColumnHandler(formattedCallbackData);
     }
 
     saveStructureHandler();
@@ -65,45 +65,49 @@ function Column({
     setIsEditingEnabled(!isEditingEnabled);
   };
 
-  useEffect(() => {
-    setCurrentValues(values);
-  }, [values]);
-
   const isValid = currentName.length > 0 && currentType.length;
-  const reconstructed = reconstructDropDownData(values, propName);
+  const reconstructed = reconstructDropDownData(currentValues, propName);
+
+  // console.log("reconstructed", reconstructed);
 
   return (
     <div className={styels["column"]}>
       <div>{name ? name : EMPTY_VALUE}</div>
       <div>
-        <If condition={Boolean(isValid && isEditingEnabled)}>
+        <If condition={Boolean(editable)}>
           <Then>
-            <Button onClick={save}>Save</Button>
-          </Then>
-        </If>
-        <If condition={!isValid || editable}>
-          <Then>
-            <If condition={!isEditingEnabled}>
+            <If condition={Boolean(isValid && isEditingEnabled)}>
               <Then>
-                <Button onClick={edit}>Edit</Button>
+                <Button onClick={save}>Save</Button>
               </Then>
             </If>
+            <If condition={!isValid || editable}>
+              <Then>
+                <If condition={!isEditingEnabled}>
+                  <Then>
+                    <Button onClick={edit}>Edit</Button>
+                  </Then>
+                </If>
+              </Then>
+            </If>
+            <Button
+              onClick={() => {
+                deleteColumnByNameHandler(name);
+              }}
+            >
+              Delete
+            </Button>
+            <br />
           </Then>
         </If>
-        <Button
-          onClick={() => {
-            deleteColumnByNameHandler(name);
-          }}
-        >
-          Delete
-        </Button>
-        <br />
+
         <If condition={isEditingEnabled}>
           <Then>
             Type field name
             <Input
               defaultValue={name}
               cb={(editedData) => structureCurrentData(editedData, "name")}
+              onBlurHandler={saveStructureHandler}
               callbackResponseOnlyValue
               fullWidth
             />
@@ -112,6 +116,7 @@ function Column({
             <DropDown
               items={FORM_DATA_TYPES}
               cb={(editedData) => structureCurrentData(editedData, "type")}
+              onBlurHandler={saveStructureHandler}
               defaultValue={"Select field type"}
               fullWidth
             />
@@ -124,6 +129,7 @@ function Column({
                   cb={(editedData) => {
                     structureCurrentData(editedData, "values");
                   }}
+                  onBlurHandler={saveStructureHandler}
                   defaultValue={"Add field values"}
                   fullWidth
                   callbackResponseOnlyValue

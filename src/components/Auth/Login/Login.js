@@ -51,7 +51,7 @@ const LoginForm = ({ history }) => {
     e.preventDefault();
     // todd:: wrap in try/catch block
     const response = await authService.loginRequest(formData);
-    console.log("Got response: " + response.data);
+    // console.log("Got response: " + response.data);
     if (response.status === 200) {
       const token = response.data.token;
       cookieService.addCookie("user", token);

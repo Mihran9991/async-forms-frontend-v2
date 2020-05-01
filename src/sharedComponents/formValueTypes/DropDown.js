@@ -6,6 +6,7 @@ import { If, Then, Else } from "react-if";
 import isEmpty from "lodash/isEmpty";
 import get from "lodash/get";
 import Input from "./Input";
+import { getDropDownDataValues } from "../../utils/formUtil";
 
 const { Option } = Select;
 
@@ -37,6 +38,7 @@ function DropDown({
   onBlurHandler = () => {},
   onFocusHandler = () => {},
   forInstance,
+  onlyValues,
 }) {
   const commonActionsStyle = {
     marginRight: 5,
@@ -66,21 +68,26 @@ function DropDown({
     const newItem = { key, value };
     const updatedItems = [...editabelMenuItems, newItem];
 
-    if (isFormatted) {
-      const updatedFormattedItems = [...formattedItems, value];
-      setFormattedItems(updatedFormattedItems);
-      cb({ [propName]: updatedFormattedItems });
-    } else {
+    if (onlyValues) {
       cb({
-        [propName]: updatedItems,
+        [propName]: getDropDownDataValues(updatedItems),
       });
+    } else {
+      if (isFormatted) {
+        const updatedFormattedItems = [...formattedItems, value];
+        setFormattedItems(updatedFormattedItems);
+        cb({ [propName]: updatedFormattedItems });
+      } else {
+        cb({
+          [propName]: updatedItems,
+        });
+      }
     }
-
     setEditabelMenuItems(updatedItems);
     setCurrentItem({});
   };
 
-  const onClickHandler = (value, { children }) => {
+  const onChangeHandler = (value, { children }) => {
     const {
       props: { itemKey },
     } = Array.isArray(children) ? children[0] : children;
@@ -122,7 +129,7 @@ function DropDown({
       <Then>
         <Select
           disabled={!forInstance && disabled}
-          onChange={onClickHandler}
+          onChange={onChangeHandler}
           onBlur={onBlurHandler}
           onFocus={onFocusHandler}
           defaultValue={currentValue ? currentValue : defaultValue}

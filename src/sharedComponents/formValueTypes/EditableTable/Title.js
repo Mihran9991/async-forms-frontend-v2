@@ -11,8 +11,9 @@ function Title({
   type,
   uid,
   data,
-  structure,
 }) {
+  // console.log("Title DD DATA", data);
+
   return (
     <Column
       name={name}
@@ -23,7 +24,7 @@ function Title({
       deleteColumnByNameHandler={deleteColumnByNameHandler}
       saveStructureHandler={saveStructureHandler}
       editable={editable}
-      type={type.name || ""}
+      type={type.name || type || ""}
       values={data}
     />
   );

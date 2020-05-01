@@ -2,7 +2,10 @@ import get from "lodash/get";
 import isEmpty from "lodash/isEmpty";
 import { v4 as uuid } from "uuid";
 
-import { transformObjectDataIntoArray } from "./dataTransformUtil";
+import {
+  transformObjectDataIntoArray,
+  filterObjectByKey,
+} from "./dataTransformUtil";
 import {
   DROP_DOWN,
   DROP_DOWN_INITIAL_VALUE,
@@ -25,13 +28,14 @@ export const generateRowByColumns = (columns, key) => {
 export const isColumnValid = (column) => {
   const typeObj = get(column, "type", {});
   const dataIndex = get(column, "dataIndex", "");
+  const name = get(column, "name", "");
   const typeName = get(typeObj, "name", "");
   const uid = get(typeObj, "uid", "");
-  const fields = get(typeObj, "values", []);
+  const fields = typeName === INPUT ? [] : get(typeObj, "values", []);
 
   if (!isEmpty(typeObj)) {
     if (typeName === INPUT) {
-      return dataIndex.length && uid.length;
+      return dataIndex.length > 0 || name.length > 0;
     }
 
     return dataIndex.length && typeName.length && uid.length && fields.length;
@@ -40,8 +44,9 @@ export const isColumnValid = (column) => {
   return false;
 };
 
-export const isInvalidColumnAvailable = (columns) =>
-  columns.some((col) => !isColumnValid(col));
+export const isInvalidColumnAvailable = (columns) => {
+  return columns.some((col) => !isColumnValid(col));
+};
 
 export const addNewColumnsToExistingRows = (rows, newColumn) => {
   return rows.reduce((acc, currentRow) => {
@@ -97,6 +102,8 @@ export const prepareRowDataForApi = (rows, specificData) => {
 };
 
 export const formatColumnProperties = ({ name, fields, type, uid }) => {
+  console.log("formatColumnProperties", name, type, fields);
+
   return {
     name,
     type: {
@@ -167,18 +174,19 @@ export const reconstructColumnsData = (columns) => {
   );
 };
 
-export const validateField = (field, type) => {
+export const validateField = (field, type, name) => {
   if (isEmpty(field)) {
     return false;
   }
 
-  if (type === INPUT) {
-    return field.length;
-  }
+  const nonPrimitiveValue =
+    get(field, "values", false) ||
+    get(field, `${name}`, false) ||
+    get(field, "fields", false) ||
+    transformObjectDataIntoArray(filterObjectByKey(field, "uid"), "values")[0];
 
-  const nonPrimitiveValue = transformObjectDataIntoArray(field, "values")[0];
-  if (type === DROP_DOWN) {
-    return nonPrimitiveValue.length;
+  if (type === DROP_DOWN || type === INPUT) {
+    return nonPrimitiveValue.length > 0;
   }
 
   if (type === TABLE) {
@@ -186,4 +194,11 @@ export const validateField = (field, type) => {
   }
 
   return false;
+};
+
+export const formatStructure = (structure, name) => {
+  return {
+    name: structure.name,
+    [name]: structure.values,
+  };
 };

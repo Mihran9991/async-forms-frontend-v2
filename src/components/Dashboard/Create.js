@@ -1,61 +1,36 @@
 import React, { useState, useEffect } from "react";
-import { If, Then, Switch, Case } from "react-if";
-import { Divider, Button } from "antd";
+import { If, Then } from "react-if";
+import { Button, message } from "antd";
 import { v4 as uuidv4 } from "uuid";
 import isObject from "lodash/isObject";
+import has from "lodash/has";
+import get from "lodash/get";
 
 import FormName from "../../sharedComponents/Form/FormName";
 import Card from "../../sharedComponents/Card";
-import GenericFieldType from "../../sharedComponents/formValueTypes/GenericValueType";
-import DropDown from "../../sharedComponents/formValueTypes/DropDown";
-import { DROP_DOWN, INPUT, TABLE } from "../../constants/formConstants";
-import { transformObjectDataIntoArray } from "../../utils/dataTransformUtil";
+import FieldList from "../../sharedComponents/Form/FieldList";
+import FieldName from "../../sharedComponents/Form/FieldName";
+import { DROP_DOWN, INPUT } from "../../constants/formConstants";
+import { DUPLICATE_FIELD } from "../../constants/errorMessages";
 import { create } from "../../services/request/formService";
+import {
+  filterObjectByKey,
+  transformObjectDataIntoArray,
+} from "../../utils/dataTransformUtil";
 
-import styles from "./dashboard.module.scss";
-
-const DDItems = [
-  { key: "structPiece", value: DROP_DOWN },
-  { key: "structPiece", value: INPUT },
-  { key: "structPiece", value: TABLE },
-];
-
-function AddNewFieldsSection({ disabled, cb }) {
-  return (
-    <div className={styles["add-new-fields"]}>
-      <Button
-        disabled={disabled}
-        type="primary"
-        onClick={() => cb({ structPiece: INPUT })}
-        className={styles["add-new-fields-btn"]}
-      >
-        Add input field
-      </Button>
-      <Button
-        disabled={disabled}
-        type="primary"
-        onClick={() => cb({ structPiece: DROP_DOWN })}
-        className={styles["add-new-fields-btn"]}
-      >
-        Add drop down field
-      </Button>
-      <Button
-        disabled={disabled}
-        type="primary"
-        onClick={() => cb({ structPiece: TABLE })}
-        className={styles["add-new-fields-btn"]}
-      >
-        Add table field
-      </Button>
-    </div>
-  );
-}
+// TODO:: remove
+console.warn = console.error = () => {};
 
 function Create() {
   const [title, setTitle] = useState("");
   const [structureComponents, setStructureComponents] = useState([]);
   const [structure, setStructure] = useState({ name: title, fields: [] });
   const [areAllFieldsValid, setAreAllFieldsValid] = useState(false);
+  const [duplicateAvailable, setDuplicateAvailable] = useState(false);
+  const [fieldsHash, setFieldsHash] = useState({});
+  const saveStructureDisabled = Boolean(
+    areAllFieldsValid && structureComponents.length && !duplicateAvailable
+  );
 
   const addStructureComponent = ({ structPiece }) => {
     setStructureComponents([
@@ -66,52 +41,109 @@ function Create() {
   };
 
   const removeStructurePieceHandler = (id, name) => {
+    const structureCopy = { ...structure };
+    const fieldsHashCopy = { ...fieldsHash };
     const structureComponentsCopy = [...structureComponents].filter(
       ({ uid }) => uid !== id
     );
-    const structureCopy = { ...structure };
 
-    structureCopy.fields = structureCopy.fields.filter(
-      ({ name: fieldName }) => name !== fieldName
-    );
+    if (!duplicateAvailable) {
+      delete fieldsHashCopy[name];
+      setFieldsHash(fieldsHashCopy);
+      structureCopy.fields = structureCopy.fields.filter(
+        ({ name: fieldName }) => name !== fieldName
+      );
+    }
 
+    setDuplicateAvailable(false);
     setStructure(structureCopy);
     setStructureComponents(structureComponentsCopy);
   };
 
-  const saveStructure = ({ type, name, oldName, optional = true, value }) => {
-    const copyStructure = { ...structure };
-    const valueByType = () => {
-      if (isObject(value)) {
-        return transformObjectDataIntoArray(value, "values")[0];
+  const saveStructure = ({
+    type,
+    name,
+    oldName,
+    optional = true,
+    value,
+    uid,
+    forComplicatedType,
+    valueId,
+  }) => {
+    if (
+      has(fieldsHash, name) &&
+      fieldsHash[name] !== uid &&
+      fieldsHash[name] !== valueId
+    ) {
+      setAreAllFieldsValid(false);
+      setDuplicateAvailable(true);
+      if (forComplicatedType || type === INPUT) {
+        message.error(DUPLICATE_FIELD);
       }
 
-      return value;
-    };
+      return;
+    }
 
-    const filteredFields = () => {
-      if (Array.isArray(copyStructure.fields)) {
-        return copyStructure.fields.filter(({ name }) => {
-          return name !== oldName;
-        });
+    setDuplicateAvailable(false);
+    if (!forComplicatedType) {
+      setFieldsHash({ ...fieldsHash, [name]: uid });
+      const copyStructure = { ...structure };
+      const valueByType = () => {
+        if (isObject(value)) {
+          return (
+            get(value, "values", false) ||
+            get(value, `${name}`, false) ||
+            transformObjectDataIntoArray(
+              filterObjectByKey(value, "uid"),
+              "values"
+            )[0]
+          );
+        }
+
+        return value;
+      };
+      const currentStructPiece = () => {
+        if (type === INPUT) {
+          return {
+            uid: uuidv4(),
+            name,
+            type: {
+              name: type,
+            },
+            style: {},
+            optional,
+          };
+        } else {
+          return {
+            uid: uuidv4(),
+            name,
+            type: {
+              name: type,
+              [value &&
+              (type === DROP_DOWN ? "values" : "fields")]: valueByType(),
+            },
+            style: {},
+            optional,
+          };
+        }
+      };
+      const fields = copyStructure.fields;
+
+      let isNewField = true;
+      for (let i = 0; i < fields.length; ++i) {
+        if (!duplicateAvailable && fields[i].name === oldName) {
+          isNewField = false;
+          fields[i] = currentStructPiece();
+          break;
+        }
       }
 
-      return [];
-    };
+      if (isNewField) {
+        copyStructure.fields.push(currentStructPiece());
+      }
 
-    const currentStructPiece = {
-      name,
-      type: {
-        name: type,
-        [value && type === DROP_DOWN ? "values" : "fields"]: valueByType(),
-      },
-      style: {},
-      optional,
-    };
-
-    copyStructure.fields = filteredFields();
-    copyStructure.fields.push(currentStructPiece);
-    setStructure(copyStructure);
+      setStructure(copyStructure);
+    }
   };
 
   useEffect(() => {
@@ -123,40 +155,28 @@ function Create() {
       <FormName saveTitle={setTitle} title={title} />
       <If condition={title.length > 0}>
         <Then>
-          <span>Add new fields</span>
-
-          {/* <DropDown
-            style={{ marginBottom: 10 }}
-            items={DDItems}
-            cb={addStructureComponent}
-            disabled={structureComponents.length && !areAllFieldsValid}
-          /> */}
-          <AddNewFieldsSection
-            disabled={structureComponents.length && !areAllFieldsValid}
+          <FieldName
+            disabled={
+              (structureComponents.length && !areAllFieldsValid) ||
+              duplicateAvailable
+            }
             cb={addStructureComponent}
           />
-          {structureComponents.map(({ structPiece, uid }, idx) => {
-            return (
-              <>
-                {idx === 0 && <Divider className="divider" />}
-                <GenericFieldType
-                  key={`${structPiece}_${idx}`}
-                  type={structPiece}
-                  uid={uid}
-                  removeHandler={removeStructurePieceHandler}
-                  saveStructure={saveStructure}
-                  setAreAllFieldsValid={setAreAllFieldsValid}
-                />
-                {idx !== structureComponents.length - 1 && (
-                  <Divider className="divider" />
-                )}
-              </>
-            );
-          })}
-
-          <If
-            condition={Boolean(areAllFieldsValid && structureComponents.length)}
-          >
+          <FieldList
+            list={structureComponents}
+            structure={structure}
+            fieldsHash={fieldsHash}
+            saveStructure={saveStructure}
+            duplicateAvailable={duplicateAvailable}
+            setAreAllFieldsValid={setAreAllFieldsValid}
+            removeStructurePieceHandler={removeStructurePieceHandler}
+            // duplicateFieldUid={
+            //   structureComponents.length
+            //     ? structureComponents[structureComponents.length - 1].uid
+            //     : ""
+            // }
+          />
+          <If condition={saveStructureDisabled}>
             <Then>
               <Button type="primary" onClick={() => create(structure)}>
                 Save Structure

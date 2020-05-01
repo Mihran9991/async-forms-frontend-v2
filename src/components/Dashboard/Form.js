@@ -3,80 +3,57 @@ import { If, Then } from "react-if";
 import { Button, Divider } from "antd";
 
 import Input from "../../sharedComponents/formValueTypes/Input";
-import GenericValueType from "../../sharedComponents/formValueTypes/GenericValueType";
+import GenericFieldType from "../../sharedComponents/formValueTypes/GenericFieldType";
 import { DROP_DOWN, TABLE } from "../../constants/formConstants";
 import { reconstructColumnsData } from "../../utils/formUtil";
 
 const struct = {
-  name: "Users Form",
+  name: "ed",
   fields: [
     {
-      name: "name",
+      uid: "0b8e035b-ade5-40e7-8454-3773be1ffee7",
+      name: "ewf",
       type: {
-        name: "input",
-      },
-      style: {},
-      optional: false,
-    },
-    {
-      name: "gender",
-      type: {
-        name: "dropdown",
-        values: ["male", "female"],
+        name: "table",
+        fields: [
+          {
+            name: "wef",
+            type: {
+              name: "dropdown",
+              uid: "835577ff-7cb8-4eb3-a9ce-d4e948c0693a",
+              values: ["sdf"],
+            },
+          },
+          {
+            name: "dsd",
+            type: {
+              name: "input",
+              uid: "b966f812-faca-4bce-bdb3-6ac8b9f18baa",
+            },
+          },
+        ],
       },
       style: {},
       optional: true,
     },
     {
-      name: "workplaces",
-      type: {
-        name: "table",
-        fields: [
-          {
-            name: "Company",
-            type: {
-              name: "dropdown",
-              values: ["WebbFontaine", "Simply"],
-            },
-            style: {},
-            optional: false,
-          },
-          {
-            name: "Country",
-            type: {
-              name: "dropdown",
-              values: ["Armenia", "USA", "Afghanistan", "Cuba"],
-            },
-            style: {},
-            optional: false,
-          },
-          {
-            name: "Start Date",
-            type: {
-              name: "input",
-            },
-            style: {},
-            optional: true,
-          },
-          {
-            name: "End Date",
-            type: {
-              name: "input",
-            },
-            style: {},
-            optional: true,
-          },
-        ],
-      },
+      uid: "78c7acf4-f9e8-43c1-b78d-95d0c3149a72",
+      name: "wef",
+      type: { name: "input" },
       style: {},
-      optional: false,
+      optional: true,
+    },
+    {
+      uid: "988f014a-21b5-48e3-9fa5-511a14f9e073",
+      name: "ewfewf",
+      type: { name: "dropdown", values: ["ewfewfewy65", "u556u"] },
+      style: {},
+      optional: true,
     },
   ],
 };
 
 function FormInstance({ data: { name, structure } }) {
-  console.log("structure fields", structure);
-
   return (
     <div>
       <h2>{name}</h2>
@@ -100,7 +77,7 @@ function FormInstance({ data: { name, structure } }) {
         return (
           <div>
             <span>{field.name}</span>
-            <GenericValueType
+            <GenericFieldType
               type={type}
               setAreAllFieldsValid={() => {}}
               saveStructure={() => {}}
