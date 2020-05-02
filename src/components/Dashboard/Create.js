@@ -17,7 +17,10 @@ import {
   filterObjectByKey,
   transformObjectDataIntoArray,
 } from "../../utils/dataTransformUtil";
-import { doesFieldsContainsDuplicate } from "../../utils/formUtil";
+import {
+  doesFieldsContainsDuplicate,
+  removeFromFields,
+} from "../../utils/formUtil";
 
 // TODO:: remove
 console.warn = console.error = () => {};
@@ -32,6 +35,10 @@ function Create() {
   const saveStructureDisabled = Boolean(
     areAllFieldsValid && structureComponents.length && !duplicateAvailable
   );
+
+  // console.log("areAllFieldsValid", areAllFieldsValid);
+  // console.log("structureComponents", structureComponents);
+  // console.log("duplicateAvailable", duplicateAvailable);
 
   const addStructureComponent = ({ structPiece }) => {
     setStructureComponents([
@@ -119,7 +126,7 @@ function Create() {
       fieldsHash[name] !== uid &&
       fieldsHash[name] !== valueId;
 
-    if (isDuplicate || doesFieldsContainsDuplicate(fields, { uid, name })) {
+    if (isDuplicate) {
       setAreAllFieldsValid(false);
       setDuplicateAvailable(true);
       message.error(DUPLICATE_FIELD);
@@ -130,11 +137,10 @@ function Create() {
 
     if (!forComplicatedType) {
       let isNewField = true;
-
-      for (let i = 0; i < fields.length; ++i) {
-        if (fields.name === oldName && fields.uid === uid) {
+      for (let i = 0; i < copyStructure.fields.length; ++i) {
+        if (copyStructure.fields[i].name === oldName) {
           isNewField = false;
-          fields = currentStructPiece();
+          copyStructure.fields[i] = currentStructPiece();
           break;
         }
       }
