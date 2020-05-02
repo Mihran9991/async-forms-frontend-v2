@@ -8,27 +8,35 @@ import { DROP_DOWN, TABLE } from "../../constants/formConstants";
 import { reconstructColumnsData } from "../../utils/formUtil";
 
 const struct = {
-  name: "ed",
+  name: "th",
   fields: [
     {
-      uid: "0b8e035b-ade5-40e7-8454-3773be1ffee7",
-      name: "ewf",
+      uid: "e79e02a2-d79b-429c-9551-b6cde98b334d",
+      name: "Users",
       type: {
         name: "table",
         fields: [
           {
-            name: "wef",
+            name: "col 1",
             type: {
-              name: "dropdown",
-              uid: "835577ff-7cb8-4eb3-a9ce-d4e948c0693a",
-              values: ["sdf"],
+              name: "input",
+              uid: "adca5b20-b3d7-452c-bbec-9800ec6a412f",
             },
           },
           {
-            name: "dsd",
+            name: "col 2",
             type: {
-              name: "input",
-              uid: "b966f812-faca-4bce-bdb3-6ac8b9f18baa",
+              name: "dropdown",
+              uid: "2fc2f228-f2b5-4897-a107-4bc8f142b749",
+              values: ["trhtrh", "555555", "normal ban"],
+            },
+          },
+          {
+            name: "sex",
+            type: {
+              name: "dropdown",
+              uid: "78d37ef6-36f9-4093-ba5f-caa75b7a280a",
+              values: ["male ", "female"],
             },
           },
         ],
@@ -37,16 +45,16 @@ const struct = {
       optional: true,
     },
     {
-      uid: "78c7acf4-f9e8-43c1-b78d-95d0c3149a72",
-      name: "wef",
+      uid: "64b50f74-059f-4380-86a5-cddfad83fc71",
+      name: "Name",
       type: { name: "input" },
       style: {},
       optional: true,
     },
     {
-      uid: "988f014a-21b5-48e3-9fa5-511a14f9e073",
-      name: "ewfewf",
-      type: { name: "dropdown", values: ["ewfewfewy65", "u556u"] },
+      uid: "adc5545c-03b8-427b-aad9-5933631e426a",
+      name: "Payment method",
+      type: { name: "dropdown", values: ["Cash", "Card"] },
       style: {},
       optional: true,
     },

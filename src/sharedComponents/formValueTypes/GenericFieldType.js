@@ -7,7 +7,8 @@ import has from "lodash/has";
 import Input from "./Input";
 import ComponentByType from "./ComponentByType";
 import { validateField } from "../../utils/formUtil";
-import { INPUT, TABLE } from "../../constants/formConstants";
+import { INPUT, TABLE, DROP_DOWN } from "../../constants/formConstants";
+import { transformObjectDataIntoArray } from "../../utils/dataTransformUtil";
 
 function GenericFieldType({
   type,
@@ -30,6 +31,8 @@ function GenericFieldType({
   const isValid = validateField(structure, type, name);
 
   const structureBuilder = (data) => {
+    const structureCopy = { ...structure };
+
     const isNewItem =
       (Array.isArray(data[name]) && data[name].length === 1) ||
       (!Array.isArray(data[name]) && !has(data, "uid"));
@@ -38,11 +41,17 @@ function GenericFieldType({
       data.uid = uuidv4();
     }
 
-    setStructure({ ...structure, ...data });
+    if (structure.name === DROP_DOWN) {
+      structureCopy.values = transformObjectDataIntoArray(data, "values")[0];
+      setStructure({ ...structureCopy });
+      return;
+    }
+
+    setStructure({ ...structureCopy, ...data });
   };
 
   const saveStructureHandler = () => {
-    if (!name.length || !validateField(structure, type, name)) {
+    if (!name.length || !isValid) {
       if (type !== INPUT) {
         saveStructure({ name, uid: structure.uid, forComplicatedType: true });
       }
@@ -61,6 +70,7 @@ function GenericFieldType({
       uid: structure.uid,
       valueId,
     });
+
     setOldName(name);
   };
 
@@ -68,27 +78,25 @@ function GenericFieldType({
     setAreAllFieldsValid(Boolean(isValid));
   }, []);
 
-  useEffect(() => {
-    if (
-      (type === TABLE && !name.length) ||
-      !validateField(structure, type, name)
-    ) {
-      saveStructure({
-        value: structure,
-        type,
-        name,
-        oldName,
-        uid: structure.uid,
-        valueId,
-      });
-    }
-  }, [structure]);
+  // useEffect(() => {
+  //   if (
+  //     (type === TABLE && !name.length) ||
+  //     !validateField(structure, type, name)
+  //   ) {
+  //     saveStructure({
+  //       value: structure,
+  //       type,
+  //       name,
+  //       oldName,
+  //       uid: structure.uid,
+  //       valueId,
+  //     });
+  //   }
+  // }, [structure]);
 
   useEffect(() => {
     setName(nameFromProps);
   }, [nameFromProps]);
-
-  // console.log("stricture --->", structure);
 
   return (
     <div key={componentId} style={{ marginBottom: 10, marginTop: 10 }}>
@@ -112,7 +120,7 @@ function GenericFieldType({
           </If>
         </Then>
       </If>
-      <If condition={!duplicateAvailable || type === INPUT}>
+      <If condition={!duplicateAvailable || type !== DROP_DOWN}>
         <Then>
           <ComponentByType
             type={type}

@@ -15,6 +15,7 @@ import {
   formatColumnProperties,
   reconstructDropDownData,
   getDropDownDataValues,
+  isColumnValid,
 } from "../../utils/formUtil";
 
 function Column({
@@ -57,7 +58,7 @@ function Column({
       editColumnHandler(formattedCallbackData);
     }
 
-    saveStructureHandler();
+    // saveStructureHandler();
     setIsEditingEnabled(!isEditingEnabled);
   };
 

@@ -30,8 +30,7 @@ const customizedColumns = ({
   structure,
 }) => {
   const title = [...columns].reduce((acc, col) => {
-    console.log("col", col);
-
+    // console.log("col", col);
     return [
       ...acc,
       {
@@ -51,7 +50,7 @@ const customizedColumns = ({
             editable={editable}
             type={col.type}
             uid={col.uid}
-            // TODO :: !!!!!!!!!!! fields
+            // TODO :: !!!!!!!!!!! fields ? , and on reomve data value is table :D
             data={get(col, "type.values", [])}
             structure={structure}
           />
@@ -73,6 +72,7 @@ const EditableTable = ({
 }) => {
   const [form] = Form.useForm();
   const [isSpinning, setIsSpinning] = useState(false);
+  const [isSaved, setIsSaved] = useState(true);
   const [rows, setRows] = useState(rowsFromProps || []);
   const [columns, setColumns] = useState(
     get(columnsFromProps, "length", false) ? columnsFromProps : []
@@ -83,7 +83,7 @@ const EditableTable = ({
     setRows([...rows, generateRowByColumns(columns, key)]);
   };
 
-  const saveRowHandler = (rowId, editedData) => {
+  const editRowHandler = (rowId, editedData) => {
     const updatedRows = [...rows].reduce((acc, row) => {
       if (row.key === rowId) {
         return [...acc, { ...row, ...editedData }];
@@ -96,9 +96,17 @@ const EditableTable = ({
     //TODO:: socket(FILED_SAVE, {formId, rowId, columnId, editedData)
   };
 
-  const editRowHandler = () => {
-    console.log("editRowHandler");
-    // TODO:: socket(FILED_EDIT, {formId, rowId, columnId)
+  // const editRowHandler = () => {
+  //   console.log("editRowHandler");
+  //   // TODO:: socket(FILED_EDIT, {formId, rowId, columnId)
+  // };
+
+  const deleteRowHandler = (rowId) => {
+    const updatedRows = [...rows].filter((row) => {
+      return row.key !== rowId;
+    });
+
+    setRows(updatedRows);
   };
 
   const createColumnHandler = () => {
@@ -123,22 +131,27 @@ const EditableTable = ({
       "values"
     );
 
-    cb({ [propName]: getColumnsTypeObj(transformedColumns) });
+    // cb({ [propName]: getColumnsTypeObj(transformedColumns) });
     setColumns(transformedColumns);
+    setIsSaved();
   };
 
   const deleteColumnByNameHandler = (id) => {
     const columnsCopy = [...columns].filter((col) => {
+      if (!col.dataIndex && !col.name) {
+        return false;
+      }
+
+      if (col.dataIndex === undefined) {
+        return col.name !== id;
+      }
+
       return col.dataIndex !== id;
     });
 
-    const transformedColumns = transformObjectDataIntoArray(
-      columnsCopy,
-      "values"
-    );
-
-    setColumns(transformedColumns);
-    cb({ [propName]: getColumnsTypeObj(transformedColumns) });
+    setColumns(columnsCopy);
+    cb({ [propName]: getColumnsTypeObj(columnsCopy) });
+    setIsSaved();
   };
 
   const editColumnHandler = (columns, oldName, uid, { name, type, value }) => {
@@ -150,8 +163,9 @@ const EditableTable = ({
     const columnsCopy = [...columns];
     for (let i = 0; i < columnsCopy.length; ++i) {
       if (
+        columnsCopy[i].dataIndex === "" ||
         columnsCopy[i].dataIndex === oldName ||
-        columnsCopy[i].dataIndex === ""
+        columnsCopy[i].name === oldName
       ) {
         columnsCopy[i] = {
           ...columnsCopy[i],
@@ -170,17 +184,7 @@ const EditableTable = ({
 
     setColumns(transformedColumns);
     cb({ [propName]: getColumnsTypeObj(transformedColumns) });
-  };
-
-  const deleteRowHandler = (rowId) => {
-    console.log("rowId", rows);
-
-    const updatedRows = [...rows].filter((row) => {
-      console.log("row", row);
-      return row.key !== rowId;
-    });
-
-    setRows(updatedRows);
+    setIsSaved();
   };
 
   const mergedColumns = [
@@ -222,7 +226,7 @@ const EditableTable = ({
           col.type === DROP_DOWN
             ? reconstructDropDownData(col.value)
             : col.value,
-        saveRowHandler,
+        // saveRowHandler,
         editRowHandler,
       }),
     };
@@ -270,10 +274,11 @@ const EditableTable = ({
               onClick={() => {
                 saveStructureHandler();
                 setIsSpinning(true);
-
+                setIsSaved(true);
                 setTimeout(() => setIsSpinning(false), 1500);
               }}
               type="primary"
+              disabled={isSaved}
               style={{
                 marginBottom: 16,
               }}

@@ -35,7 +35,6 @@ function EditableRow({
             style={{
               margin: 0,
             }}
-            // TODO:: set dynamic required value
             rules={[
               {
                 required: false,
@@ -46,6 +45,7 @@ function EditableRow({
             <If condition={inputType === INPUT}>
               <Then>
                 <Input
+                  disabled={Math.random() >= 0.5}
                   propName={dataIndex}
                   cb={setCurrentVal}
                   defaultValue={record && record[dataIndex]}
@@ -58,6 +58,7 @@ function EditableRow({
               </Then>
               <Else>
                 <DropDown
+                  disabled={Math.random() >= 0.5}
                   isFormatted
                   fullWidth
                   propName={dataIndex}

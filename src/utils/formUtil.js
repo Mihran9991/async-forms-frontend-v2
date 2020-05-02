@@ -38,7 +38,12 @@ export const isColumnValid = (column) => {
       return dataIndex.length > 0 || name.length > 0;
     }
 
-    return dataIndex.length && typeName.length && uid.length && fields.length;
+    return (
+      (dataIndex.length > 0 || name.length > 0) &&
+      typeName.length > 0 &&
+      uid.length > 0 &&
+      fields.length > 0
+    );
   }
 
   return false;
@@ -102,8 +107,6 @@ export const prepareRowDataForApi = (rows, specificData) => {
 };
 
 export const formatColumnProperties = ({ name, fields, type, uid }) => {
-  console.log("formatColumnProperties", name, type, fields);
-
   return {
     name,
     type: {
@@ -139,8 +142,8 @@ export const prepareColumnDataForApi = (columns) => {
 };
 
 export const isDuplicateColumnAvailable = (columns, { name, uid }) => {
-  return columns.some(({ dataIndex, uid: colUid }) => {
-    return dataIndex === name && colUid !== uid;
+  return columns.some(({ dataIndex, name: colName, uid: colUid }) => {
+    return (dataIndex === name || colName === name) && colUid !== uid;
   });
 };
 
@@ -180,9 +183,9 @@ export const validateField = (field, type, name) => {
   }
 
   const nonPrimitiveValue =
+    get(field, "fields", false) ||
     get(field, "values", false) ||
     get(field, `${name}`, false) ||
-    get(field, "fields", false) ||
     transformObjectDataIntoArray(filterObjectByKey(field, "uid"), "values")[0];
 
   if (type === DROP_DOWN || type === INPUT) {
@@ -190,7 +193,7 @@ export const validateField = (field, type, name) => {
   }
 
   if (type === TABLE) {
-    return isInvalidColumnAvailable(nonPrimitiveValue);
+    return !isInvalidColumnAvailable(nonPrimitiveValue);
   }
 
   return false;
@@ -201,4 +204,20 @@ export const formatStructure = (structure, name) => {
     name: structure.name,
     [name]: structure.values,
   };
+};
+
+export const doesFieldsContainsDuplicate = (fields, { uid, name }) => {
+  if (!fields || !fields.length) {
+    return false;
+  }
+
+  return fields.some((field) => {
+    return field.name === name && field.uid !== uid;
+  });
+};
+
+export const removeFromFields = (fields, { name }) => {
+  return fields.filter((field) => {
+    return field.name !== name;
+  });
 };

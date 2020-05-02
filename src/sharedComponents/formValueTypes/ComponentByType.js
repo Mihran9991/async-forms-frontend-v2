@@ -20,7 +20,6 @@ function ComponentByType({
   value = {},
 }) {
   const commonValidationStyle = { outline: error ? "red" : "#d9d9d9" };
-  // console.log("value Field------->", value);
 
   return (
     <>

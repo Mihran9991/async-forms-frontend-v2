@@ -4,7 +4,6 @@ import { Divider } from "antd";
 
 import GenericFieldType from "../../sharedComponents/formValueTypes/GenericFieldType";
 import { TABLE } from "../../constants/formConstants";
-import { reconstructColumnsData } from "../../utils/formUtil";
 
 function FieldList({
   list,
@@ -14,7 +13,6 @@ function FieldList({
   duplicateAvailable,
   setAreAllFieldsValid,
   removeStructurePieceHandler,
-  // duplicateFieldUid,
 }) {
   return (
     <>
@@ -25,7 +23,8 @@ function FieldList({
         const valueId = get(fieldsHash, name, "");
         const value =
           structPiece !== TABLE
-            ? get(field, `type.values`, false) || get(field, `type.${name}`, {})
+            ? get(field, `type.values`, false) ||
+              get(field, `type.${name}`, false)
             : get(field, `type.fields`, []);
 
         return (
