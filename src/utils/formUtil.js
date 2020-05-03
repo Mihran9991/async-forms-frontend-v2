@@ -50,6 +50,7 @@ export const isColumnValid = (column) => {
 };
 
 export const isInvalidColumnAvailable = (columns) => {
+  console.log("columns ------>", columns);
   return columns.some((col) => !isColumnValid(col));
 };
 

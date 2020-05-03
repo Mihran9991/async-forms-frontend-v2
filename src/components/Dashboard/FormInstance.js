@@ -8,35 +8,31 @@ import { DROP_DOWN, TABLE } from "../../constants/formConstants";
 import { reconstructColumnsData } from "../../utils/formUtil";
 
 const struct = {
-  name: "th",
+  name: "tg",
   fields: [
     {
-      uid: "e79e02a2-d79b-429c-9551-b6cde98b334d",
-      name: "Users",
+      name: "gtrgtg",
       type: {
         name: "table",
         fields: [
           {
-            name: "col 1",
             type: {
               name: "input",
-              uid: "adca5b20-b3d7-452c-bbec-9800ec6a412f",
+              uid: "feea2a29-2261-4dff-aaad-f35df017b4f8",
             },
           },
           {
-            name: "col 2",
             type: {
-              name: "dropdown",
-              uid: "2fc2f228-f2b5-4897-a107-4bc8f142b749",
-              values: ["trhtrh", "555555", "normal ban"],
+              name: "input",
+              uid: "1ddb34b1-1fc8-4a3c-a5a3-46f1a58ca161",
             },
           },
           {
-            name: "sex",
+            name: "54t",
             type: {
               name: "dropdown",
-              uid: "78d37ef6-36f9-4093-ba5f-caa75b7a280a",
-              values: ["male ", "female"],
+              uid: "80eb1a77-ac89-4b8f-8572-21d7a0596e4e",
+              values: ["54t54", "43t", "4444"],
             },
           },
         ],
@@ -45,16 +41,16 @@ const struct = {
       optional: true,
     },
     {
-      uid: "64b50f74-059f-4380-86a5-cddfad83fc71",
-      name: "Name",
+      uid: "a0f5c54e-4a1a-4775-845d-6637afd0174f",
+      name: "43t43t",
       type: { name: "input" },
       style: {},
       optional: true,
     },
     {
-      uid: "adc5545c-03b8-427b-aad9-5933631e426a",
-      name: "Payment method",
-      type: { name: "dropdown", values: ["Cash", "Card"] },
+      uid: "908c9113-3056-48e8-a8f2-6f4602abac98",
+      name: "34t4",
+      type: { name: "dropdown", values: ["34t4", "43g"] },
       style: {},
       optional: true,
     },

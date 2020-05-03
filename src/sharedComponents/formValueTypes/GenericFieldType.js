@@ -25,22 +25,21 @@ function GenericFieldType({
   valueId,
 }) {
   const [name, setName] = useState(nameFromProps || "");
-  const [oldName, setOldName] = useState(name);
   const [structure, setStructure] = useState(initialStrucutre);
   const [error, setError] = useState("");
   const isValid = validateField(structure, type, name);
 
   const structureBuilder = (data) => {
+    // const isNewItem =
+    //   (Array.isArray(data[name]) && data[name].length === 1) ||
+    //   (!Array.isArray(data[name]) && !has(data, "uid"));
+
+    // if (isNewItem) {
+    //   data.uid = uuidv4();
+    // }
     const structureCopy = { ...structure };
 
-    const isNewItem =
-      (Array.isArray(data[name]) && data[name].length === 1) ||
-      (!Array.isArray(data[name]) && !has(data, "uid"));
-
-    if (isNewItem) {
-      data.uid = uuidv4();
-    }
-
+    structureCopy.valueId = valueId;
     if (structure.name === DROP_DOWN) {
       structureCopy.values = transformObjectDataIntoArray(data, "values")[0];
       setStructure({ ...structureCopy });
@@ -53,7 +52,11 @@ function GenericFieldType({
   const saveStructureHandler = () => {
     if (!name.length || !isValid) {
       if (type !== INPUT) {
-        saveStructure({ name, uid: structure.uid, forComplicatedType: true });
+        saveStructure({
+          name,
+          valueId,
+          forComplicatedType: true,
+        });
       }
       setError("Please provide valid data");
       setAreAllFieldsValid(false);
@@ -66,12 +69,8 @@ function GenericFieldType({
       value: structure,
       type,
       name,
-      oldName,
-      uid: structure.uid,
       valueId,
     });
-
-    setOldName(name);
   };
 
   useEffect(() => {

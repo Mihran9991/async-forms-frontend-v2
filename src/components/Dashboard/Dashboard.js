@@ -4,7 +4,7 @@ import { Layout, Menu } from "antd";
 import { FileOutlined, FormOutlined, UserOutlined } from "@ant-design/icons";
 
 import routeConstants from "../../constants/routeConstants";
-
+// import logo from "/public/logo.png";
 import Create from "./Create";
 import Forms from "./Forms";
 import FormInstance from "./FormInstance";
@@ -23,7 +23,13 @@ function SiderDemo({ match }) {
   return (
     <Layout style={{ minHeight: "100vh" }} className={styles["dashboard"]}>
       <Sider collapsible collapsed={collapsed} onCollapse={onCollapse}>
-        <div className={styles["logo"]}>logo</div>
+        <div className={styles["logo"]}>
+          {/* <img
+            className="Header-logo"
+            src="/public/Async Forms_free-file.png"
+            alt="Logo"
+          /> */}
+        </div>
         <Menu theme="dark" defaultSelectedKeys={["1"]} mode="inline">
           <Menu.Item key="1">
             <FileOutlined />

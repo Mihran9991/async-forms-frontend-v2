@@ -55,14 +55,13 @@ function Create() {
       ({ uid }) => uid !== id
     );
 
-    if (!duplicateAvailable) {
-      delete fieldsHashCopy[name];
-      setFieldsHash(fieldsHashCopy);
-      copyStructure.fields = copyStructure.fields.filter(
-        ({ name: fieldName }) => name !== fieldName
-      );
-    }
+    copyStructure.fields = copyStructure.fields.filter(
+      ({ name: fieldName }) => name !== fieldName
+    );
 
+    delete fieldsHashCopy[name];
+
+    setFieldsHash(fieldsHashCopy);
     setDuplicateAvailable(false);
     setStructure(copyStructure);
     setStructureComponents(structureComponentsCopy);
@@ -71,13 +70,26 @@ function Create() {
   const saveStructure = ({
     type,
     name,
-    oldName,
     optional = true,
     value,
-    uid,
-    forComplicatedType,
-    valueId,
+    valueId: fieldUid,
+    // uid: fieldUid,
   }) => {
+    const uid = fieldUid
+      ? fieldUid
+      : structureComponents[structureComponents.length - 1].uid;
+    const fieldsHashCopy = { ...fieldsHash };
+    const copyStructure = { ...structure };
+    const fields = copyStructure.fields;
+
+    // console.log("name", name);
+    // console.log("fieldsHash", fieldsHash);
+    // console.log("uid", uid);
+
+    console.log(" ------------- ))))))))))))))))))>", uid);
+
+    const isDuplicate = has(fieldsHash, name) && fieldsHash[name] !== uid;
+
     const valueByType = () => {
       if (isObject(value)) {
         return (
@@ -96,7 +108,7 @@ function Create() {
     const currentStructPiece = () => {
       if (type === INPUT) {
         return {
-          uid: uid,
+          uid,
           name,
           type: {
             name: type,
@@ -106,7 +118,7 @@ function Create() {
         };
       } else {
         return {
-          uid: uid,
+          uid,
           name,
           type: {
             name: type,
@@ -118,45 +130,51 @@ function Create() {
         };
       }
     };
-    const fieldsHashCopy = { ...fieldsHash };
-    const copyStructure = { ...structure };
-    let fields = copyStructure.fields;
-    const isDuplicate =
-      has(fieldsHash, name) &&
-      fieldsHash[name] !== uid &&
-      fieldsHash[name] !== valueId;
+    const updateFieldsHashByValue = (val) => {
+      console.log("new  fieldsHashCopy", fieldsHashCopy);
+      const newFieldsHash = {};
+      const entries = Object.entries(fieldsHashCopy);
+      for (let i = 0; i < entries.length; ++i) {
+        const key = entries[i][0];
+        const val = entries[i][1];
+
+        if (val !== uid) {
+          newFieldsHash[key] = val;
+        }
+      }
+
+      console.log("updated fieldsHashCopy", { ...newFieldsHash, [name]: uid });
+      setFieldsHash({ ...newFieldsHash, [name]: uid });
+    };
 
     if (isDuplicate) {
       setAreAllFieldsValid(false);
       setDuplicateAvailable(true);
       message.error(DUPLICATE_FIELD);
-      return;
     } else {
       setDuplicateAvailable(false);
     }
 
-    if (!forComplicatedType) {
-      let isNewField = true;
-      for (let i = 0; i < copyStructure.fields.length; ++i) {
-        if (copyStructure.fields[i].name === oldName) {
-          isNewField = false;
-          copyStructure.fields[i] = currentStructPiece();
-          break;
-        }
-      }
+    let isNewField = true;
 
-      const newVal = currentStructPiece();
-      if (isNewField && newVal) {
-        copyStructure.fields.push(newVal);
-        if (!isDuplicate) {
-          delete fieldsHashCopy[oldName];
-          setFieldsHash({ ...fieldsHashCopy, [name]: uid });
-        }
+    for (let i = 0; i < fields.length; ++i) {
+      if (fields[i].uid === uid) {
+        isNewField = false;
+        fields[i] = currentStructPiece();
+        break;
       }
-
-      setStructure(copyStructure);
     }
+
+    const newVal = currentStructPiece();
+    if (isNewField && newVal) {
+      fields.push(newVal);
+    }
+
+    updateFieldsHashByValue();
+    setStructure(copyStructure);
   };
+
+  // console.log("structure", structure);
 
   useEffect(() => {
     setStructure({ ...structure, name: title });
