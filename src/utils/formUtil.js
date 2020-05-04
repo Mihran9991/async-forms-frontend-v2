@@ -50,7 +50,10 @@ export const isColumnValid = (column) => {
 };
 
 export const isInvalidColumnAvailable = (columns) => {
-  console.log("columns ------>", columns);
+  if (!Array.isArray(columns)) {
+    return false;
+  }
+
   return columns.some((col) => !isColumnValid(col));
 };
 
@@ -121,8 +124,8 @@ export const formatColumnProperties = ({ name, fields, type, uid }) => {
 };
 
 export const getColumnsTypeObj = (columns) => {
-  return columns.reduce((acc, { type, dataIndex: name }) => {
-    return [...acc, { name, type }];
+  return columns.reduce((acc, { type, dataIndex, name }) => {
+    return [...acc, { name: dataIndex ? dataIndex : name, type }];
   }, []);
 };
 
@@ -207,7 +210,7 @@ export const formatStructure = (structure, name) => {
   };
 };
 
-export const doesFieldsContainsDuplicate = (fields, { uid, name }) => {
+export const doFieldsContainsDuplicate = (fields, { uid, name }) => {
   if (!fields || !fields.length) {
     return false;
   }

@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable no-script-url */
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { If, Then, Else } from "react-if";
 import { Table, Form, Button, message, Spin } from "antd";
 import { v4 as uuidv4 } from "uuid";
@@ -17,7 +17,10 @@ import {
 } from "../../../utils/formUtil";
 import { transformObjectDataIntoArray } from "../../../utils/dataTransformUtil";
 import { OPERATION, DROP_DOWN } from "../../../constants/formConstants";
-import { INVALID_COLUMN } from "../../../constants/errorMessages";
+import {
+  INVALID_COLUMN,
+  DUPLICATE_COLUMN,
+} from "../../../constants/errorMessages";
 
 const customizedColumns = ({
   columns,
@@ -30,11 +33,10 @@ const customizedColumns = ({
   structure,
 }) => {
   const title = [...columns].reduce((acc, col) => {
-    // console.log("col", col);
     return [
       ...acc,
       {
-        ...col,
+        ...{ ...col, width: 250 },
         title: () => (
           <Title
             editColumnHandler={(...args) => {
@@ -77,6 +79,7 @@ const EditableTable = ({
   const [columns, setColumns] = useState(
     get(columnsFromProps, "length", false) ? columnsFromProps : []
   );
+  const invalidColumnAvailabe = isInvalidColumnAvailable(columns);
 
   const createRowHandler = () => {
     const key = uuidv4();
@@ -110,14 +113,13 @@ const EditableTable = ({
   };
 
   const createColumnHandler = () => {
-    if (isInvalidColumnAvailable(columns)) {
+    if (invalidColumnAvailabe) {
       message.error(INVALID_COLUMN);
       return;
     }
 
     const emptyColumn = {
       dataIndex: "",
-      width: 250,
       editable: true,
       type: "",
       uid: uuidv4(),
@@ -156,7 +158,7 @@ const EditableTable = ({
 
   const editColumnHandler = (columns, oldName, uid, { name, type, value }) => {
     if (isDuplicateColumnAvailable(columns, { name, uid })) {
-      alert("Duplicate column");
+      message.error(DUPLICATE_COLUMN);
       return;
     }
 
@@ -264,11 +266,7 @@ const EditableTable = ({
             </Button>
           </Else>
         </If>
-        <If
-          condition={Boolean(
-            columns.length && !isInvalidColumnAvailable(columns)
-          )}
-        >
+        <If condition={Boolean(columns.length && !invalidColumnAvailabe)}>
           <Then>
             <Button
               onClick={() => {

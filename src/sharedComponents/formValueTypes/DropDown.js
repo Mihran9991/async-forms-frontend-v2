@@ -1,12 +1,14 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useState } from "react";
-import { Select, Divider, Button } from "antd";
+import { Select, Divider, Button, message } from "antd";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { If, Then, Else } from "react-if";
 import isEmpty from "lodash/isEmpty";
 import get from "lodash/get";
+
 import Input from "./Input";
 import { getDropDownDataValues } from "../../utils/formUtil";
+import { EMPTY_VALUE } from "../../constants/errorMessages";
 
 const { Option } = Select;
 
@@ -60,7 +62,7 @@ function DropDown({
 
   const addItem = () => {
     if (isEmpty(currentItem)) {
-      alert("Empty");
+      message.error(EMPTY_VALUE);
       return;
     }
 

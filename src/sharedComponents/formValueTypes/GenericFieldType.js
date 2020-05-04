@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { If, Then } from "react-if";
 import { Button } from "antd";
-import { v4 as uuidv4 } from "uuid";
-import has from "lodash/has";
 
 import Input from "./Input";
 import ComponentByType from "./ComponentByType";
@@ -23,6 +21,7 @@ function GenericFieldType({
   duplicateAvailable,
   name: nameFromProps,
   valueId,
+  isDuplicate,
 }) {
   const [name, setName] = useState(nameFromProps || "");
   const [structure, setStructure] = useState(initialStrucutre);
@@ -30,18 +29,17 @@ function GenericFieldType({
   const isValid = validateField(structure, type, name);
 
   const structureBuilder = (data) => {
-    // const isNewItem =
-    //   (Array.isArray(data[name]) && data[name].length === 1) ||
-    //   (!Array.isArray(data[name]) && !has(data, "uid"));
-
-    // if (isNewItem) {
-    //   data.uid = uuidv4();
-    // }
     const structureCopy = { ...structure };
 
     structureCopy.valueId = valueId;
     if (structure.name === DROP_DOWN) {
       structureCopy.values = transformObjectDataIntoArray(data, "values")[0];
+      setStructure({ ...structureCopy });
+      return;
+    }
+
+    if (structure.name === TABLE) {
+      structureCopy.fields = transformObjectDataIntoArray(data, "values")[0];
       setStructure({ ...structureCopy });
       return;
     }
@@ -53,9 +51,12 @@ function GenericFieldType({
     if (!name.length || !isValid) {
       if (type !== INPUT) {
         saveStructure({
+          type,
+          value: structure,
           name,
           valueId,
           forComplicatedType: true,
+          isDuplicate,
         });
       }
       setError("Please provide valid data");
@@ -70,28 +71,13 @@ function GenericFieldType({
       type,
       name,
       valueId,
+      isDuplicate,
     });
   };
 
   useEffect(() => {
     setAreAllFieldsValid(Boolean(isValid));
   }, []);
-
-  // useEffect(() => {
-  //   if (
-  //     (type === TABLE && !name.length) ||
-  //     !validateField(structure, type, name)
-  //   ) {
-  //     saveStructure({
-  //       value: structure,
-  //       type,
-  //       name,
-  //       oldName,
-  //       uid: structure.uid,
-  //       valueId,
-  //     });
-  //   }
-  // }, [structure]);
 
   useEffect(() => {
     setName(nameFromProps);

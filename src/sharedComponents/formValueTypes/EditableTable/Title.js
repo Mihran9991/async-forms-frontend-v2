@@ -1,6 +1,7 @@
 import React from "react";
 
 import Column from "../../Form/Column";
+import get from "lodash/get";
 
 function Title({
   editColumnHandler,
@@ -24,7 +25,7 @@ function Title({
       deleteColumnByNameHandler={deleteColumnByNameHandler}
       saveStructureHandler={saveStructureHandler}
       editable={editable}
-      type={type.name || type || ""}
+      type={get(type, "name", "") || type || ""}
       values={data}
     />
   );

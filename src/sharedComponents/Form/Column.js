@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { If, Then } from "react-if";
 
 import {
@@ -15,7 +15,6 @@ import {
   formatColumnProperties,
   reconstructDropDownData,
   getDropDownDataValues,
-  isColumnValid,
 } from "../../utils/formUtil";
 
 function Column({
@@ -68,8 +67,6 @@ function Column({
 
   const isValid = currentName.length > 0 && currentType.length;
   const reconstructed = reconstructDropDownData(currentValues, propName);
-
-  // console.log("reconstructed", reconstructed);
 
   return (
     <div className={styels["column"]}>

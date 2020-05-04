@@ -1,5 +1,6 @@
 import React from "react";
 import { Switch, Case, Default } from "react-if";
+import get from "lodash/get";
 
 import Input from "./Input";
 import DropDown from "./DropDown";
@@ -73,7 +74,7 @@ function ComponentByType({
             saveStructureHandler={saveStructureHandler}
             structure={structure}
             forInstance={forInstance}
-            columns={forInstance ? value.columns : value}
+            columns={forInstance ? get(value, "columns", []) : value}
           />
         </Case>
         <Default>

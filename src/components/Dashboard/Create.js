@@ -17,12 +17,9 @@ import {
   filterObjectByKey,
   transformObjectDataIntoArray,
 } from "../../utils/dataTransformUtil";
-import {
-  doesFieldsContainsDuplicate,
-  removeFromFields,
-} from "../../utils/formUtil";
 
-// TODO:: remove
+// TODO:: refactor/remove this kind of shit
+let duplicateHashesMemo = {};
 console.warn = console.error = () => {};
 
 function Create() {
@@ -31,14 +28,11 @@ function Create() {
   const [structure, setStructure] = useState({ name: title, fields: [] });
   const [areAllFieldsValid, setAreAllFieldsValid] = useState(false);
   const [duplicateAvailable, setDuplicateAvailable] = useState(false);
+  const [duplicateFieldsHash, setDuplicateFieldsHash] = useState({});
   const [fieldsHash, setFieldsHash] = useState({});
   const saveStructureDisabled = Boolean(
     areAllFieldsValid && structureComponents.length && !duplicateAvailable
   );
-
-  // console.log("areAllFieldsValid", areAllFieldsValid);
-  // console.log("structureComponents", structureComponents);
-  // console.log("duplicateAvailable", duplicateAvailable);
 
   const addStructureComponent = ({ structPiece }) => {
     setStructureComponents([
@@ -51,6 +45,8 @@ function Create() {
   const removeStructurePieceHandler = (id, name) => {
     const copyStructure = { ...structure };
     const fieldsHashCopy = { ...fieldsHash };
+    // const duplicateFieldsHashCopy = { ...duplicateFieldsHash };
+
     const structureComponentsCopy = [...structureComponents].filter(
       ({ uid }) => uid !== id
     );
@@ -60,8 +56,9 @@ function Create() {
     );
 
     delete fieldsHashCopy[name];
-
+    // delete duplicateFieldsHashCopy[name];
     setFieldsHash(fieldsHashCopy);
+    // setDuplicateFieldsHash(duplicateFieldsHashCopy);
     setDuplicateAvailable(false);
     setStructure(copyStructure);
     setStructureComponents(structureComponentsCopy);
@@ -73,22 +70,21 @@ function Create() {
     optional = true,
     value,
     valueId: fieldUid,
-    // uid: fieldUid,
+    isDuplicate: fieldsIsDuplicate,
   }) => {
-    const uid = fieldUid
-      ? fieldUid
-      : structureComponents[structureComponents.length - 1].uid;
+    const uid = (() => {
+      if (!fieldUid) {
+        return structureComponents[structureComponents.length - 1].uid;
+      }
+
+      return fieldUid;
+    })();
+
     const fieldsHashCopy = { ...fieldsHash };
     const copyStructure = { ...structure };
     const fields = copyStructure.fields;
-
-    // console.log("name", name);
-    // console.log("fieldsHash", fieldsHash);
-    // console.log("uid", uid);
-
-    console.log(" ------------- ))))))))))))))))))>", uid);
-
-    const isDuplicate = has(fieldsHash, name) && fieldsHash[name] !== uid;
+    const isDuplicate =
+      has(fieldsHash, name) && (fieldsHash[name] !== uid || duplicateAvailable);
 
     const valueByType = () => {
       if (isObject(value)) {
@@ -97,7 +93,7 @@ function Create() {
           get(value, `${name}`, false) ||
           get(value, "fields", false) ||
           transformObjectDataIntoArray(
-            filterObjectByKey(value, "uid"),
+            filterObjectByKey(value, "valueId"),
             "values"
           )[0]
         );
@@ -115,6 +111,7 @@ function Create() {
           },
           style: {},
           optional,
+          duplicate: duplicateAvailable ? fieldsIsDuplicate : isDuplicate,
         };
       } else {
         return {
@@ -127,11 +124,11 @@ function Create() {
           },
           style: {},
           optional,
+          duplicate: duplicateAvailable ? fieldsIsDuplicate : isDuplicate,
         };
       }
     };
-    const updateFieldsHashByValue = (val) => {
-      console.log("new  fieldsHashCopy", fieldsHashCopy);
+    const updateFieldsHashByValue = () => {
       const newFieldsHash = {};
       const entries = Object.entries(fieldsHashCopy);
       for (let i = 0; i < entries.length; ++i) {
@@ -143,9 +140,17 @@ function Create() {
         }
       }
 
-      console.log("updated fieldsHashCopy", { ...newFieldsHash, [name]: uid });
-      setFieldsHash({ ...newFieldsHash, [name]: uid });
+      const val = {
+        ...newFieldsHash,
+        [name]: uid,
+      };
+      setFieldsHash(val);
     };
+
+    if (!duplicateAvailable) {
+      duplicateHashesMemo = { ...duplicateHashesMemo, [name]: true };
+      setDuplicateFieldsHash({ ...duplicateFieldsHash, [name]: uid });
+    }
 
     if (isDuplicate) {
       setAreAllFieldsValid(false);
@@ -159,6 +164,7 @@ function Create() {
 
     for (let i = 0; i < fields.length; ++i) {
       if (fields[i].uid === uid) {
+        console.log("poxec", fields[i].uid);
         isNewField = false;
         fields[i] = currentStructPiece();
         break;
@@ -170,11 +176,11 @@ function Create() {
       fields.push(newVal);
     }
 
-    updateFieldsHashByValue();
+    if (!isDuplicate) {
+      updateFieldsHashByValue();
+    }
     setStructure(copyStructure);
   };
-
-  // console.log("structure", structure);
 
   useEffect(() => {
     setStructure({ ...structure, name: title });
@@ -200,6 +206,9 @@ function Create() {
             duplicateAvailable={duplicateAvailable}
             setAreAllFieldsValid={setAreAllFieldsValid}
             removeStructurePieceHandler={removeStructurePieceHandler}
+            duplicateFieldsHash={duplicateFieldsHash}
+            duplicateHashesMemo={duplicateHashesMemo}
+            setDuplicateAvailable={setDuplicateAvailable}
           />
           <If condition={saveStructureDisabled}>
             <Then>
