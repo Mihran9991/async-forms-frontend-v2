@@ -1,20 +1,25 @@
 import React from "react";
 import { Switch, Case, Default } from "react-if";
+import get from "lodash/get";
 
-import Input from "../sharedComponents/formValueTypes/Input";
-import DropDown from "../sharedComponents/formValueTypes/DropDown";
-import EditableTable from "../sharedComponents/formValueTypes/EditableTable";
-import { DROP_DOWN, INPUT, TABLE } from "../constants/formConstants";
+import Input from "./Input";
+import DropDown from "./DropDown";
+import EditableTable from "./EditableTable";
+import { DROP_DOWN, INPUT, TABLE } from "../../constants/formConstants";
+import { reconstructDropDownData } from "../../utils/formUtil";
 
-export const GetComponentByType = ({
+function ComponentByType({
   type,
-  name,
+  name = "",
   structureBuilder,
   setName,
   saveStructureHandler,
   structure,
   error,
-}) => {
+  forInstance,
+  forStructure,
+  value = {},
+}) {
   const commonValidationStyle = { outline: error ? "red" : "#d9d9d9" };
 
   return (
@@ -24,12 +29,16 @@ export const GetComponentByType = ({
           <Input
             style={commonValidationStyle}
             onBlurHandler={saveStructureHandler}
-            cb={(data) => {
-              setName(data);
+            cb={(name) => {
+              structureBuilder({
+                [name]: name,
+              });
+              setName(name);
             }}
             callbackResponseOnlyValue
             propName={name}
             defaultValue={name}
+            forInstance={forInstance}
           />
         </Case>
         <Case condition={type === DROP_DOWN}>
@@ -38,9 +47,23 @@ export const GetComponentByType = ({
             onBlurHandler={saveStructureHandler}
             propName={name}
             disabled={!name.length}
-            items={[]}
+            items={
+              !forStructure && forInstance
+                ? reconstructDropDownData(
+                    Array.isArray(value) ? value : [],
+                    name
+                  )
+                : []
+            }
+            menuItems={
+              forStructure && Array.isArray(value)
+                ? reconstructDropDownData(value)
+                : []
+            }
             cb={structureBuilder}
             callbackResponseOnlyValue
+            forInstance={forInstance}
+            onlyValues
           />
         </Case>
         <Case condition={type === TABLE}>
@@ -48,22 +71,25 @@ export const GetComponentByType = ({
             style={commonValidationStyle}
             cb={structureBuilder}
             propName={name}
-            onBlurHandler={saveStructureHandler}
             saveStructureHandler={saveStructureHandler}
             structure={structure}
+            forInstance={forInstance}
+            columns={forInstance ? get(value, "columns", []) : value}
           />
         </Case>
         <Default>
           <Input
+            style={commonValidationStyle}
             onBlurHandler={saveStructureHandler}
-            cb={(data) => {
-              setName(data);
-            }}
+            cb={setName}
             callbackResponseOnlyValue
             propName={name}
+            defaultValue={name}
+            forInstance={forInstance}
           />
         </Default>
       </Switch>
     </>
   );
-};
+}
+export default ComponentByType;

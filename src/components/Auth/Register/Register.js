@@ -82,13 +82,13 @@ const RegisterForm = ({ history }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.password1 !== formData.password2) {
-      console.log("Passwords don't match!");
+      // console.log("Passwords don't match!");
       // todo: code for showing error message //
       return;
     }
     const response = await authService.registerRequest(formData);
     if (response.status === 200) {
-      console.log(response.data.message);
+      // console.log(response.data.message);
       // todo: code for redirecting to login page //
 
       history.push(routeConstants.LOGIN);

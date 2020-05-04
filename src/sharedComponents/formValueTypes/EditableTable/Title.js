@@ -1,6 +1,7 @@
 import React from "react";
 
 import Column from "../../Form/Column";
+import get from "lodash/get";
 
 function Title({
   editColumnHandler,
@@ -11,9 +12,8 @@ function Title({
   type,
   uid,
   data,
-  structure,
 }) {
-  console.log("structure -------------->", structure);
+  // console.log("Title DD DATA", data);
 
   return (
     <Column
@@ -25,7 +25,7 @@ function Title({
       deleteColumnByNameHandler={deleteColumnByNameHandler}
       saveStructureHandler={saveStructureHandler}
       editable={editable}
-      type={type.name || ""}
+      type={get(type, "name", "") || type || ""}
       values={data}
     />
   );
