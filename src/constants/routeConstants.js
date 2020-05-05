@@ -3,10 +3,11 @@ const REGISTER = "/register";
 const LOGIN = "/login";
 const USERS = "/users";
 const DASHBOARD = "/dashboard";
-const FORGOT_SEND = "/forgotSend";
-const FORGOT_RESET = "/forgotReset";
+const FORGOT_SEND = "/forgot-Send";
+const FORGOT_RESET = "/forgot-reset";
 const FORMS = "/forms";
 const FORM = "/form";
+const FORM_INSTANCES = "/form-instance";
 const PROFILE = "/profile";
 const CREATE = "/create";
 
@@ -22,4 +23,5 @@ export default {
   FORM,
   CREATE,
   PROFILE,
+  FORM_INSTANCES,
 };

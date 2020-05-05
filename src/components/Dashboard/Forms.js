@@ -38,7 +38,9 @@ function Forms() {
       dataSource={data}
       renderItem={(item) => (
         <List.Item>
-          <Link to={`${routeConstants.DASHBOARD}${routeConstants.FORM}`}>
+          <Link
+            to={`${routeConstants.DASHBOARD}${routeConstants.FORM_INSTANCES}/?id=${item.title}`}
+          >
             <Card title={item.title}>Form content</Card>
           </Link>
         </List.Item>

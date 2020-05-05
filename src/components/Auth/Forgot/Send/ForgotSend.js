@@ -1,6 +1,6 @@
 import { renderDOM as commonRenderDom, showMessage } from "../Forgot";
 import React, { useState } from "react";
-import ForgotService from "../../../../services/forgotService";
+import ForgotService from "../../../../services/request/forgotService";
 
 const ForgotSendForm = () => {
   const DOM = [

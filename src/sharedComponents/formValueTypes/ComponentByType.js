@@ -75,6 +75,7 @@ function ComponentByType({
             structure={structure}
             forInstance={forInstance}
             columns={forInstance ? get(value, "columns", []) : value}
+            rows={forInstance ? get(value, "rows", []) : value}
           />
         </Case>
         <Default>

@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { If, Else, Then } from "react-if";
 import { Form } from "antd";
-
-import { INPUT, DROP_DOWN, OPERATION } from "../../../constants/formConstants";
-import Input from "../Input";
-import DropDown from "../DropDown";
 import get from "lodash/get";
+
+import { INPUT, DROP_DOWN, OPERATION } from "../../constants/formConstants";
+import Input from "../formValueTypes/Input";
+import DropDown from "../formValueTypes/DropDown";
+import { startFieldChange } from "../../services/socket/emitEvents";
 
 function EditableRow({
   value,
@@ -14,16 +15,26 @@ function EditableRow({
   record,
   children,
   editRowHandler,
+  disabled,
+  owner,
 }) {
   // const ddkey = record && `${record.key}-${dataIndex}`;
-  const isValidType = () =>
+  const isValidType =
     inputType === INPUT || inputType === DROP_DOWN || dataIndex === OPERATION;
   const [currentVal, setCurrentVal] = useState("");
   const key = get(record, "key", "");
 
-  if (!isValidType()) {
+  if (!isValidType) {
     return null;
   }
+
+  const cellOnFocusHandler = () => {
+    console.log("cellOnFocusHandler");
+    startFieldChange({
+      rowId: record.key,
+      columnId: dataIndex,
+    });
+  };
 
   return (
     <td>
@@ -45,11 +56,12 @@ function EditableRow({
             <If condition={inputType === INPUT}>
               <Then>
                 <Input
-                  disabled={Math.random() >= 0.5}
+                  disabled={disabled}
                   propName={dataIndex}
                   cb={setCurrentVal}
                   defaultValue={record && record[dataIndex]}
                   fullWidth
+                  onFocusHandler={cellOnFocusHandler}
                   onBlurHandler={() => {
                     editRowHandler(key, currentVal);
                     setCurrentVal("");
@@ -58,7 +70,7 @@ function EditableRow({
               </Then>
               <Else>
                 <DropDown
-                  disabled={Math.random() >= 0.5}
+                  disabled={disabled}
                   isFormatted
                   fullWidth
                   propName={dataIndex}
@@ -70,6 +82,7 @@ function EditableRow({
                   menuItems={[]}
                   items={value}
                   cb={setCurrentVal}
+                  onFocusHandler={cellOnFocusHandler}
                   onBlurHandler={() => {
                     editRowHandler(key, currentVal);
                     setCurrentVal("");

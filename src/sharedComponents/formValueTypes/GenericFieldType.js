@@ -109,17 +109,17 @@ function GenericFieldType({
         <Then>
           <ComponentByType
             type={type}
+            structure={structure}
             name={name}
+            error={error}
+            value={value}
+            forInstance={Boolean(forInstance)}
+            forStructure={forStructure}
             structureBuilder={!forInstance ? structureBuilder : () => {}}
             setName={setName}
             saveStructureHandler={
               !forInstance ? saveStructureHandler : () => {}
             }
-            structure={structure}
-            error={error}
-            forInstance={Boolean(forInstance)}
-            value={value}
-            forStructure={forStructure}
           />
           {error && <p style={{ color: "red" }}>{error}</p>}
           <br />

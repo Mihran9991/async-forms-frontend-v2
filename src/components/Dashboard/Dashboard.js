@@ -7,7 +7,8 @@ import routeConstants from "../../constants/routeConstants";
 // import logo from "/public/logo.png";
 import Create from "./Create";
 import Forms from "./Forms";
-import FormInstance from "./FormInstance";
+import Form from "./Form";
+import FormInstances from "./FormInstances";
 
 import styles from "./dashboard.module.scss";
 
@@ -66,7 +67,12 @@ function SiderDemo({ match }) {
             <Route
               exact
               path={`${routeConstants.DASHBOARD}${routeConstants.FORM}`}
-              component={FormInstance}
+              component={Form}
+            />
+            <Route
+              exact
+              path={`${routeConstants.DASHBOARD}${routeConstants.FORM_INSTANCES}`}
+              component={FormInstances}
             />
           </Switch>
         </Content>

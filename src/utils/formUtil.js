@@ -1,6 +1,10 @@
+import React from "react";
+
 import get from "lodash/get";
 import isEmpty from "lodash/isEmpty";
 import { v4 as uuid } from "uuid";
+
+import Title from "../sharedComponents/formValueTypes/EditableTable/Title";
 
 import {
   transformObjectDataIntoArray,
@@ -224,4 +228,45 @@ export const removeFromFields = (fields, { name }) => {
   return fields.filter((field) => {
     return field.name !== name;
   });
+};
+
+export const customizedColumns = ({
+  columns,
+  editable,
+  saveStructureHandler,
+  editColumnHandler,
+  deleteColumnByNameHandler,
+  cb,
+  propName,
+  structure,
+}) => {
+  const title = [...columns].reduce((acc, col) => {
+    return [
+      ...acc,
+      {
+        ...{ ...col, width: 250 },
+        title: () => (
+          <Title
+            editColumnHandler={(...args) => {
+              editColumnHandler(columns, ...args);
+            }}
+            // TODO:: use lodash get
+            deleteColumnByNameHandler={deleteColumnByNameHandler}
+            saveStructureHandler={saveStructureHandler}
+            cb={cb}
+            propName={propName}
+            columns={columns}
+            name={col.dataIndex || col.name || ""}
+            editable={editable}
+            type={col.type}
+            uid={col.uid}
+            data={get(col, "type.values", [])}
+            structure={structure}
+          />
+        ),
+      },
+    ];
+  }, []);
+
+  return title;
 };

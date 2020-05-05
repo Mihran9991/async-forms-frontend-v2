@@ -1,7 +1,7 @@
 import { renderDOM as commonRenderDom, showMessage } from "../Forgot";
 import React, { useState } from "react";
-import ForgotService from "../../../../services/forgotService";
-import QueryParamService from "../../../../services/queryParamService";
+import ForgotService from "../../../../services/request/forgotService";
+import QueryParamService from "../../../../services/request/queryParamService";
 
 const ForgotResetForm = () => {
   const DOM = [

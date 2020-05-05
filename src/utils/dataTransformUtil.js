@@ -82,3 +82,9 @@ export const filterObjectByKey = (object, filterKey) => {
     return key !== filterKey;
   });
 };
+
+export const filterArray = (array, { filterBy, notEqualTo }) => {
+  return array.filter((item) => {
+    return item[filterBy] !== notEqualTo;
+  });
+};
