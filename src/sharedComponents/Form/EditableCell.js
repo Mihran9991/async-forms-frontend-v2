@@ -3,7 +3,12 @@ import { If, Else, Then } from "react-if";
 import { Form, Popover, Button } from "antd";
 import get from "lodash/get";
 
-import { INPUT, DROP_DOWN, OPERATION } from "../../constants/formConstants";
+import {
+  INPUT,
+  DROP_DOWN,
+  OPERATION,
+  TABLE,
+} from "../../constants/formConstants";
 import Input from "../formValueTypes/Input";
 import DropDown from "../formValueTypes/DropDown";
 import {
@@ -28,7 +33,6 @@ function EditableRow({
     inputType === INPUT || inputType === DROP_DOWN || dataIndex === OPERATION;
   const [currentVal, setCurrentVal] = useState("");
   const [isPopoverVisible, setIsPopoverVisible] = useState(disabled);
-
   const key = get(record, "key", "");
 
   const cellOnFocusHandler = () => {
@@ -39,6 +43,7 @@ function EditableRow({
       formId,
       instanceId,
       fieldId,
+      type: TABLE,
     });
   };
 
@@ -50,6 +55,7 @@ function EditableRow({
       formId,
       instanceId,
       fieldId,
+      type: TABLE,
     });
 
     editRowHandler(key, currentVal);

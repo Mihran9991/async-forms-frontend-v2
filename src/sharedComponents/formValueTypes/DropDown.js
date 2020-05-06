@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Select, Divider, Button, message } from "antd";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { If, Then, Else } from "react-if";
@@ -9,6 +9,11 @@ import get from "lodash/get";
 import Input from "./Input";
 import { getDropDownDataValues } from "../../utils/formUtil";
 import { EMPTY_VALUE } from "../../constants/errorMessages";
+import {
+  startFieldChange,
+  finishFieldChange,
+} from "../../services/socket/emitEvents";
+import socketContext from "../WithSocket/socketContext";
 
 const { Option } = Select;
 
@@ -35,7 +40,7 @@ function DropDown({
   propName,
   editable,
   menuItems,
-  disabled,
+  disabled: disabledFromProps,
   isFormatted,
   onBlurHandler = () => {},
   onFocusHandler = () => {},
@@ -50,6 +55,14 @@ function DropDown({
     cursor: "pointer",
     lineHeight: 1,
   };
+  const socketData = useContext(socketContext);
+  const disabled = forInstance
+    ? get(
+        socketData,
+        `${belongsTo.formId}.${belongsTo.instanceId}.${belongsTo.fieldId}`,
+        false
+      )
+    : disabledFromProps;
   const [editabelMenuItems, setEditabelMenuItems] = useState(menuItems || []);
   const [formattedItems, setFormattedItems] = useState([]);
   const [currentValue, setCurrentValue] = useState(defaultValue);
@@ -127,14 +140,36 @@ function DropDown({
     });
   };
 
+  const instanceFocusHandler = () => {
+    const { formId, instanceId, fieldId } = belongsTo;
+
+    console.log("cellOnFocusHandler");
+    startFieldChange({
+      formId,
+      instanceId,
+      fieldId,
+    });
+  };
+
+  const instanceOnBlurHandler = () => {
+    const { formId, instanceId, fieldId } = belongsTo;
+
+    console.log("cellOnBlurHandler");
+    finishFieldChange({
+      formId,
+      instanceId,
+      fieldId,
+    });
+  };
+
   return (
     <If condition={!editable && items.length > 0}>
       <Then>
         <Select
-          disabled={!forInstance && disabled}
+          disabled={disabled}
           onChange={onChangeHandler}
-          onBlur={onBlurHandler}
-          onFocus={onFocusHandler}
+          onBlur={forInstance ? instanceOnBlurHandler : onBlurHandler}
+          onFocus={forInstance ? instanceFocusHandler : onFocusHandler}
           defaultValue={currentValue ? currentValue : defaultValue}
           style={{ width: "100%", ...(style && style) }}
           placeholder={get(items, "[0].value", "Select an item")}
@@ -157,9 +192,9 @@ function DropDown({
       </Then>
       <Else>
         <Select
-          disabled={!forInstance && disabled}
-          onBlur={onBlurHandler}
-          onFocus={onFocusHandler}
+          disabled={disabled}
+          onBlur={forInstance ? instanceOnBlurHandler : onBlurHandler}
+          onFocus={forInstance ? instanceFocusHandler : onFocusHandler}
           allowClear={true}
           style={{ width: "100%", ...(style && style) }}
           placeholder={get(menuItems, "[0].value", "Add items")}

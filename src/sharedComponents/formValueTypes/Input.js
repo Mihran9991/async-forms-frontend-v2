@@ -1,5 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Input as AInput } from "antd";
+import get from "lodash/get";
+
+import {
+  startFieldChange,
+  finishFieldChange,
+} from "../../services/socket/emitEvents";
+import socketContext from "../WithSocket/socketContext";
 
 function Input({
   style,
@@ -13,12 +20,21 @@ function Input({
   fullWidth,
   customWidth,
   placeholder,
-  disabled,
+  disabled: disabledFromProps,
   resetCallback = () => {},
   onBlurHandler = () => {},
   onFocusHandler = () => {},
   belongsTo,
+  forInstance,
 }) {
+  const socketData = useContext(socketContext);
+  const disabled = forInstance
+    ? get(
+        socketData,
+        `${belongsTo.formId}.${belongsTo.instanceId}.${belongsTo.fieldId}`,
+        false
+      )
+    : disabledFromProps;
   const [currentValue, setCurrentValue] = useState("");
   const [defaultValue, setDefaultValue] = useState(defaultValueFromProps);
   const getWidth = () => {
@@ -46,6 +62,28 @@ function Input({
     }
   };
 
+  const instanceFocusHandler = () => {
+    const { formId, instanceId, fieldId } = belongsTo;
+
+    console.log("cellOnFocusHandler");
+    startFieldChange({
+      formId,
+      instanceId,
+      fieldId,
+    });
+  };
+
+  const instanceOnBlurHandler = () => {
+    const { formId, instanceId, fieldId } = belongsTo;
+
+    console.log("cellOnBlurHandler");
+    finishFieldChange({
+      formId,
+      instanceId,
+      fieldId,
+    });
+  };
+
   useEffect(() => {
     if (reset) {
       setCurrentValue("");
@@ -64,8 +102,8 @@ function Input({
         type={type}
         className="form-control"
         onChange={onChangeHandler}
-        onBlur={onBlurHandler}
-        onFocus={onFocusHandler}
+        onBlur={forInstance ? instanceOnBlurHandler : onBlurHandler}
+        onFocus={forInstance ? instanceFocusHandler : onFocusHandler}
         value={defaultValue || currentValue}
         aria-label={size}
         placeholder={placeholder}
