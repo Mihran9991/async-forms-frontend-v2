@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, withRouter } from "react-router-dom";
 import { List, Card, Button } from "antd";
 import { If, Then } from "react-if";
+import get from "lodash/get";
 
 import routeConstants from "../../constants/routeConstants";
 import Input from "../../sharedComponents/formValueTypes/Input";
@@ -10,15 +11,19 @@ import { filterArray } from "../../utils/dataTransformUtil";
 const mockInstances = [
   {
     title: "Form 1 Instance 1",
+    instanceId: "1",
   },
   {
     title: "Form 1 Instance 2",
+    instanceId: "2",
   },
   {
     title: "Form 1 Instance 3",
+    instanceId: "3",
   },
   {
     title: "Form 1 Instance 4",
+    instanceId: "4",
   },
 ];
 
@@ -86,7 +91,12 @@ const struct = {
   ],
 };
 
-function FormsInstances() {
+// TODO:: structure should come from Form.js
+function FormsInstances(props) {
+  const { formData } = get(props, "location.state", {
+    formData: { title: "", formId: "" },
+  });
+
   const [instances, setInstances] = useState(mockInstances);
   const [pendingInstance, setPendingInstance] = useState(false);
   const [instanceName, setInstanceName] = useState("");
@@ -138,15 +148,17 @@ function FormsInstances() {
       <List
         grid={{ gutter: 16, column: 4 }}
         dataSource={instances}
-        renderItem={({ title }) => (
+        renderItem={({ title, instanceId }) => (
           <List.Item>
             <Link
               to={{
                 pathname: `${routeConstants.DASHBOARD}${routeConstants.FORM}`,
                 state: {
                   instanceData: {
+                    ...formData,
                     name: title,
                     structure: struct,
+                    instanceId,
                   },
                 },
               }}
@@ -162,4 +174,4 @@ function FormsInstances() {
     </>
   );
 }
-export default FormsInstances;
+export default withRouter(FormsInstances);

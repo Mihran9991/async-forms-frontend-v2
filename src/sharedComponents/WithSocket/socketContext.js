@@ -1,13 +1,15 @@
 import { createContext } from "react";
 
 // {
+//   fieldId: null,
 //   rowId: null,
 //   columnId: null,
 //   formId: null,
 //   instanceId: null,
+//   fieldId: null
 // }
 
-export const initialValue = new Set([]);
+export const initialValue = {};
 
 const SocketContext = createContext(initialValue);
 

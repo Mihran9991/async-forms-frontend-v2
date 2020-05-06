@@ -30,6 +30,7 @@ const EditableTable = ({
   rows: rowsFromProps,
   columns: columnsFromProps,
   forInstance,
+  belongsTo,
 }) => {
   const [form] = Form.useForm();
   const [isSpinning, setIsSpinning] = useState(false);
@@ -161,7 +162,6 @@ const EditableTable = ({
       fixed: "right",
       width: 150,
       render: (_, record) => {
-        // const editable = isEditing(record);
         return (
           <Button
             type="danger"
@@ -177,8 +177,13 @@ const EditableTable = ({
     return {
       ...col,
       onCell: (record) => {
+        const { instanceId, formId, fieldId } = belongsTo;
         const cellId = `${record.key}-${col.dataIndex}`;
-        const disabled = socketData.has(cellId);
+        const disabled = get(
+          socketData,
+          `${formId}.${instanceId}.${fieldId}`,
+          new Set([])
+        ).has(cellId);
 
         return {
           record,
@@ -190,6 +195,9 @@ const EditableTable = ({
               : col.value,
           editRowHandler,
           disabled,
+          instanceId,
+          formId,
+          fieldId,
         };
       },
     };

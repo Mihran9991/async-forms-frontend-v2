@@ -43,7 +43,9 @@ const mockRows = [
   },
 ];
 
-function FormInstance({ data: { name, structure } }) {
+function FormInstance({
+  data: { name, structure, title, formId, instanceId },
+}) {
   return (
     <div>
       <h2>{name}</h2>
@@ -73,6 +75,10 @@ function FormInstance({ data: { name, structure } }) {
               saveStructure={() => {}}
               forInstance
               value={value()}
+              instanceId={instanceId}
+              formId={formId}
+              title={title}
+              fieldId={field.name}
             />
           </div>
         );

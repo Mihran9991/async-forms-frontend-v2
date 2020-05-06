@@ -7,27 +7,19 @@ import routeConstants from "../../constants/routeConstants";
 const data = [
   {
     title: "Title 1",
+    formId: "1",
   },
   {
     title: "Title 2",
+    formId: "2",
   },
   {
     title: "Title 3",
+    formId: "3",
   },
   {
     title: "Title 4",
-  },
-  {
-    title: "Title 1",
-  },
-  {
-    title: "Title 2",
-  },
-  {
-    title: "Title 3",
-  },
-  {
-    title: "Title 4",
+    formId: "4",
   },
 ];
 
@@ -36,12 +28,20 @@ function Forms() {
     <List
       grid={{ gutter: 16, column: 4 }}
       dataSource={data}
-      renderItem={(item) => (
+      renderItem={({ title, formId }) => (
         <List.Item>
           <Link
-            to={`${routeConstants.DASHBOARD}${routeConstants.FORM_INSTANCES}/?id=${item.title}`}
+            to={{
+              pathname: `${routeConstants.DASHBOARD}${routeConstants.FORM_INSTANCES}`,
+              state: {
+                formData: {
+                  formId,
+                  title,
+                },
+              },
+            }}
           >
-            <Card title={item.title}>Form content</Card>
+            <Card title={title}>Form content</Card>
           </Link>
         </List.Item>
       )}

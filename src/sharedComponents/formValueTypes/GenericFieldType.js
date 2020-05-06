@@ -22,6 +22,10 @@ function GenericFieldType({
   name: nameFromProps,
   valueId,
   isDuplicate,
+  instanceId,
+  formId,
+  title,
+  fieldId,
 }) {
   const [name, setName] = useState(nameFromProps || "");
   const [structure, setStructure] = useState(initialStrucutre);
@@ -120,6 +124,10 @@ function GenericFieldType({
             saveStructureHandler={
               !forInstance ? saveStructureHandler : () => {}
             }
+            instanceId={instanceId}
+            formId={formId}
+            title={title}
+            fieldId={fieldId}
           />
           {error && <p style={{ color: "red" }}>{error}</p>}
           <br />

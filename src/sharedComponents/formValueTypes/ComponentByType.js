@@ -19,6 +19,10 @@ function ComponentByType({
   forInstance,
   forStructure,
   value = {},
+  instanceId,
+  formId,
+  title,
+  fieldId,
 }) {
   const commonValidationStyle = { outline: error ? "red" : "#d9d9d9" };
 
@@ -39,6 +43,7 @@ function ComponentByType({
             propName={name}
             defaultValue={name}
             forInstance={forInstance}
+            belongsTo={{ instanceId, formId, fieldId, title }}
           />
         </Case>
         <Case condition={type === DROP_DOWN}>
@@ -64,6 +69,7 @@ function ComponentByType({
             callbackResponseOnlyValue
             forInstance={forInstance}
             onlyValues
+            belongsTo={{ instanceId, formId, fieldId, title }}
           />
         </Case>
         <Case condition={type === TABLE}>
@@ -76,6 +82,7 @@ function ComponentByType({
             forInstance={forInstance}
             columns={forInstance ? get(value, "columns", []) : value}
             rows={forInstance ? get(value, "rows", []) : value}
+            belongsTo={{ instanceId, formId, fieldId, title }}
           />
         </Case>
         <Default>
@@ -87,6 +94,7 @@ function ComponentByType({
             propName={name}
             defaultValue={name}
             forInstance={forInstance}
+            belongsTo={{ instanceId, formId, fieldId, title }}
           />
         </Default>
       </Switch>

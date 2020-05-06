@@ -17,6 +17,7 @@ function Input({
   resetCallback = () => {},
   onBlurHandler = () => {},
   onFocusHandler = () => {},
+  belongsTo,
 }) {
   const [currentValue, setCurrentValue] = useState("");
   const [defaultValue, setDefaultValue] = useState(defaultValueFromProps);

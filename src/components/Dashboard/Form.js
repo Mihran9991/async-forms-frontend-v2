@@ -7,8 +7,16 @@ import FormInstance from "./FormInstance";
 
 function Form(props) {
   const { instanceData } = get(props, "location.state", {
-    instanceData: { title: "", structure: {} },
+    instanceData: {
+      name: "",
+      structure: {},
+      title: "",
+      formId: "",
+      instanceId: "",
+    },
   });
+
+  console.log("instanceData ------->", instanceData);
 
   return (
     <>
