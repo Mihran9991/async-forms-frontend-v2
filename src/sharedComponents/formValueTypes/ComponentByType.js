@@ -41,7 +41,7 @@ function ComponentByType({
             }}
             callbackResponseOnlyValue
             propName={name}
-            defaultValue={name}
+            defaultValue={forInstance ? value : name}
             forInstance={forInstance}
             belongsTo={{ instanceId, formId, fieldId, title }}
           />
@@ -54,10 +54,7 @@ function ComponentByType({
             disabled={!name.length}
             items={
               !forStructure && forInstance
-                ? reconstructDropDownData(
-                    Array.isArray(value) ? value : [],
-                    name
-                  )
+                ? reconstructDropDownData(get(value, "items", []), name)
                 : []
             }
             menuItems={
@@ -65,6 +62,7 @@ function ComponentByType({
                 ? reconstructDropDownData(value)
                 : []
             }
+            defaultValue={forInstance ? get(value, "defaultValue", "") : ""}
             cb={structureBuilder}
             callbackResponseOnlyValue
             forInstance={forInstance}
@@ -92,7 +90,7 @@ function ComponentByType({
             cb={setName}
             callbackResponseOnlyValue
             propName={name}
-            defaultValue={name}
+            defaultValue={forInstance ? value : name}
             forInstance={forInstance}
             belongsTo={{ instanceId, formId, fieldId, title }}
           />

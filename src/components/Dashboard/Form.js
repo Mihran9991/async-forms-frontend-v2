@@ -16,8 +16,6 @@ function Form(props) {
     },
   });
 
-  console.log("instanceData ------->", instanceData);
-
   return (
     <>
       <FormInstance data={instanceData} />

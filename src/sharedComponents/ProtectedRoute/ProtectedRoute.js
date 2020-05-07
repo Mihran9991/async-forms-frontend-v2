@@ -5,7 +5,7 @@ import routeConstants from "../../constants/routeConstants";
 import useUser from "../../hooks/useUser";
 
 const ProtectedRoute = ({ component: Component, path, ...rest }) => {
-  const user = true; //useUser();
+  const user = useUser();
 
   return (
     <Route

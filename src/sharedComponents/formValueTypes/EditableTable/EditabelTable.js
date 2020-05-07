@@ -42,8 +42,6 @@ const EditableTable = ({
   const invalidColumnAvailabe = isInvalidColumnAvailable(columns);
   const socketData = useContext(socketContext);
 
-  console.log("socketData", socketData);
-
   const createRowHandler = () => {
     setRows([...rows, generateRowByColumns(columns, uuidv4())]);
   };
@@ -178,7 +176,7 @@ const EditableTable = ({
       ...col,
       onCell: (record) => {
         const { instanceId, formId, fieldId } = belongsTo;
-        const cellId = `${record.key}-${col.dataIndex}`;
+        const cellId = `${record.rowId}-${col.dataIndex}`;
         const disabled = get(
           socketData,
           `${formId}.${instanceId}.${fieldId}`,
@@ -202,8 +200,6 @@ const EditableTable = ({
       },
     };
   });
-
-  console.log("rows", rows);
 
   return (
     <Spin spinning={isSpinning}>

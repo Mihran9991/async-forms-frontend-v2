@@ -9,32 +9,27 @@ export const events = ({ setValue }) => {
   socket.on(
     socketConstants.DISABLE_FORM_FIELD,
     ({ rowId, columnId, formId, instanceId, fieldId, type }) => {
-      console.log("DISABLE_FORM_FIELD", {
-        rowId,
-        columnId,
-        formId,
-        instanceId,
-        fieldId,
-      });
       setValue((state) => {
         const cellId = `${rowId}-${columnId}`;
-
-        return {
+        const fieldValue = !get(
+          state,
+          `${formId}.${instanceId}.${fieldId}`,
+          new Set([])
+        ).size
+          ? new Set([cellId])
+          : get(state, `${formId}.${instanceId}.${fieldId}`);
+        const updatedState = {
           ...state,
           [formId]: {
             ...get(state, "formId", {}),
             [instanceId]: {
               ...get(state, `${formId}.${instanceId}`, {}),
-              [fieldId]:
-                type === TABLE
-                  ? new Set([
-                      ...get(state, `${formId}.${instanceId}.${fieldId}`, []),
-                      cellId,
-                    ])
-                  : true,
+              [fieldId]: type === TABLE ? fieldValue : true,
             },
           },
         };
+
+        return updatedState;
       });
     }
   );
@@ -42,12 +37,6 @@ export const events = ({ setValue }) => {
   socket.on(
     socketConstants.ENABLE_FORM_FIELD,
     ({ rowId, columnId, formId, instanceId, fieldId, type }) => {
-      console.log("ENABLE_FORM_FIELD", {
-        rowId,
-        columnId,
-        formId,
-        instanceId,
-      });
       setValue((state) => {
         const cellId = `${rowId}-${columnId}`;
         const copyState = { ...state };

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { If, Else, Then } from "react-if";
 import { Form, Popover, Button } from "antd";
 import get from "lodash/get";
+import has from "lodash/has";
 
 import {
   INPUT,
@@ -24,21 +25,21 @@ function EditableRow({
   children,
   editRowHandler,
   disabled,
-  owner,
   formId,
   instanceId,
   fieldId,
 }) {
+  console.log(record);
+
   const isValidType =
     inputType === INPUT || inputType === DROP_DOWN || dataIndex === OPERATION;
   const [currentVal, setCurrentVal] = useState("");
   const [isPopoverVisible, setIsPopoverVisible] = useState(disabled);
-  const key = get(record, "key", "");
+  const key = get(record, "rowId", "");
 
   const cellOnFocusHandler = () => {
-    console.log("cellOnFocusHandler");
     startFieldChange({
-      rowId: record.key,
+      rowId: key,
       columnId: dataIndex,
       formId,
       instanceId,
@@ -48,9 +49,8 @@ function EditableRow({
   };
 
   const cellOnBlurHandler = () => {
-    console.log("cellOnBlurHandler");
     finishFieldChange({
-      rowId: record.key,
+      rowId: key,
       columnId: dataIndex,
       formId,
       instanceId,
@@ -108,7 +108,7 @@ function EditableRow({
                     disabled={disabled}
                     propName={dataIndex}
                     cb={setCurrentVal}
-                    defaultValue={record && record[dataIndex]}
+                    defaultValue={get(record, `${dataIndex}.value`, "")}
                     fullWidth
                     onFocusHandler={cellOnFocusHandler}
                     onBlurHandler={cellOnBlurHandler}
@@ -121,8 +121,8 @@ function EditableRow({
                     fullWidth
                     propName={dataIndex}
                     defaultValue={
-                      record[dataIndex]
-                        ? record[dataIndex]
+                      has(record, `${dataIndex}.value`)
+                        ? get(record, `${dataIndex}.value`, "")
                         : get(value, "[0].value", "")
                     }
                     menuItems={[]}
