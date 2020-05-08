@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable no-script-url */
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { If, Then, Else } from "react-if";
 import { Table, Form, Button, message, Spin } from "antd";
 import { v4 as uuidv4 } from "uuid";
@@ -48,7 +48,7 @@ const EditableTable = ({
 
   const editRowHandler = (rowId, editedData) => {
     const updatedRows = [...rows].reduce((acc, row) => {
-      if (row.key === rowId) {
+      if (row.rowId === rowId) {
         return [...acc, { ...row, ...editedData }];
       }
 
@@ -56,7 +56,6 @@ const EditableTable = ({
     }, []);
 
     setRows(updatedRows);
-    //TODO:: socket(FILED_SAVE, {formId, rowId, columnId, editedData)
   };
 
   const deleteRowHandler = (rowId) => {
@@ -175,7 +174,7 @@ const EditableTable = ({
     return {
       ...col,
       onCell: (record) => {
-        const { instanceId, formId, fieldId } = belongsTo;
+        const { instanceId, formId, fieldId, title } = belongsTo;
         const cellId = `${record.rowId}-${col.dataIndex}`;
         const disabled = get(
           socketData,
@@ -196,10 +195,15 @@ const EditableTable = ({
           instanceId,
           formId,
           fieldId,
+          formName: title,
         };
       },
     };
   });
+
+  useEffect(() => {
+    setRows(rowsFromProps);
+  }, [rowsFromProps]);
 
   return (
     <Spin spinning={isSpinning}>

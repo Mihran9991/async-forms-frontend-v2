@@ -56,6 +56,8 @@ const LoginForm = ({ history }) => {
       const token = response.data.token;
       cookieService.addCookie("user", token);
       history.push(`${routeConstants.DASHBOARD}${routeConstants.FORMS}`);
+      //TODO::
+      // window.location.reload();
     }
   };
 

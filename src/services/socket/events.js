@@ -8,7 +8,14 @@ import { TABLE } from "../../constants/formConstants";
 export const events = ({ setValue }) => {
   socket.on(
     socketConstants.DISABLE_FORM_FIELD,
-    ({ rowId, columnId, formId, instanceId, fieldId, type }) => {
+    ({
+      rowId,
+      columnId,
+      formId,
+      instanceName: instanceId,
+      fieldName: fieldId,
+      type,
+    }) => {
       setValue((state) => {
         const cellId = `${rowId}-${columnId}`;
         const fieldValue = !get(
@@ -36,7 +43,14 @@ export const events = ({ setValue }) => {
 
   socket.on(
     socketConstants.ENABLE_FORM_FIELD,
-    ({ rowId, columnId, formId, instanceId, fieldId, type }) => {
+    ({
+      rowId,
+      columnId,
+      formId,
+      instanceName: instanceId,
+      fieldName: fieldId,
+      type,
+    }) => {
       setValue((state) => {
         const cellId = `${rowId}-${columnId}`;
         const copyState = { ...state };
@@ -48,20 +62,6 @@ export const events = ({ setValue }) => {
         }
 
         return copyState;
-      });
-    }
-  );
-
-  // TODO:: handle table row delete
-  socket.on(
-    socketConstants.DELETE_FORM_FIELD,
-    ({ rowId, columnId, formId, instanceId, fieldId }) => {
-      console.log("DELETE_FORM_FIELD", {
-        rowId,
-        columnId,
-        formId,
-        instanceId,
-        fieldId,
       });
     }
   );

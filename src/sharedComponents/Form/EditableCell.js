@@ -16,6 +16,8 @@ import {
   startFieldChange,
   finishFieldChange,
 } from "../../services/socket/emitEvents";
+import isObject from "lodash/isObject";
+import { transformObjectDataIntoArray } from "../../utils/dataTransformUtil";
 
 function EditableRow({
   value,
@@ -28,9 +30,8 @@ function EditableRow({
   formId,
   instanceId,
   fieldId,
+  formName,
 }) {
-  console.log(record);
-
   const isValidType =
     inputType === INPUT || inputType === DROP_DOWN || dataIndex === OPERATION;
   const [currentVal, setCurrentVal] = useState("");
@@ -39,26 +40,37 @@ function EditableRow({
 
   const cellOnFocusHandler = () => {
     startFieldChange({
+      formId,
       rowId: key,
       columnId: dataIndex,
-      formId,
-      instanceId,
-      fieldId,
+      instanceName: instanceId,
+      fieldName: fieldId,
+      formName,
       type: TABLE,
     });
   };
 
   const cellOnBlurHandler = () => {
+    const val = (() => {
+      if (isObject(currentVal)) {
+        return transformObjectDataIntoArray(currentVal, "values")[0];
+      }
+
+      return currentVal;
+    })();
+
     finishFieldChange({
       rowId: key,
       columnId: dataIndex,
-      formId,
-      instanceId,
-      fieldId,
+      instanceName: instanceId,
+      fieldName: fieldId,
+      formName,
       type: TABLE,
+      value: val,
+      formId,
     });
 
-    editRowHandler(key, currentVal);
+    editRowHandler(key, val);
     setCurrentVal("");
   };
 
@@ -112,6 +124,7 @@ function EditableRow({
                     fullWidth
                     onFocusHandler={cellOnFocusHandler}
                     onBlurHandler={cellOnBlurHandler}
+                    callbackResponseOnlyValue
                   />
                 </Then>
                 <Else>
@@ -130,6 +143,7 @@ function EditableRow({
                     cb={setCurrentVal}
                     onFocusHandler={cellOnFocusHandler}
                     onBlurHandler={cellOnBlurHandler}
+                    onlyValues
                   />
                 </Else>
               </If>

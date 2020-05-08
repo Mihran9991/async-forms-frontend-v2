@@ -24,7 +24,7 @@ export const generateRowByColumns = (columns, key) => {
     return {
       ...acc,
       [dataIndex]: "",
-      key,
+      rowId: key,
     };
   }, {});
 };

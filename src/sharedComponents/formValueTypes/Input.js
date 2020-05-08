@@ -63,24 +63,27 @@ function Input({
   };
 
   const instanceFocusHandler = () => {
-    const { formId, instanceId, fieldId } = belongsTo;
+    const { formId, instanceId, fieldId, title } = belongsTo;
 
     console.log("cellOnFocusHandler");
     startFieldChange({
       formId,
-      instanceId,
-      fieldId,
+      instanceName: instanceId,
+      fieldName: fieldId,
+      formName: title,
     });
   };
 
   const instanceOnBlurHandler = () => {
-    const { formId, instanceId, fieldId } = belongsTo;
+    const { formId, instanceId, fieldId, title } = belongsTo;
 
     console.log("cellOnBlurHandler");
     finishFieldChange({
       formId,
-      instanceId,
-      fieldId,
+      instanceName: instanceId,
+      fieldName: fieldId,
+      formName: title,
+      value: currentValue,
     });
   };
 

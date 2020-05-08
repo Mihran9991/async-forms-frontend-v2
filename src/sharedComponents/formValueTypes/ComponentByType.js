@@ -26,6 +26,15 @@ function ComponentByType({
 }) {
   const commonValidationStyle = { outline: error ? "red" : "#d9d9d9" };
 
+  if (type === DROP_DOWN) {
+    console.log(
+      "defaultValue",
+      get(value, "defaultValue", ""),
+      "forInstance",
+      forInstance
+    );
+  }
+
   return (
     <>
       <Switch>

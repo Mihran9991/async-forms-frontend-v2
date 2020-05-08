@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Select, Divider, Button, message } from "antd";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { If, Then, Else } from "react-if";
@@ -141,24 +141,25 @@ function DropDown({
   };
 
   const instanceFocusHandler = () => {
-    const { formId, instanceId, fieldId } = belongsTo;
+    const { formId, instanceId, fieldId, title } = belongsTo;
 
-    console.log("cellOnFocusHandler");
     startFieldChange({
       formId,
-      instanceId,
-      fieldId,
+      instanceName: instanceId,
+      fieldName: fieldId,
+      formName: title,
     });
   };
 
   const instanceOnBlurHandler = () => {
-    const { formId, instanceId, fieldId } = belongsTo;
+    const { formId, instanceId, fieldId, title } = belongsTo;
 
-    console.log("cellOnBlurHandler");
     finishFieldChange({
       formId,
-      instanceId,
-      fieldId,
+      instanceName: instanceId,
+      fieldName: fieldId,
+      formName: title,
+      value: currentValue,
     });
   };
 
