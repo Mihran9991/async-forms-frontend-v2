@@ -45,7 +45,7 @@ function SiderDemo({ match }) {
           </Menu.Item>
           <Menu.Item key="3">
             <UserOutlined />
-            <Link to={`${match.path}${routeConstants.PROFILE}`}>
+            <Link to={`${routeConstants.PROFILE}`}>
               {!collapsed && <span>User Profile</span>}
             </Link>
           </Menu.Item>
