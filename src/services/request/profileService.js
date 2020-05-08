@@ -1,11 +1,23 @@
 import { axiosInstance } from "./requestService";
-import { EDIT_PROFILE_ROUTER } from "../../constants/backendConstants";
+import {
+  GET_USER_ROUTE,
+  EDIT_PROFILE_ROUTER,
+} from "../../constants/backendConstants";
+
+export async function get(token) {
+  const config = {
+    headers: {
+      Authorization: "Bearer " + token,
+    },
+  };
+  return await axiosInstance.get(`${GET_USER_ROUTE}`, config);
+}
 
 export async function edit(formData, token) {
   console.log(formData);
   const config = {
     headers: {
-      "content-type": "multipart/form-data",
+      "Content-Type": "multipart/form-data",
       Authorization: "Bearer " + token,
     },
   };
@@ -19,5 +31,6 @@ export async function edit(formData, token) {
 }
 
 export default {
+  get,
   edit,
 };

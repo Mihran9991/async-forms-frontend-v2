@@ -1,7 +1,8 @@
-import React, { useState } from "react";
-import { Button, Form, Upload } from "antd";
+import React, { useEffect, useState } from "react";
+import { Avatar, Button, Form, Upload } from "antd";
 import Icon from "@ant-design/icons/lib/components/Icon";
 import "antd/dist/antd.css";
+import { If, Else, Then } from "react-if";
 
 import ProfileService from "../../services/request/profileService";
 import { getCookie } from "../../services/cookie/cookieService";
@@ -46,6 +47,7 @@ const EditProfileForm = () => {
             <input
               name={name}
               onChange={handleChange}
+              value={formData[name]}
               type={type}
               className={inputClassName}
               placeholder={placeholder}
@@ -59,10 +61,26 @@ const EditProfileForm = () => {
   const [formData, updateFormData] = useState(
     Object.freeze({
       picture: null,
+      pictureUrl: "",
       name: "",
       surname: "",
     })
   );
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = getCookie("user");
+      const result = await ProfileService.get(token);
+      console.log("RES IS", result);
+      updateFormData({
+        picture: null,
+        pictureUrl: result.data.user.pictureUrl,
+        name: result.data.user.name,
+        surname: result.data.user.surname,
+      });
+    };
+    fetchData();
+  }, []);
 
   const handleChange = (e) => {
     updateFormData({
@@ -91,6 +109,7 @@ const EditProfileForm = () => {
     return ProfileService.edit(formData, token)
       .then((response) => {
         showMessage(response.data.message);
+        window.location.reload(false);
       })
       .catch(() => {
         showMessage("Unable to edit profile");
@@ -104,7 +123,16 @@ const EditProfileForm = () => {
         <br />
         <h5 id="info" style={{ display: "none" }} />
         <br />
-        {renderDOM()}
+        <div className="form-group">
+          <If condition={formData.pictureUrl}>
+            <Then>
+              <Avatar src={formData.pictureUrl} size={150} />
+            </Then>
+            <Else>
+              <Avatar size={150}>{formData.name[0]}</Avatar>
+            </Else>
+          </If>
+        </div>
         <div className="form-group">
           <label>Profile picture</label>
           <Form.Item>
@@ -120,6 +148,7 @@ const EditProfileForm = () => {
             </Upload>
           </Form.Item>
         </div>
+        {renderDOM()}
         <button onClick={handleSubmit} className="btn btn-primary btn-block">
           Submit
         </button>
@@ -132,7 +161,7 @@ const isValid = (formData) => {
   return formData.name && formData.surname;
 };
 
-export const showMessage = (message) => {
+const showMessage = (message) => {
   const elem = document.getElementById("info");
   elem.innerHTML = message;
   elem.style.display = "block";
