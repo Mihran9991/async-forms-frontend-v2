@@ -1,5 +1,5 @@
-import { axiosInstance } from "../components";
-import backendConstants from "../constants/backendConstants";
+import { axiosInstance } from "../../components";
+import backendConstants from "../../constants/backendConstants";
 
 export async function sendRequest(formData) {
   return axiosInstance.post(`${backendConstants.FORGOT_SEND}`, {

@@ -1,19 +1,19 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 /* eslint-disable no-script-url */
-import React, { useState } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { If, Then, Else } from "react-if";
 import { Table, Form, Button, message, Spin } from "antd";
 import { v4 as uuidv4 } from "uuid";
 import get from "lodash/get";
 
-import Title from "./Title";
-import EditableCell from "./EditableCell";
+import EditableCell from "../../Form/EditableCell";
 import {
   getColumnsTypeObj,
   isInvalidColumnAvailable,
   isDuplicateColumnAvailable,
   generateRowByColumns,
   reconstructDropDownData,
+  customizedColumns,
 } from "../../../utils/formUtil";
 import { transformObjectDataIntoArray } from "../../../utils/dataTransformUtil";
 import { OPERATION, DROP_DOWN } from "../../../constants/formConstants";
@@ -21,48 +21,7 @@ import {
   INVALID_COLUMN,
   DUPLICATE_COLUMN,
 } from "../../../constants/errorMessages";
-
-const customizedColumns = ({
-  columns,
-  editable,
-  saveStructureHandler,
-  editColumnHandler,
-  deleteColumnByNameHandler,
-  cb,
-  propName,
-  structure,
-}) => {
-  const title = [...columns].reduce((acc, col) => {
-    return [
-      ...acc,
-      {
-        ...{ ...col, width: 250 },
-        title: () => (
-          <Title
-            editColumnHandler={(...args) => {
-              editColumnHandler(columns, ...args);
-            }}
-            // TODO:: use lodash get
-            deleteColumnByNameHandler={deleteColumnByNameHandler}
-            saveStructureHandler={saveStructureHandler}
-            cb={cb}
-            propName={propName}
-            columns={columns}
-            name={col.dataIndex || col.name || ""}
-            editable={editable}
-            type={col.type}
-            uid={col.uid}
-            // TODO :: !!!!!!!!!!! fields ? , and on reomve data value is table :D
-            data={get(col, "type.values", [])}
-            structure={structure}
-          />
-        ),
-      },
-    ];
-  }, []);
-
-  return title;
-};
+import socketContext from "../../WithSocket/socketContext";
 
 const EditableTable = ({
   cb,
@@ -71,6 +30,8 @@ const EditableTable = ({
   rows: rowsFromProps,
   columns: columnsFromProps,
   forInstance,
+  belongsTo,
+  withLoading,
 }) => {
   const [form] = Form.useForm();
   const [isSpinning, setIsSpinning] = useState(false);
@@ -80,15 +41,15 @@ const EditableTable = ({
     get(columnsFromProps, "length", false) ? columnsFromProps : []
   );
   const invalidColumnAvailabe = isInvalidColumnAvailable(columns);
+  const socketData = useContext(socketContext);
 
   const createRowHandler = () => {
-    const key = uuidv4();
-    setRows([...rows, generateRowByColumns(columns, key)]);
+    setRows([...rows, generateRowByColumns(columns, uuidv4())]);
   };
 
   const editRowHandler = (rowId, editedData) => {
     const updatedRows = [...rows].reduce((acc, row) => {
-      if (row.key === rowId) {
+      if (row.rowId === rowId) {
         return [...acc, { ...row, ...editedData }];
       }
 
@@ -96,17 +57,11 @@ const EditableTable = ({
     }, []);
 
     setRows(updatedRows);
-    //TODO:: socket(FILED_SAVE, {formId, rowId, columnId, editedData)
   };
-
-  // const editRowHandler = () => {
-  //   console.log("editRowHandler");
-  //   // TODO:: socket(FILED_EDIT, {formId, rowId, columnId)
-  // };
 
   const deleteRowHandler = (rowId) => {
     const updatedRows = [...rows].filter((row) => {
-      return row.key !== rowId;
+      return row.rowId !== rowId;
     });
 
     setRows(updatedRows);
@@ -199,40 +154,55 @@ const EditableTable = ({
       cb,
       propName,
     }),
-    {
-      title: OPERATION,
-      dataIndex: OPERATION,
-      fixed: "right",
-      width: 150,
-      render: (_, record) => {
-        // const editable = isEditing(record);
-        return (
-          <Button
-            type="danger"
-            disabled={false}
-            onClick={() => deleteRowHandler(record.key)}
-          >
-            Delete
-          </Button>
-        );
-      },
-    },
+    // {
+    //   title: OPERATION,
+    //   dataIndex: OPERATION,
+    //   fixed: "right",
+    //   width: 150,
+    //   render: (_, record) => {
+    //     return (
+    //       <Button
+    //         type="danger"
+    //         disabled={false}
+    //         onClick={() => deleteRowHandler(record.key)}
+    //       >
+    //         Delete
+    //       </Button>
+    //     );
+    //   },
+    // },
   ].map((col) => {
     return {
       ...col,
-      onCell: (record) => ({
-        record,
-        inputType: col.type,
-        dataIndex: col.dataIndex,
-        value:
-          col.type === DROP_DOWN
-            ? reconstructDropDownData(col.value)
-            : col.value,
-        // saveRowHandler,
-        editRowHandler,
-      }),
+      onCell: (record) => {
+        const { instanceId, formId, fieldId, title, ownerId } = belongsTo;
+        const cellId = `${record.rowId}-${col.dataIndex}`;
+        const disabled = get(
+          socketData,
+          `${formId}.${instanceId}.${fieldId}`,
+          new Set([])
+        ).has(cellId);
+
+        return {
+          record,
+          inputType: col.type,
+          dataIndex: col.dataIndex,
+          value:
+            col.type === DROP_DOWN
+              ? reconstructDropDownData(col.value)
+              : col.value,
+          editRowHandler,
+          disabled,
+          belongsTo: { ...belongsTo, formName: title, ownerId },
+          withLoading,
+        };
+      },
     };
   });
+
+  useEffect(() => {
+    setRows(rowsFromProps);
+  }, [rowsFromProps]);
 
   return (
     <Spin spinning={isSpinning}>
@@ -306,120 +276,3 @@ const EditableTable = ({
 };
 
 export default EditableTable;
-
-/* <If
-        condition={Boolean(
-          columns.length && !isInvalidColumnAvailable(columns)
-        )}
-      >
-        <Then>
-          <Button
-            onClick={saveStructureHandler}
-            type="primary"
-            style={{
-              marginBottom: 16,
-            }}
-          >
-            Save Table data
-          </Button>
-        </Then>
-      </If> */
-
-// const cancel = () => {
-//   setEditingKey("");
-// };
-
-// withTitle(
-//   transformObjectDataIntoArray(columnsCopy, "values"),
-//   !rows.length,
-//   saveStructureHandler
-// );
-
-// const isEditing = (record) => editingKey === "" || record.key === editingKey;
-
-// const edit = (record) => {
-//   form.setFieldsValue({
-//     ...form.getFieldValue(),
-//     ...record,
-//   });
-
-//   setEditingKey(record.key);
-// };
-
-// const resetErrors = (errors, key) => {
-//   for (let i = 0; i < errors.length; ++i) {
-//     if (errors[i].errors.length) {
-//       setForFocus({ key, fieldName: errors[i].name[0] });
-//       return;
-//     }
-//   }
-// };
-
-// const save = async (key) => {
-//   try {
-//     const row = await form.validateFields();
-//     setForFocus({});
-//     const newData = [...rows];
-//     const index = newData.findIndex((item) => key === item.key);
-
-//     if (index > -1) {
-//       const item = newData[index];
-//       newData.splice(index, 1, { ...item, ...row });
-//       setEditingKey("");
-//     } else {
-//       newData.push(row);
-//       setEditingKey("");
-//     }
-
-//     setRows(newData);
-//   } catch (errInfo) {
-//     const errors = form.getFieldsError();
-//     resetErrors(errors, key);
-//   }
-// };
-
-// <If condition={editable}>
-//   <Then>
-//     <span>
-//       <Button
-//         onClick={() => save(record.key)}
-//         style={{
-//           marginRight: 8,
-//         }}
-//       >
-//         Save
-//       </Button>
-//       <Button
-//         disabled={editingKey !== ""}
-//         onClick={() => deleteRowHandler(record.key)}
-//       >
-//         Delete
-//       </Button>
-//       {/* <Popconfirm title="Sure to cancel?" onConfirm={cancel}>
-//         <a>Cancel</a>
-//       </Popconfirm> */}
-//     </span>
-//   </Then>
-//   <Else>
-//     <a disabled={editingKey !== ""} onClick={() => edit(record)}>
-//       Edit
-//     </a>
-//     {/* <a
-//       disabled={editingKey !== ""}
-//       onClick={() => deleteRowHandler(record.key)}
-//     >
-//       Delete
-//     </a> */}
-//   </Else>
-// </If>
-
-// const specificDataCopy = { ...specificData };
-// const keys = Object.keys(specificData);
-// for (let i = 0; i < keys.length; ++i) {
-//   const extractedKey = keys[i].split("-")[0];
-//   if (extractedKey == rowId) {
-//     const newData = filterObjectByKey(specificDataCopy, keys[i]);
-//     setSpecificData(newData);
-//     break;
-//   }
-// }

@@ -51,11 +51,13 @@ const LoginForm = ({ history }) => {
     e.preventDefault();
     // todd:: wrap in try/catch block
     const response = await authService.loginRequest(formData);
-    // console.log("Got response: " + response.data);
+    console.log("Got response: ", response.data, response.status);
     if (response.status === 200) {
       const token = response.data.token;
       cookieService.addCookie("user", token);
       history.push(`${routeConstants.DASHBOARD}${routeConstants.FORMS}`);
+      //TODO::
+      // window.location.reload();
     }
   };
 

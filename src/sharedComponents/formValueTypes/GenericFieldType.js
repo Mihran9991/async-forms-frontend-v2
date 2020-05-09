@@ -22,6 +22,12 @@ function GenericFieldType({
   name: nameFromProps,
   valueId,
   isDuplicate,
+  instanceId,
+  formId,
+  title,
+  fieldId,
+  ownerId,
+  withLoading = false,
 }) {
   const [name, setName] = useState(nameFromProps || "");
   const [structure, setStructure] = useState(initialStrucutre);
@@ -109,17 +115,23 @@ function GenericFieldType({
         <Then>
           <ComponentByType
             type={type}
+            structure={structure}
             name={name}
+            error={error}
+            value={value}
+            forInstance={Boolean(forInstance)}
+            forStructure={forStructure}
             structureBuilder={!forInstance ? structureBuilder : () => {}}
             setName={setName}
             saveStructureHandler={
               !forInstance ? saveStructureHandler : () => {}
             }
-            structure={structure}
-            error={error}
-            forInstance={Boolean(forInstance)}
-            value={value}
-            forStructure={forStructure}
+            instanceId={instanceId}
+            formId={formId}
+            title={title}
+            fieldId={fieldId}
+            ownerId={ownerId}
+            withLoading={withLoading}
           />
           {error && <p style={{ color: "red" }}>{error}</p>}
           <br />

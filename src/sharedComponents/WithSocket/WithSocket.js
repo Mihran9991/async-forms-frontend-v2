@@ -1,26 +1,16 @@
-import React, { useEffect } from "react";
-import io from "socket.io-client";
+import React, { useState, useEffect } from "react";
 
-import { getCookie } from "../../services/cookieService";
-
-const socket = io("http://localhost:3000/", {
-  reconnection: true,
-});
-const userToken = getCookie("user");
+import SocketContext, { initialValue } from "./socketContext";
+import initSockets from "../../services/socket";
 
 function WithSocket({ children }) {
-  useEffect(() => {
-    socket.on("connect", () => {
-      console.log("connected");
+  const [value, setValue] = useState(initialValue);
 
-      socket.emit("authentication", { userToken });
-      socket.on("authenticated", () => {
-        // use the socket as usual
-      });
-    });
-  }, []);
+  useEffect(() => initSockets({ setValue }), []);
 
-  return <>{children}</>;
+  return (
+    <SocketContext.Provider value={value}>{children}</SocketContext.Provider>
+  );
 }
 
 export default WithSocket;

@@ -71,7 +71,6 @@ const EditProfileForm = () => {
     const fetchData = async () => {
       const token = getCookie("user");
       const result = await ProfileService.get(token);
-      console.log("RES IS", result);
       updateFormData({
         picture: null,
         pictureUrl: result.data.user.pictureUrl,

@@ -19,8 +19,15 @@ function ComponentByType({
   forInstance,
   forStructure,
   value = {},
+  instanceId,
+  formId,
+  title,
+  fieldId,
+  ownerId,
+  withLoading = false,
 }) {
   const commonValidationStyle = { outline: error ? "red" : "#d9d9d9" };
+  const belongsTo = { instanceId, formId, fieldId, title, ownerId };
 
   return (
     <>
@@ -37,8 +44,10 @@ function ComponentByType({
             }}
             callbackResponseOnlyValue
             propName={name}
-            defaultValue={name}
+            defaultValue={forInstance ? value : name}
             forInstance={forInstance}
+            belongsTo={belongsTo}
+            withLoading={withLoading}
           />
         </Case>
         <Case condition={type === DROP_DOWN}>
@@ -49,10 +58,7 @@ function ComponentByType({
             disabled={!name.length}
             items={
               !forStructure && forInstance
-                ? reconstructDropDownData(
-                    Array.isArray(value) ? value : [],
-                    name
-                  )
+                ? reconstructDropDownData(get(value, "items", []), name)
                 : []
             }
             menuItems={
@@ -60,10 +66,13 @@ function ComponentByType({
                 ? reconstructDropDownData(value)
                 : []
             }
+            defaultValue={forInstance ? get(value, "defaultValue", "") : ""}
             cb={structureBuilder}
             callbackResponseOnlyValue
             forInstance={forInstance}
             onlyValues
+            belongsTo={belongsTo}
+            withLoading={withLoading}
           />
         </Case>
         <Case condition={type === TABLE}>
@@ -75,6 +84,9 @@ function ComponentByType({
             structure={structure}
             forInstance={forInstance}
             columns={forInstance ? get(value, "columns", []) : value}
+            rows={forInstance ? get(value, "rows", []) : value}
+            belongsTo={belongsTo}
+            withLoading={withLoading}
           />
         </Case>
         <Default>
@@ -84,8 +96,10 @@ function ComponentByType({
             cb={setName}
             callbackResponseOnlyValue
             propName={name}
-            defaultValue={name}
+            defaultValue={forInstance ? value : name}
             forInstance={forInstance}
+            belongsTo={belongsTo}
+            withLoading={withLoading}
           />
         </Default>
       </Switch>

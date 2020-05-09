@@ -1,15 +1,18 @@
 import React, { useState } from "react";
 import { Link, Route, Switch, withRouter } from "react-router-dom";
-import { Layout, Menu } from "antd";
+import { Layout, Menu, Button } from "antd";
 import { FileOutlined, FormOutlined, UserOutlined } from "@ant-design/icons";
 
 import routeConstants from "../../constants/routeConstants";
 // import logo from "/public/logo.png";
 import Create from "./Create";
 import Forms from "./Forms";
-import FormInstance from "./FormInstance";
+import Form from "./Form";
+import FormInstances from "./FormInstances";
+import Profile from "../Profile";
 
 import styles from "./dashboard.module.scss";
+import { removeCookie } from "../../services/cookie/cookieService";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -30,6 +33,8 @@ function SiderDemo({ match }) {
             alt="Logo"
           /> */}
         </div>
+
+        {/*  TODO:: defaultSelectedKeys={read from url(or current selected)} */}
         <Menu theme="dark" defaultSelectedKeys={["1"]} mode="inline">
           <Menu.Item key="1">
             <FileOutlined />
@@ -43,16 +48,27 @@ function SiderDemo({ match }) {
               {!collapsed && <span>Forms</span>}
             </Link>
           </Menu.Item>
-          <Menu.Item key="3">
+          <Menu.Item key="3" style={{ marginBottom: "calc(100vh - 310px)" }}>
             <UserOutlined />
-            <Link to={`${routeConstants.PROFILE}`}>
-              {!collapsed && <span>User Profile</span>}
+            <Link to={`${match.path}${routeConstants.PROFILE}`}>
+              {!collapsed && <span>Profile</span>}
             </Link>
           </Menu.Item>
         </Menu>
       </Sider>
       <Layout className="site-layout">
-        <Header className="site-layout-background" style={{ padding: 0 }} />
+        <Header className="site-layout-background" style={{ padding: 0 }}>
+          <Button
+            type="default"
+            style={{ float: "right" }}
+            onClick={() => {
+              removeCookie("user");
+              window.location.reload();
+            }}
+          >
+            Log out
+          </Button>
+        </Header>
         <Content style={{ margin: "10px 16px" }}>
           <Switch>
             <Route
@@ -66,7 +82,17 @@ function SiderDemo({ match }) {
             <Route
               exact
               path={`${routeConstants.DASHBOARD}${routeConstants.FORM}`}
-              component={FormInstance}
+              component={Form}
+            />
+            <Route
+              exact
+              path={`${routeConstants.DASHBOARD}${routeConstants.FORM_INSTANCES}`}
+              component={FormInstances}
+            />
+            <Route
+              exact
+              path={`${routeConstants.DASHBOARD}${routeConstants.PROFILE}`}
+              component={Profile}
             />
           </Switch>
         </Content>

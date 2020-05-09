@@ -1,45 +1,45 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { List, Card } from "antd";
 
 import routeConstants from "../../constants/routeConstants";
-
-const data = [
-  {
-    title: "Title 1",
-  },
-  {
-    title: "Title 2",
-  },
-  {
-    title: "Title 3",
-  },
-  {
-    title: "Title 4",
-  },
-  {
-    title: "Title 1",
-  },
-  {
-    title: "Title 2",
-  },
-  {
-    title: "Title 3",
-  },
-  {
-    title: "Title 4",
-  },
-];
+import { getForms } from "../../services/request/formService";
 
 function Forms() {
+  const [forms, setForms] = useState([]);
+
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const { data } = await getForms();
+
+        setForms(data);
+      } catch {
+        console.log("error occured");
+      }
+    };
+
+    getData();
+  }, []);
+
   return (
     <List
       grid={{ gutter: 16, column: 4 }}
-      dataSource={data}
-      renderItem={(item) => (
+      dataSource={forms}
+      renderItem={({ name, id }) => (
         <List.Item>
-          <Link to={`${routeConstants.DASHBOARD}${routeConstants.FORM}`}>
-            <Card title={item.title}>Form content</Card>
+          <Link
+            to={{
+              pathname: `${routeConstants.DASHBOARD}${routeConstants.FORM_INSTANCES}`,
+              state: {
+                formData: {
+                  formId: id,
+                  title: name,
+                },
+              },
+            }}
+          >
+            <Card title={name}>Form content</Card>
           </Link>
         </List.Item>
       )}

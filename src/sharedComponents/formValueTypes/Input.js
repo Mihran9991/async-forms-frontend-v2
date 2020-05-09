@@ -1,5 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { Input as AInput } from "antd";
+import React, { useEffect, useState, useContext, useRef } from "react";
+import { Input as AInput, Spin } from "antd";
+import get from "lodash/get";
+
+import {
+  startFieldChange,
+  finishFieldChange,
+} from "../../services/socket/emitEvents";
+import { isFormFieldLocked } from "../../services/request/formService";
+import socketContext from "../WithSocket/socketContext";
+import { TABLE } from "../../constants/formConstants";
 
 function Input({
   style,
@@ -13,11 +22,25 @@ function Input({
   fullWidth,
   customWidth,
   placeholder,
-  disabled,
+  disabled: disabledFromProps,
   resetCallback = () => {},
   onBlurHandler = () => {},
   onFocusHandler = () => {},
+  belongsTo,
+  forInstance,
+  withLoading = false,
 }) {
+  const socketData = useContext(socketContext);
+  const disabled =
+    forInstance && belongsTo.type !== TABLE
+      ? get(
+          socketData,
+          `${belongsTo.formId}.${belongsTo.instanceId}.${belongsTo.fieldId}`,
+          false
+        )
+      : disabledFromProps;
+
+  const [isSpinning, setIsSpinning] = useState(null);
   const [currentValue, setCurrentValue] = useState("");
   const [defaultValue, setDefaultValue] = useState(defaultValueFromProps);
   const getWidth = () => {
@@ -33,16 +56,101 @@ function Input({
   };
 
   const onChangeHandler = ({ target: { value } }) => {
-    setDefaultValue("");
-    setCurrentValue(value);
+    if (!isSpinning) {
+      setDefaultValue("");
+      setCurrentValue(value);
 
-    if (callbackResponseOnlyValue) {
-      cb(value);
-    } else {
-      cb({
-        [propName]: value,
-      });
+      if (callbackResponseOnlyValue) {
+        cb(value);
+      } else {
+        cb({
+          [propName]: value,
+        });
+      }
     }
+  };
+
+  const instanceFocusHandler = async () => {
+    const {
+      formId,
+      instanceId,
+      fieldId,
+      title,
+      ownerId,
+      type,
+      rowId,
+      columnId,
+    } = belongsTo;
+    setIsSpinning(true);
+    try {
+      const {
+        data: { isLocked },
+      } = await isFormFieldLocked(belongsTo);
+
+      if (!isLocked) {
+        setTimeout(() => {
+          setIsSpinning(false);
+        }, 1000);
+
+        startFieldChange({
+          formId,
+          ownerId,
+          instanceName: instanceId,
+          fieldName: fieldId,
+          formName: title,
+          type,
+          rowId,
+          columnId,
+        });
+      } else {
+        //TODO :: notify about already locked field
+      }
+    } catch (err) {
+      console.log("err", err);
+    }
+  };
+
+  const instanceOnBlurHandler = () => {
+    const {
+      formId,
+      instanceId,
+      fieldId,
+      title,
+      ownerId,
+      type,
+      rowId,
+      columnId,
+    } = belongsTo;
+
+    finishFieldChange({
+      formId,
+      ownerId,
+      instanceName: instanceId,
+      fieldName: fieldId,
+      formName: title,
+      value: currentValue,
+      type,
+      rowId,
+      columnId,
+    });
+  };
+
+  const mainOnFocusHandler = () => {
+    if (forInstance) {
+      instanceFocusHandler();
+      return;
+    }
+
+    onFocusHandler();
+  };
+
+  const mainOnBlurHandler = (data) => {
+    if (forInstance) {
+      instanceOnBlurHandler();
+      return;
+    }
+
+    onBlurHandler(data);
   };
 
   useEffect(() => {
@@ -57,20 +165,21 @@ function Input({
   }, [defaultValueFromProps]);
 
   return (
-    <>
-      <AInput
-        style={{ width: getWidth(), ...(style && style) }}
-        type={type}
-        className="form-control"
-        onChange={onChangeHandler}
-        onBlur={onBlurHandler}
-        onFocus={onFocusHandler}
-        value={defaultValue || currentValue}
-        aria-label={size}
-        placeholder={placeholder}
-        disabled={disabled}
-      />
-    </>
+    <div style={{ width: getWidth(), ...(style && style) }}>
+      <Spin spinning={withLoading && isSpinning}>
+        <AInput
+          type={type}
+          className="form-control"
+          onChange={onChangeHandler}
+          onBlur={mainOnBlurHandler}
+          onFocus={mainOnFocusHandler}
+          value={defaultValue || currentValue}
+          aria-label={size}
+          placeholder={placeholder}
+          disabled={disabled}
+        />
+      </Spin>
+    </div>
   );
 }
 
