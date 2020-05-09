@@ -7,6 +7,8 @@ export const REGISTER_ROUTE = "/register";
 export const GET_USER_ROUTE = "/user/get";
 export const GET_USERS_ROUTE = "/user/getAll";
 export const EDIT_PROFILE_ROUTER = "/user/edit";
+export const GET_ACTIVE_USERS_LIST = "/user/getActiveUsersList";
+
 export const CREATE_FORM_ROUTE = "/form/create";
 export const GET_FORMS = "/form/getAll";
 export const GET_FORM_INSTANCES = "/form/instance/getAll";
