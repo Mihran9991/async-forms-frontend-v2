@@ -59,3 +59,7 @@ a {
 .divider {
   background-color: $secondary-color !important;
 }
+
+.ant-list-item-meta-title > a {
+  color: $secondary-color !important;
+}

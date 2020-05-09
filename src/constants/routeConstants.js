@@ -10,6 +10,7 @@ const FORM = "/form";
 const FORM_INSTANCES = "/form-instance";
 const PROFILE = "/profile";
 const CREATE = "/create";
+const ACTIVE_USERS = "/active-users";
 
 export default {
   HOME,
@@ -24,4 +25,5 @@ export default {
   CREATE,
   PROFILE,
   FORM_INSTANCES,
+  ACTIVE_USERS,
 };

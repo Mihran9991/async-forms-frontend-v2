@@ -1,6 +1,7 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useState } from "react";
 import { Link, Route, Switch, withRouter } from "react-router-dom";
-import { Layout, Menu, Button } from "antd";
+import { Layout, Menu } from "antd";
 import { FileOutlined, FormOutlined, UserOutlined } from "@ant-design/icons";
 
 import routeConstants from "../../constants/routeConstants";
@@ -10,6 +11,8 @@ import Forms from "./Forms";
 import Form from "./Form";
 import FormInstances from "./FormInstances";
 import Profile from "../Profile";
+import ActiveUsersList from "../../sharedComponents/ActiveUserList";
+import ActiveUsersListPage from "./ActiveUsers";
 
 import styles from "./dashboard.module.scss";
 import { removeCookie } from "../../services/cookie/cookieService";
@@ -26,15 +29,8 @@ function SiderDemo({ match }) {
   return (
     <Layout style={{ minHeight: "100vh" }} className={styles["dashboard"]}>
       <Sider collapsible collapsed={collapsed} onCollapse={onCollapse}>
-        <div className={styles["logo"]}>
-          {/* <img
-            className="Header-logo"
-            src="/public/Async Forms_free-file.png"
-            alt="Logo"
-          /> */}
-        </div>
-
         {/*  TODO:: defaultSelectedKeys={read from url(or current selected)} */}
+        <div className={styles["logo"]}>Logo</div>
         <Menu theme="dark" defaultSelectedKeys={["1"]} mode="inline">
           <Menu.Item key="1">
             <FileOutlined />
@@ -48,26 +44,33 @@ function SiderDemo({ match }) {
               {!collapsed && <span>Forms</span>}
             </Link>
           </Menu.Item>
-          <Menu.Item key="3" style={{ marginBottom: "calc(100vh - 310px)" }}>
+          <Menu.Item key="3">
             <UserOutlined />
             <Link to={`${match.path}${routeConstants.PROFILE}`}>
               {!collapsed && <span>Profile</span>}
+            </Link>
+          </Menu.Item>
+          <Menu.Item key="4">
+            <UserOutlined />
+            <Link to={`${match.path}${routeConstants.ACTIVE_USERS}`}>
+              {!collapsed && <span>Active Users</span>}
             </Link>
           </Menu.Item>
         </Menu>
       </Sider>
       <Layout className="site-layout">
         <Header className="site-layout-background" style={{ padding: 0 }}>
-          <Button
+          <a
             type="default"
-            style={{ float: "right" }}
+            style={{ float: "right", marginRight: 35 }}
             onClick={() => {
               removeCookie("user");
               window.location.reload();
             }}
           >
             Log out
-          </Button>
+          </a>
+          <ActiveUsersList />
         </Header>
         <Content style={{ margin: "10px 16px" }}>
           <Switch>
@@ -94,11 +97,14 @@ function SiderDemo({ match }) {
               path={`${routeConstants.DASHBOARD}${routeConstants.PROFILE}`}
               component={Profile}
             />
+            <Route
+              exact
+              path={`${routeConstants.DASHBOARD}${routeConstants.ACTIVE_USERS}`}
+              component={ActiveUsersListPage}
+            />
           </Switch>
         </Content>
-        <Footer style={{ textAlign: "center" }}>
-          RAU ©2020 Created by Mihran/Adrian
-        </Footer>
+        <Footer style={{ textAlign: "center" }}>2020 ©RAU</Footer>
       </Layout>
     </Layout>
   );
