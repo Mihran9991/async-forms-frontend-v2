@@ -31,6 +31,7 @@ const EditableTable = ({
   columns: columnsFromProps,
   forInstance,
   belongsTo,
+  withLoading,
 }) => {
   const [form] = Form.useForm();
   const [isSpinning, setIsSpinning] = useState(false);
@@ -60,7 +61,7 @@ const EditableTable = ({
 
   const deleteRowHandler = (rowId) => {
     const updatedRows = [...rows].filter((row) => {
-      return row.key !== rowId;
+      return row.rowId !== rowId;
     });
 
     setRows(updatedRows);
@@ -153,28 +154,28 @@ const EditableTable = ({
       cb,
       propName,
     }),
-    {
-      title: OPERATION,
-      dataIndex: OPERATION,
-      fixed: "right",
-      width: 150,
-      render: (_, record) => {
-        return (
-          <Button
-            type="danger"
-            disabled={false}
-            onClick={() => deleteRowHandler(record.key)}
-          >
-            Delete
-          </Button>
-        );
-      },
-    },
+    // {
+    //   title: OPERATION,
+    //   dataIndex: OPERATION,
+    //   fixed: "right",
+    //   width: 150,
+    //   render: (_, record) => {
+    //     return (
+    //       <Button
+    //         type="danger"
+    //         disabled={false}
+    //         onClick={() => deleteRowHandler(record.key)}
+    //       >
+    //         Delete
+    //       </Button>
+    //     );
+    //   },
+    // },
   ].map((col) => {
     return {
       ...col,
       onCell: (record) => {
-        const { instanceId, formId, fieldId, title } = belongsTo;
+        const { instanceId, formId, fieldId, title, ownerId } = belongsTo;
         const cellId = `${record.rowId}-${col.dataIndex}`;
         const disabled = get(
           socketData,
@@ -192,10 +193,8 @@ const EditableTable = ({
               : col.value,
           editRowHandler,
           disabled,
-          instanceId,
-          formId,
-          fieldId,
-          formName: title,
+          belongsTo: { ...belongsTo, formName: title, ownerId },
+          withLoading,
         };
       },
     };

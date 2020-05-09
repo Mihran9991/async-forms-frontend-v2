@@ -26,11 +26,15 @@ function GenericFieldType({
   formId,
   title,
   fieldId,
+  ownerId,
+  withLoading = false,
 }) {
   const [name, setName] = useState(nameFromProps || "");
   const [structure, setStructure] = useState(initialStrucutre);
   const [error, setError] = useState("");
   const isValid = validateField(structure, type, name);
+
+  console.log("ownerId", ownerId);
 
   const structureBuilder = (data) => {
     const structureCopy = { ...structure };
@@ -128,6 +132,8 @@ function GenericFieldType({
             formId={formId}
             title={title}
             fieldId={fieldId}
+            ownerId={ownerId}
+            withLoading={withLoading}
           />
           {error && <p style={{ color: "red" }}>{error}</p>}
           <br />

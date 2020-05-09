@@ -3,7 +3,7 @@ export const addCookie = (key, value) => {
 };
 
 export const removeCookie = (key) => {
-  document.cookie = `${key}=;`;
+  document.cookie = `${key}=; expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
 };
 
 export const getCookie = (name) => {

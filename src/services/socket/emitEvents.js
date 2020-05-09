@@ -8,7 +8,7 @@ export const startFieldChange = (fieldData) => {
 };
 
 export const finishFieldChange = (fieldData) => {
-  const getValueByType = () => {
+  const valueByType = (() => {
     if (fieldData.type === TABLE) {
       return {
         formName: fieldData.formName,
@@ -32,8 +32,8 @@ export const finishFieldChange = (fieldData) => {
         value: fieldData.value,
       },
     };
-  };
+  })();
 
-  insertFormInstanceValue(getValueByType());
+  insertFormInstanceValue(valueByType);
   socket.emit(socketConstants.FINISH_FORM_FIELD_CHANGE, fieldData);
 };

@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useState, useContext, useEffect } from "react";
-import { Select, Divider, Button, message } from "antd";
+import React, { useState, useContext } from "react";
+import { Select, Divider, Button, message, Spin } from "antd";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { If, Then, Else } from "react-if";
 import isEmpty from "lodash/isEmpty";
@@ -13,6 +13,7 @@ import {
   startFieldChange,
   finishFieldChange,
 } from "../../services/socket/emitEvents";
+import { isFormFieldLocked } from "../../services/request/formService";
 import socketContext from "../WithSocket/socketContext";
 
 const { Option } = Select;
@@ -47,6 +48,7 @@ function DropDown({
   forInstance,
   onlyValues,
   belongsTo,
+  withLoading,
 }) {
   const commonActionsStyle = {
     marginRight: 5,
@@ -67,6 +69,8 @@ function DropDown({
   const [formattedItems, setFormattedItems] = useState([]);
   const [currentValue, setCurrentValue] = useState(defaultValue);
   const [currentItem, setCurrentItem] = useState({});
+  const [isSpinning, setIsSpinning] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const editItem = (editedData) => {
     setCurrentItem(editedData);
@@ -140,114 +144,173 @@ function DropDown({
     });
   };
 
-  const instanceFocusHandler = () => {
-    const { formId, instanceId, fieldId, title } = belongsTo;
-
-    startFieldChange({
+  const instanceFocusHandler = async () => {
+    const {
       formId,
-      instanceName: instanceId,
-      fieldName: fieldId,
-      formName: title,
-    });
+      instanceId,
+      fieldId,
+      title,
+      ownerId,
+      type,
+      columnId,
+      rowId,
+    } = belongsTo;
+    setIsSpinning(true);
+    try {
+      const {
+        data: { isLocked },
+      } = await isFormFieldLocked(belongsTo);
+      setTimeout(() => {
+        setIsSpinning(false);
+        setIsOpen(true);
+      }, 1000);
+
+      if (!isLocked) {
+        startFieldChange({
+          formId,
+          ownerId,
+          instanceName: instanceId,
+          fieldName: fieldId,
+          formName: title,
+          ...(forInstance && {
+            type,
+            columnId,
+            rowId,
+          }),
+        });
+      } else {
+        //TODO :: notify about already locked field
+      }
+    } catch {
+      setIsSpinning(false);
+    }
   };
 
   const instanceOnBlurHandler = () => {
-    const { formId, instanceId, fieldId, title } = belongsTo;
+    const {
+      formId,
+      instanceId,
+      fieldId,
+      title,
+      ownerId,
+      type,
+      columnId,
+      rowId,
+    } = belongsTo;
+    setIsOpen(false);
 
     finishFieldChange({
       formId,
+      ownerId,
       instanceName: instanceId,
       fieldName: fieldId,
       formName: title,
       value: currentValue,
+      type,
+      columnId,
+      rowId,
     });
   };
 
+  const mainOnFocusHandler = (data) => {
+    forInstance ? instanceFocusHandler() : onFocusHandler(data);
+  };
+
+  const mainOnBlurHandler = (data) => {
+    forInstance ? instanceOnBlurHandler() : onBlurHandler(data);
+  };
+
   return (
-    <If condition={!editable && items.length > 0}>
-      <Then>
-        <Select
-          disabled={disabled}
-          onChange={onChangeHandler}
-          onBlur={forInstance ? instanceOnBlurHandler : onBlurHandler}
-          onFocus={forInstance ? instanceFocusHandler : onFocusHandler}
-          defaultValue={currentValue ? currentValue : defaultValue}
-          style={{ width: "100%", ...(style && style) }}
-          placeholder={get(items, "[0].value", "Select an item")}
-        >
-          {items.map(({ value: itemValue, key: itemKey }, idx) => {
-            return (
-              <Option value={itemValue} key={idx}>
-                <OptionItem
-                  value={itemValue}
-                  itemKey={itemKey}
-                  idx={idx}
-                  propName={propName}
-                  editable={Boolean(editable)}
-                  cb={cb}
-                />
-              </Option>
-            );
-          })}
-        </Select>
-      </Then>
-      <Else>
-        <Select
-          disabled={disabled}
-          onBlur={forInstance ? instanceOnBlurHandler : onBlurHandler}
-          onFocus={forInstance ? instanceFocusHandler : onFocusHandler}
-          allowClear={true}
-          style={{ width: "100%", ...(style && style) }}
-          placeholder={get(menuItems, "[0].value", "Add items")}
-          dropdownRender={(menu) => (
-            <div>
-              {menu}
-              <Divider style={{ margin: "4px 0" }} />
-              <div style={{ display: "flex", flexWrap: "nowrap", padding: 8 }}>
-                <Input
-                  style={{ flex: "auto" }}
-                  cb={editItem}
-                  propName={propName}
-                  reset={isEmpty(currentItem)}
-                  fullWidth
-                />
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  alignItems: "center",
-                  paddingRight: 2,
-                  marginBottom: 5,
-                  marginTop: 5,
-                }}
-              >
-                <Button
-                  type="primary"
-                  style={commonActionsStyle}
-                  onClick={addItem}
+    <Spin spinning={isSpinning}>
+      <If condition={!editable && items.length > 0}>
+        <Then>
+          <Select
+            disabled={disabled || isSpinning}
+            onChange={onChangeHandler}
+            onBlur={mainOnBlurHandler}
+            onFocus={mainOnFocusHandler}
+            defaultValue={currentValue ? currentValue : defaultValue}
+            style={{ width: "100%", ...(style && style) }}
+            placeholder={get(items, "[0].value", "Select an item")}
+            {...(withLoading && { open: isOpen })}
+          >
+            {items.map(({ value: itemValue, key: itemKey }, idx) => {
+              return (
+                <Option value={itemValue} key={idx}>
+                  <OptionItem
+                    value={itemValue}
+                    itemKey={itemKey}
+                    idx={idx}
+                    propName={propName}
+                    editable={Boolean(editable)}
+                    cb={cb}
+                  />
+                </Option>
+              );
+            })}
+          </Select>
+        </Then>
+        <Else>
+          <Select
+            {...(withLoading && { open: isOpen })}
+            disabled={disabled || isSpinning}
+            onBlur={mainOnBlurHandler}
+            onFocus={mainOnFocusHandler}
+            allowClear={true}
+            style={{ width: "100%", ...(style && style) }}
+            placeholder={get(menuItems, "[0].value", "Add items")}
+            dropdownRender={(menu) => (
+              <div>
+                {menu}
+                <Divider style={{ margin: "4px 0" }} />
+                <div
+                  style={{ display: "flex", flexWrap: "nowrap", padding: 8 }}
                 >
-                  Add item
-                  <PlusOutlined style={{ marginRight: 2 }} />
-                </Button>
-                <Button
-                  type="danger"
-                  style={commonActionsStyle}
-                  onClick={resetItemsList}
+                  <Input
+                    style={{ flex: "auto" }}
+                    cb={editItem}
+                    propName={propName}
+                    reset={isEmpty(currentItem)}
+                    fullWidth
+                  />
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    alignItems: "center",
+                    paddingRight: 2,
+                    marginBottom: 5,
+                    marginTop: 5,
+                  }}
                 >
-                  Reset items
-                  <DeleteOutlined style={{ marginRight: 2 }} />
-                </Button>
+                  <Button
+                    type="primary"
+                    style={commonActionsStyle}
+                    onClick={addItem}
+                  >
+                    Add item
+                    <PlusOutlined style={{ marginRight: 2 }} />
+                  </Button>
+                  <Button
+                    type="danger"
+                    style={commonActionsStyle}
+                    onClick={resetItemsList}
+                  >
+                    Reset items
+                    <DeleteOutlined style={{ marginRight: 2 }} />
+                  </Button>
+                </div>
               </div>
-            </div>
-          )}
-        >
-          {editabelMenuItems.map(({ value }, idx) => (
-            <Option key={idx}>{value}</Option>
-          ))}
-        </Select>
-      </Else>
-    </If>
+            )}
+          >
+            {editabelMenuItems.map(({ value }, idx) => (
+              <Option key={idx}>{value}</Option>
+            ))}
+          </Select>
+        </Else>
+      </If>
+    </Spin>
   );
 }
 

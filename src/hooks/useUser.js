@@ -1,8 +1,21 @@
-import { getCookie } from "../services/cookie/cookieService";
+import { useEffect, useState } from "react";
 
-// TODO:: init user data here (e.g fetch from API)
+import { getUserData } from "../services/request/userService";
+
 export default function useUser() {
-  const user = getCookie("user");
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const getData = async () => {
+      const {
+        data: { user },
+      } = await getUserData();
+
+      setUser(user);
+    };
+
+    getData();
+  }, []);
 
   return user;
 }

@@ -8,7 +8,7 @@ import { reconstructColumnsData } from "../../utils/formUtil";
 import { getFormInstance } from "../../services/request/formService";
 
 function FormInstance({
-  data: { name, structure, title, formId, instanceId },
+  data: { name, structure, title, formId, instanceId, ownerId },
 }) {
   const [instanceData, setInstanceData] = useState({});
 
@@ -64,6 +64,8 @@ function FormInstance({
                 formId={formId}
                 title={title}
                 fieldId={field.name}
+                ownerId={ownerId}
+                withLoading
               />
             </div>
           );

@@ -10,9 +10,13 @@ function Forms() {
 
   useEffect(() => {
     const getData = async () => {
-      const { data } = await getForms();
+      try {
+        const { data } = await getForms();
 
-      setForms(data);
+        setForms(data);
+      } catch {
+        console.log("error occured");
+      }
     };
 
     getData();

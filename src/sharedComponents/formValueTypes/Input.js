@@ -1,11 +1,13 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Input as AInput } from "antd";
+import { Input as AInput, Spin } from "antd";
+import { If, Then, Else } from "react-if";
 import get from "lodash/get";
 
 import {
   startFieldChange,
   finishFieldChange,
 } from "../../services/socket/emitEvents";
+import { isFormFieldLocked } from "../../services/request/formService";
 import socketContext from "../WithSocket/socketContext";
 
 function Input({
@@ -26,6 +28,7 @@ function Input({
   onFocusHandler = () => {},
   belongsTo,
   forInstance,
+  withLoading = false,
 }) {
   const socketData = useContext(socketContext);
   const disabled = forInstance
@@ -35,6 +38,8 @@ function Input({
         false
       )
     : disabledFromProps;
+
+  const [isSpinning, setIsSpinning] = useState(false);
   const [currentValue, setCurrentValue] = useState("");
   const [defaultValue, setDefaultValue] = useState(defaultValueFromProps);
   const getWidth = () => {
@@ -62,29 +67,84 @@ function Input({
     }
   };
 
-  const instanceFocusHandler = () => {
-    const { formId, instanceId, fieldId, title } = belongsTo;
-
-    console.log("cellOnFocusHandler");
-    startFieldChange({
+  const instanceFocusHandler = async () => {
+    const {
       formId,
-      instanceName: instanceId,
-      fieldName: fieldId,
-      formName: title,
-    });
+      instanceId,
+      fieldId,
+      title,
+      ownerId,
+      type,
+      rowId,
+      columnId,
+    } = belongsTo;
+    setIsSpinning(true);
+    try {
+      const {
+        data: { isLocked },
+      } = await isFormFieldLocked(belongsTo);
+      setTimeout(() => {
+        setIsSpinning(false);
+      }, 1000);
+
+      if (!isLocked) {
+        startFieldChange({
+          formId,
+          ownerId,
+          instanceName: instanceId,
+          fieldName: fieldId,
+          formName: title,
+          type,
+          rowId,
+          columnId,
+        });
+      } else {
+        //TODO :: notify about already locked field
+      }
+    } catch {}
   };
 
   const instanceOnBlurHandler = () => {
-    const { formId, instanceId, fieldId, title } = belongsTo;
+    const {
+      formId,
+      instanceId,
+      fieldId,
+      title,
+      ownerId,
+      type,
+      rowId,
+      columnId,
+    } = belongsTo;
 
-    console.log("cellOnBlurHandler");
     finishFieldChange({
       formId,
+      ownerId,
       instanceName: instanceId,
       fieldName: fieldId,
       formName: title,
       value: currentValue,
+      type,
+      rowId,
+      columnId,
     });
+  };
+
+  const mainOnFocusHandler = () => {
+    if (forInstance) {
+      instanceFocusHandler();
+      return;
+    }
+
+    onFocusHandler();
+  };
+
+  const mainOnBlurHandler = (data) => {
+    if (forInstance) {
+      instanceOnBlurHandler();
+      return;
+    }
+
+    onBlurHandler(data);
   };
 
   useEffect(() => {
@@ -99,20 +159,38 @@ function Input({
   }, [defaultValueFromProps]);
 
   return (
-    <>
-      <AInput
-        style={{ width: getWidth(), ...(style && style) }}
-        type={type}
-        className="form-control"
-        onChange={onChangeHandler}
-        onBlur={forInstance ? instanceOnBlurHandler : onBlurHandler}
-        onFocus={forInstance ? instanceFocusHandler : onFocusHandler}
-        value={defaultValue || currentValue}
-        aria-label={size}
-        placeholder={placeholder}
-        disabled={disabled}
-      />
-    </>
+    <div style={{ width: getWidth(), ...(style && style) }}>
+      <Spin spinning={withLoading && isSpinning}>
+        <If condition={isSpinning}>
+          <Then>
+            <AInput
+              style={{ position: "absolute", zIndex: 999 }}
+              type={type}
+              className="form-control"
+              onChange={onChangeHandler}
+              onBlur={mainOnBlurHandler}
+              onFocus={mainOnFocusHandler}
+              value={defaultValue || currentValue}
+              aria-label={size}
+              placeholder={placeholder}
+              disabled={disabled || isSpinning}
+            />
+          </Then>
+        </If>
+
+        <AInput
+          type={type}
+          className="form-control"
+          onChange={onChangeHandler}
+          onBlur={mainOnBlurHandler}
+          onFocus={mainOnFocusHandler}
+          value={defaultValue || currentValue}
+          aria-label={size}
+          placeholder={placeholder}
+          disabled={disabled}
+        />
+      </Spin>
+    </div>
   );
 }
 

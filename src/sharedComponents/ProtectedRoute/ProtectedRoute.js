@@ -2,10 +2,10 @@ import React from "react";
 import { Redirect, Route } from "react-router-dom";
 
 import routeConstants from "../../constants/routeConstants";
-import useUser from "../../hooks/useUser";
+import { getCookie } from "../../services/cookie/cookieService";
 
 const ProtectedRoute = ({ component: Component, path, ...rest }) => {
-  const user = useUser();
+  const user = getCookie("user");
 
   return (
     <Route

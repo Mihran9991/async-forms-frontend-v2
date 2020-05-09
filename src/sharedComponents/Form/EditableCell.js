@@ -27,10 +27,8 @@ function EditableRow({
   children,
   editRowHandler,
   disabled,
-  formId,
-  instanceId,
-  fieldId,
-  formName,
+  belongsTo,
+  withLoading,
 }) {
   const isValidType =
     inputType === INPUT || inputType === DROP_DOWN || dataIndex === OPERATION;
@@ -38,17 +36,11 @@ function EditableRow({
   const [isPopoverVisible, setIsPopoverVisible] = useState(disabled);
   const key = get(record, "rowId", "");
 
-  const cellOnFocusHandler = () => {
-    startFieldChange({
-      formId,
-      rowId: key,
-      columnId: dataIndex,
-      instanceName: instanceId,
-      fieldName: fieldId,
-      formName,
-      type: TABLE,
-    });
-  };
+  // const cellOnFocusHandler = () => {
+  //   startFieldChange({
+
+  //   });
+  // };
 
   const cellOnBlurHandler = () => {
     const val = (() => {
@@ -60,14 +52,11 @@ function EditableRow({
     })();
 
     finishFieldChange({
+      ...belongsTo,
       rowId: key,
       columnId: dataIndex,
-      instanceName: instanceId,
-      fieldName: fieldId,
-      formName,
       type: TABLE,
       value: val,
-      formId,
     });
 
     editRowHandler(key, val);
@@ -89,79 +78,75 @@ function EditableRow({
 
   return (
     <td>
-      <Popover
-        visible={isPopoverVisible}
-        content={
-          <>
-            This field is being edited by John Doe
-            <br />
-            <Button onClick={() => setIsPopoverVisible(false)}>Close</Button>
-          </>
-        }
-      >
-        <If condition={dataIndex === OPERATION}>
-          <Then>{children}</Then>
-          <Else>
-            <Form.Item
-              name={dataIndex}
-              style={{
-                margin: 0,
-              }}
-              rules={[
-                {
-                  required: false,
-                  message: `Please Input ${dataIndex}!`,
-                },
-              ]}
-            >
-              <If condition={inputType === INPUT}>
-                <Then>
-                  <Input
-                    disabled={disabled}
-                    propName={dataIndex}
-                    cb={setCurrentVal}
-                    defaultValue={get(record, `${dataIndex}.value`, "")}
-                    fullWidth
-                    onFocusHandler={cellOnFocusHandler}
-                    onBlurHandler={cellOnBlurHandler}
-                    callbackResponseOnlyValue
-                  />
-                </Then>
-                <Else>
-                  <DropDown
-                    disabled={disabled}
-                    isFormatted
-                    fullWidth
-                    propName={dataIndex}
-                    defaultValue={
-                      has(record, `${dataIndex}.value`)
-                        ? get(record, `${dataIndex}.value`, "")
-                        : get(value, "[0].value", "")
-                    }
-                    menuItems={[]}
-                    items={value}
-                    cb={setCurrentVal}
-                    onFocusHandler={cellOnFocusHandler}
-                    onBlurHandler={cellOnBlurHandler}
-                    onlyValues
-                  />
-                </Else>
-              </If>
-            </Form.Item>
-          </Else>
-        </If>
-      </Popover>
+      <If condition={dataIndex === OPERATION}>
+        <Then>{children}</Then>
+        <Else>
+          <Form.Item
+            name={dataIndex}
+            style={{
+              margin: 0,
+            }}
+            rules={[
+              {
+                required: false,
+                message: `Please Input ${dataIndex}!`,
+              },
+            ]}
+          >
+            <If condition={inputType === INPUT}>
+              <Then>
+                <Input
+                  disabled={disabled}
+                  propName={dataIndex}
+                  cb={setCurrentVal}
+                  defaultValue={get(record, `${dataIndex}.value`, "")}
+                  fullWidth
+                  // onFocusHandler={cellOnFocusHandler}
+                  // onBlurHandler={cellOnBlurHandler}
+                  callbackResponseOnlyValue
+                  withLoading={withLoading}
+                  forInstance={withLoading}
+                  belongsTo={{
+                    ...belongsTo,
+                    rowId: key,
+                    columnId: dataIndex,
+                    type: TABLE,
+                  }}
+                />
+              </Then>
+              <Else>
+                <DropDown
+                  disabled={disabled}
+                  isFormatted
+                  fullWidth
+                  propName={dataIndex}
+                  defaultValue={
+                    has(record, `${dataIndex}.value`)
+                      ? get(record, `${dataIndex}.value`, "")
+                      : get(value, "[0].value", "")
+                  }
+                  menuItems={[]}
+                  items={value}
+                  cb={setCurrentVal}
+                  // onFocusHandler={cellOnFocusHandler}
+                  // onBlurHandler={cellOnBlurHandler}
+                  onlyValues
+                  withLoading={withLoading}
+                  forInstance={withLoading}
+                  belongsTo={{
+                    ...belongsTo,
+                    rowId: key,
+                    columnId: dataIndex,
+                    type: TABLE,
+                  }}
+                />
+              </Else>
+            </If>
+          </Form.Item>
+        </Else>
+      </If>
     </td>
   );
 }
 
 export default EditableRow;
-
-// specificDataHandler({ [ddkey]: data[dataIndex] });
-// edit({
-//   key: record.key,
-//   [dataIndex]:
-//     data[dataIndex] && data[dataIndex].length
-//       ? data[dataIndex][0].value
-//       : "",
-// });

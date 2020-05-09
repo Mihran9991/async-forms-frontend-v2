@@ -23,17 +23,11 @@ function ComponentByType({
   formId,
   title,
   fieldId,
+  ownerId,
+  withLoading = false,
 }) {
   const commonValidationStyle = { outline: error ? "red" : "#d9d9d9" };
-
-  if (type === DROP_DOWN) {
-    console.log(
-      "defaultValue",
-      get(value, "defaultValue", ""),
-      "forInstance",
-      forInstance
-    );
-  }
+  const belongsTo = { instanceId, formId, fieldId, title, ownerId };
 
   return (
     <>
@@ -52,7 +46,8 @@ function ComponentByType({
             propName={name}
             defaultValue={forInstance ? value : name}
             forInstance={forInstance}
-            belongsTo={{ instanceId, formId, fieldId, title }}
+            belongsTo={belongsTo}
+            withLoading={withLoading}
           />
         </Case>
         <Case condition={type === DROP_DOWN}>
@@ -76,7 +71,8 @@ function ComponentByType({
             callbackResponseOnlyValue
             forInstance={forInstance}
             onlyValues
-            belongsTo={{ instanceId, formId, fieldId, title }}
+            belongsTo={belongsTo}
+            withLoading={withLoading}
           />
         </Case>
         <Case condition={type === TABLE}>
@@ -89,7 +85,8 @@ function ComponentByType({
             forInstance={forInstance}
             columns={forInstance ? get(value, "columns", []) : value}
             rows={forInstance ? get(value, "rows", []) : value}
-            belongsTo={{ instanceId, formId, fieldId, title }}
+            belongsTo={belongsTo}
+            withLoading={withLoading}
           />
         </Case>
         <Default>
@@ -101,7 +98,8 @@ function ComponentByType({
             propName={name}
             defaultValue={forInstance ? value : name}
             forInstance={forInstance}
-            belongsTo={{ instanceId, formId, fieldId, title }}
+            belongsTo={belongsTo}
+            withLoading={withLoading}
           />
         </Default>
       </Switch>
