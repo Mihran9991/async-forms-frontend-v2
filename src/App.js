@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Switch } from "react-router-dom";
+import "antd/dist/antd.css";
 
 import routeConstants from "./constants/routeConstants";
 import Register from "./pages/Auth/Register/";
@@ -7,10 +8,10 @@ import Login from "./pages/Auth/Login/";
 import ForgotSend from "./pages/Auth/Forgot/Send/ForgotSend";
 import ForgotReset from "./pages/Auth/Forgot/Reset/ForgotReset";
 import Dashboard from "./pages/Dashboard/";
+import Profile from "./pages/Profile/";
 import ProtectedRoute from "./sharedComponents/ProtectedRoute";
 import WithSocket from "./sharedComponents/WithSocket";
 import "./App.scss";
-import "antd/dist/antd.css";
 
 function App() {
   return (
@@ -42,6 +43,7 @@ function App() {
               path={routeConstants.DASHBOARD}
               component={Dashboard}
             />
+            <ProtectedRoute path={routeConstants.PROFILE} component={Profile} />
           </Switch>
         </div>
       </Router>

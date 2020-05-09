@@ -9,6 +9,7 @@ import Create from "./Create";
 import Forms from "./Forms";
 import Form from "./Form";
 import FormInstances from "./FormInstances";
+import Profile from "../Profile";
 
 import styles from "./dashboard.module.scss";
 import { removeCookie } from "../../services/cookie/cookieService";
@@ -87,6 +88,11 @@ function SiderDemo({ match }) {
               exact
               path={`${routeConstants.DASHBOARD}${routeConstants.FORM_INSTANCES}`}
               component={FormInstances}
+            />
+            <Route
+              exact
+              path={`${routeConstants.DASHBOARD}${routeConstants.PROFILE}`}
+              component={Profile}
             />
           </Switch>
         </Content>

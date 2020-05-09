@@ -4,9 +4,9 @@ export const PORT = "3001";
 export const LOGIN_ROUTE = "/login";
 export const REGISTER_ROUTE = "/register";
 
+export const GET_USER_ROUTE = "/user/get";
 export const GET_USERS_ROUTE = "/user/getAll";
-export const GET_USER = "/user/get";
-
+export const EDIT_PROFILE_ROUTER = "/user/edit";
 export const CREATE_FORM_ROUTE = "/form/create";
 export const GET_FORMS = "/form/getAll";
 export const GET_FORM_INSTANCES = "/form/instance/getAll";
@@ -21,7 +21,8 @@ export default {
   PORT,
   LOGIN_ROUTE,
   REGISTER_ROUTE,
-  GET_USERS_ROUTE,
+  GET_USER_ROUTE,
+  EDIT_PROFILE_ROUTER,
   CREATE_FORM_ROUTE,
   GET_FORMS,
   GET_FORM,
@@ -29,6 +30,5 @@ export default {
   CREATE_FORM_INSTANCE,
   INSERT_FORM_INSTANCE_VALUE,
   GET_FORM_INSTANCE,
-  GET_USER,
   CHECK_FORM_FIELD_LOCK_STATUS,
 };
