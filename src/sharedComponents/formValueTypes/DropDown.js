@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Select, Divider, Button, message, Spin } from "antd";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { If, Then, Else } from "react-if";
@@ -15,6 +15,7 @@ import {
 } from "../../services/socket/emitEvents";
 import { isFormFieldLocked } from "../../services/request/formService";
 import socketContext from "../WithSocket/socketContext";
+import { TABLE } from "../../constants/formConstants";
 
 const { Option } = Select;
 
@@ -58,13 +59,14 @@ function DropDown({
     lineHeight: 1,
   };
   const socketData = useContext(socketContext);
-  const disabled = forInstance
-    ? get(
-        socketData,
-        `${belongsTo.formId}.${belongsTo.instanceId}.${belongsTo.fieldId}`,
-        false
-      )
-    : disabledFromProps;
+  const disabled =
+    forInstance && belongsTo.type !== TABLE
+      ? get(
+          socketData,
+          `${belongsTo.formId}.${belongsTo.instanceId}.${belongsTo.fieldId}`,
+          false
+        )
+      : disabledFromProps;
   const [editabelMenuItems, setEditabelMenuItems] = useState(menuItems || []);
   const [formattedItems, setFormattedItems] = useState([]);
   const [currentValue, setCurrentValue] = useState(defaultValue);
@@ -178,8 +180,6 @@ function DropDown({
             rowId,
           }),
         });
-      } else {
-        //TODO :: notify about already locked field
       }
     } catch {
       setIsSpinning(false);
@@ -212,13 +212,27 @@ function DropDown({
     });
   };
 
-  const mainOnFocusHandler = (data) => {
-    forInstance ? instanceFocusHandler() : onFocusHandler(data);
+  const mainOnFocusHandler = () => {
+    if (forInstance) {
+      instanceFocusHandler();
+      return;
+    }
+
+    onFocusHandler();
   };
 
   const mainOnBlurHandler = (data) => {
-    forInstance ? instanceOnBlurHandler() : onBlurHandler(data);
+    if (forInstance) {
+      instanceOnBlurHandler();
+      return;
+    }
+
+    onBlurHandler(data);
   };
+
+  useEffect(() => {
+    setCurrentValue(defaultValue);
+  }, [defaultValue]);
 
   return (
     <Spin spinning={isSpinning}>
@@ -229,7 +243,8 @@ function DropDown({
             onChange={onChangeHandler}
             onBlur={mainOnBlurHandler}
             onFocus={mainOnFocusHandler}
-            defaultValue={currentValue ? currentValue : defaultValue}
+            value={currentValue}
+            defaultValue={forInstance ? defaultValue : currentValue}
             style={{ width: "100%", ...(style && style) }}
             placeholder={get(items, "[0].value", "Select an item")}
             {...(withLoading && { open: isOpen })}
@@ -253,6 +268,7 @@ function DropDown({
         <Else>
           <Select
             {...(withLoading && { open: isOpen })}
+            defaultValue={forInstance ? defaultValue : currentValue}
             disabled={disabled || isSpinning}
             onBlur={mainOnBlurHandler}
             onFocus={mainOnFocusHandler}

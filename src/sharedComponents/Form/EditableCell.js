@@ -32,45 +32,16 @@ function EditableRow({
 }) {
   const isValidType =
     inputType === INPUT || inputType === DROP_DOWN || dataIndex === OPERATION;
-  const [currentVal, setCurrentVal] = useState("");
-  const [isPopoverVisible, setIsPopoverVisible] = useState(disabled);
   const key = get(record, "rowId", "");
 
-  // const cellOnFocusHandler = () => {
-  //   startFieldChange({
-
-  //   });
-  // };
-
-  const cellOnBlurHandler = () => {
-    const val = (() => {
-      if (isObject(currentVal)) {
-        return transformObjectDataIntoArray(currentVal, "values")[0];
-      }
-
-      return currentVal;
-    })();
-
-    finishFieldChange({
-      ...belongsTo,
-      rowId: key,
-      columnId: dataIndex,
-      type: TABLE,
-      value: val,
-    });
-
-    editRowHandler(key, val);
-    setCurrentVal("");
-  };
-
-  useEffect(() => {
-    setIsPopoverVisible(disabled);
-    if (disabled) {
-      setTimeout(() => {
-        setIsPopoverVisible(false);
-      }, 1500);
-    }
-  }, [disabled]);
+  // useEffect(() => {
+  //   setIsPopoverVisible(disabled);
+  //   if (disabled) {
+  //     setTimeout(() => {
+  //       setIsPopoverVisible(false);
+  //     }, 1500);
+  //   }
+  // }, [disabled]);
 
   if (!isValidType) {
     return null;
@@ -98,7 +69,7 @@ function EditableRow({
                 <Input
                   disabled={disabled}
                   propName={dataIndex}
-                  cb={setCurrentVal}
+                  cb={() => {}}
                   defaultValue={get(record, `${dataIndex}.value`, "")}
                   fullWidth
                   // onFocusHandler={cellOnFocusHandler}
@@ -127,7 +98,7 @@ function EditableRow({
                   }
                   menuItems={[]}
                   items={value}
-                  cb={setCurrentVal}
+                  cb={() => {}}
                   // onFocusHandler={cellOnFocusHandler}
                   // onBlurHandler={cellOnBlurHandler}
                   onlyValues

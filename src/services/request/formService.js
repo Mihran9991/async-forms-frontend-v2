@@ -12,7 +12,10 @@ import {
 
 export async function create(formData) {
   try {
-    await axiosInstance.post(`${CREATE_FORM_ROUTE}`, formData);
+    await axiosInstance.post(`${CREATE_FORM_ROUTE}`, {
+      ...formData,
+      formName: formData.name,
+    });
   } catch (e) {
     console.log("err", e);
   }

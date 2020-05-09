@@ -1,6 +1,5 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useRef } from "react";
 import { Input as AInput, Spin } from "antd";
-import { If, Then, Else } from "react-if";
 import get from "lodash/get";
 
 import {
@@ -9,6 +8,7 @@ import {
 } from "../../services/socket/emitEvents";
 import { isFormFieldLocked } from "../../services/request/formService";
 import socketContext from "../WithSocket/socketContext";
+import { TABLE } from "../../constants/formConstants";
 
 function Input({
   style,
@@ -31,15 +31,16 @@ function Input({
   withLoading = false,
 }) {
   const socketData = useContext(socketContext);
-  const disabled = forInstance
-    ? get(
-        socketData,
-        `${belongsTo.formId}.${belongsTo.instanceId}.${belongsTo.fieldId}`,
-        false
-      )
-    : disabledFromProps;
+  const disabled =
+    forInstance && belongsTo.type !== TABLE
+      ? get(
+          socketData,
+          `${belongsTo.formId}.${belongsTo.instanceId}.${belongsTo.fieldId}`,
+          false
+        )
+      : disabledFromProps;
 
-  const [isSpinning, setIsSpinning] = useState(false);
+  const [isSpinning, setIsSpinning] = useState(null);
   const [currentValue, setCurrentValue] = useState("");
   const [defaultValue, setDefaultValue] = useState(defaultValueFromProps);
   const getWidth = () => {
@@ -55,15 +56,17 @@ function Input({
   };
 
   const onChangeHandler = ({ target: { value } }) => {
-    setDefaultValue("");
-    setCurrentValue(value);
+    if (!isSpinning) {
+      setDefaultValue("");
+      setCurrentValue(value);
 
-    if (callbackResponseOnlyValue) {
-      cb(value);
-    } else {
-      cb({
-        [propName]: value,
-      });
+      if (callbackResponseOnlyValue) {
+        cb(value);
+      } else {
+        cb({
+          [propName]: value,
+        });
+      }
     }
   };
 
@@ -83,11 +86,12 @@ function Input({
       const {
         data: { isLocked },
       } = await isFormFieldLocked(belongsTo);
-      setTimeout(() => {
-        setIsSpinning(false);
-      }, 1000);
 
       if (!isLocked) {
+        setTimeout(() => {
+          setIsSpinning(false);
+        }, 1000);
+
         startFieldChange({
           formId,
           ownerId,
@@ -101,7 +105,9 @@ function Input({
       } else {
         //TODO :: notify about already locked field
       }
-    } catch {}
+    } catch (err) {
+      console.log("err", err);
+    }
   };
 
   const instanceOnBlurHandler = () => {
@@ -161,23 +167,6 @@ function Input({
   return (
     <div style={{ width: getWidth(), ...(style && style) }}>
       <Spin spinning={withLoading && isSpinning}>
-        <If condition={isSpinning}>
-          <Then>
-            <AInput
-              style={{ position: "absolute", zIndex: 999 }}
-              type={type}
-              className="form-control"
-              onChange={onChangeHandler}
-              onBlur={mainOnBlurHandler}
-              onFocus={mainOnFocusHandler}
-              value={defaultValue || currentValue}
-              aria-label={size}
-              placeholder={placeholder}
-              disabled={disabled || isSpinning}
-            />
-          </Then>
-        </If>
-
         <AInput
           type={type}
           className="form-control"

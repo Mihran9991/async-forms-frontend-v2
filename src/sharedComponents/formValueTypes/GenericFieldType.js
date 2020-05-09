@@ -34,8 +34,6 @@ function GenericFieldType({
   const [error, setError] = useState("");
   const isValid = validateField(structure, type, name);
 
-  console.log("ownerId", ownerId);
-
   const structureBuilder = (data) => {
     const structureCopy = { ...structure };
 

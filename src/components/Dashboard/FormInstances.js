@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, withRouter } from "react-router-dom";
-import { List, Card, Button } from "antd";
+import { List, Card, Button, Spin } from "antd";
 import { If, Then } from "react-if";
 import get from "lodash/get";
 
@@ -20,24 +20,35 @@ function FormsInstances(props) {
   const [instances, setInstances] = useState([]);
   const [instancesStructure, setInstancesStructure] = useState({});
   const [pendingInstance, setPendingInstance] = useState(false);
+  const [spinning, setIsSpinning] = useState(false);
+
   const [instanceName, setInstanceName] = useState("");
   const user = useUser();
 
   const saveInstance = async () => {
-    setInstances([
-      ...instances,
-      {
-        title: instanceName,
-      },
-    ]);
-
     try {
       setPendingInstance(false);
       setInstanceName("");
+      setIsSpinning(true);
+
       await createFormInstance({
         formName: formData.title,
-        name: instanceName,
+        instanceName,
       });
+      const formName = formData.title;
+      const { data: instances } = await getFormInstancesByFormName({
+        params: {
+          formName,
+        },
+      });
+
+      setIsSpinning(false);
+      setInstances([
+        ...instances,
+        {
+          title: instanceName,
+        },
+      ]);
     } catch (e) {
       console.log("err", e);
     }
@@ -45,6 +56,8 @@ function FormsInstances(props) {
 
   useEffect(() => {
     const getData = async () => {
+      setIsSpinning(true);
+
       const formName = formData.title;
       const { data: instances } = await getFormInstancesByFormName({
         params: {
@@ -57,33 +70,40 @@ function FormsInstances(props) {
         },
       });
 
+      setIsSpinning(false);
       setInstances(instances);
       setInstancesStructure(structure);
     };
 
     getData();
   }, []);
-  console.log("user", user);
 
   return (
-    <>
+    <Spin spinning={spinning}>
       <Button
         type="primary"
         disabled={pendingInstance}
+        style={{ marginBottom: 10 }}
         onClick={() => setPendingInstance(true)}
       >
         Add a form instance
       </Button>
-      <br />
       <If condition={pendingInstance}>
         <Then>
-          <Input cb={setInstanceName} callbackResponseOnlyValue />
-          <br />
+          <Input
+            cb={setInstanceName}
+            callbackResponseOnlyValue
+            style={{ marginBottom: 10 }}
+          />
         </Then>
       </If>
       <If condition={instanceName.length > 0}>
         <Then>
-          <Button type="primary" onClick={saveInstance}>
+          <Button
+            type="primary"
+            onClick={saveInstance}
+            style={{ marginBottom: 10 }}
+          >
             Create
           </Button>
         </Then>
@@ -107,15 +127,15 @@ function FormsInstances(props) {
                 },
               }}
             >
-              <Card title={name}>Instance content</Card>
+              {name && <Card title={name}>Instance content</Card>}
             </Link>
-            {/* <Button type="danger" onClick={() => deleteInstance(title)}>
-              Delete
-            </Button> */}
           </List.Item>
+          // {/* <Button type="danger" onClick={() => deleteInstance(title)}>
+          //     Delete
+          //   </Button> */}
         )}
       />
-    </>
+    </Spin>
   );
 }
 export default withRouter(FormsInstances);

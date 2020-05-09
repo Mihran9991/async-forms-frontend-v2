@@ -6,6 +6,7 @@ import GenericFieldType from "../../sharedComponents/formValueTypes/GenericField
 import { DROP_DOWN, TABLE } from "../../constants/formConstants";
 import { reconstructColumnsData } from "../../utils/formUtil";
 import { getFormInstance } from "../../services/request/formService";
+import { initSpecificEvents } from "../../services/socket";
 
 function FormInstance({
   data: { name, structure, title, formId, instanceId, ownerId },
@@ -21,6 +22,7 @@ function FormInstance({
         },
       });
 
+      initSpecificEvents({ setInstanceData });
       setInstanceData(data);
     };
 
