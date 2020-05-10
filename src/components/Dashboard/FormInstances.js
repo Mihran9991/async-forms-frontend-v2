@@ -20,7 +20,7 @@ function FormsInstances(props) {
   const [instances, setInstances] = useState([]);
   const [instancesStructure, setInstancesStructure] = useState({});
   const [pendingInstance, setPendingInstance] = useState(false);
-  const [spinning, setIsSpinning] = useState(false);
+  const [isSpinning, setIsSpinning] = useState(false);
 
   const [instanceName, setInstanceName] = useState("");
   const user = useUser();
@@ -42,7 +42,6 @@ function FormsInstances(props) {
         },
       });
 
-      setIsSpinning(false);
       setInstances([
         ...instances,
         {
@@ -51,6 +50,8 @@ function FormsInstances(props) {
       ]);
     } catch (e) {
       console.log("err", e);
+    } finally {
+      setIsSpinning(false);
     }
   };
 
@@ -79,7 +80,7 @@ function FormsInstances(props) {
   }, []);
 
   return (
-    <Spin spinning={spinning}>
+    <Spin spinning={isSpinning}>
       <Button
         type="primary"
         disabled={pendingInstance}

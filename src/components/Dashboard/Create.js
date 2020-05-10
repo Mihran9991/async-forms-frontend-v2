@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { If, Then } from "react-if";
-import { Button, message } from "antd";
+import { withRouter } from "react-router-dom";
+import { Button, message, Spin } from "antd";
 import { v4 as uuidv4 } from "uuid";
 import isObject from "lodash/isObject";
 import has from "lodash/has";
@@ -11,6 +12,7 @@ import Card from "../../sharedComponents/Card";
 import FieldList from "../../sharedComponents/Form/FieldList";
 import FieldName from "../../sharedComponents/Form/FieldName";
 import { DROP_DOWN, INPUT } from "../../constants/formConstants";
+import routeConstants from "../../constants/routeConstants";
 import { DUPLICATE_FIELD } from "../../constants/errorMessages";
 import { create } from "../../services/request/formService";
 import {
@@ -22,12 +24,13 @@ import {
 let duplicateHashesMemo = {};
 console.warn = console.error = () => {};
 
-function Create() {
+function Create({ history }) {
   const [title, setTitle] = useState("");
   const [structureComponents, setStructureComponents] = useState([]);
   const [structure, setStructure] = useState({ name: title, fields: [] });
   const [areAllFieldsValid, setAreAllFieldsValid] = useState(false);
   const [duplicateAvailable, setDuplicateAvailable] = useState(false);
+  const [isSpinning, setIsSpinning] = useState(false);
   const [duplicateFieldsHash, setDuplicateFieldsHash] = useState({});
   const [fieldsHash, setFieldsHash] = useState({});
   const saveStructureDisabled = Boolean(
@@ -182,45 +185,59 @@ function Create() {
     setStructure(copyStructure);
   };
 
+  const createHandler = async () => {
+    setIsSpinning(true);
+    try {
+      await create(structure);
+      history.push(`${routeConstants.DASHBOARD}${routeConstants.FORMS}`);
+    } catch (e) {
+      console.log("err", e);
+    } finally {
+      setIsSpinning(false);
+    }
+  };
+
   useEffect(() => {
     setStructure({ ...structure, name: title });
   }, [title]);
 
   return (
-    <Card>
-      <FormName saveTitle={setTitle} title={title} />
-      <If condition={title.length > 0}>
-        <Then>
-          <FieldName
-            disabled={
-              (structureComponents.length && !areAllFieldsValid) ||
-              duplicateAvailable
-            }
-            cb={addStructureComponent}
-          />
-          <FieldList
-            list={structureComponents}
-            structure={structure}
-            fieldsHash={fieldsHash}
-            saveStructure={saveStructure}
-            duplicateAvailable={duplicateAvailable}
-            setAreAllFieldsValid={setAreAllFieldsValid}
-            removeStructurePieceHandler={removeStructurePieceHandler}
-            duplicateFieldsHash={duplicateFieldsHash}
-            duplicateHashesMemo={duplicateHashesMemo}
-            setDuplicateAvailable={setDuplicateAvailable}
-          />
-          <If condition={saveStructureDisabled}>
-            <Then>
-              <Button type="primary" onClick={() => create(structure)}>
-                Save Structure
-              </Button>
-            </Then>
-          </If>
-        </Then>
-      </If>
-    </Card>
+    <Spin spinning={isSpinning}>
+      <Card>
+        <FormName saveTitle={setTitle} title={title} />
+        <If condition={title.length > 0}>
+          <Then>
+            <FieldName
+              disabled={
+                (structureComponents.length && !areAllFieldsValid) ||
+                duplicateAvailable
+              }
+              cb={addStructureComponent}
+            />
+            <FieldList
+              list={structureComponents}
+              structure={structure}
+              fieldsHash={fieldsHash}
+              saveStructure={saveStructure}
+              duplicateAvailable={duplicateAvailable}
+              setAreAllFieldsValid={setAreAllFieldsValid}
+              removeStructurePieceHandler={removeStructurePieceHandler}
+              duplicateFieldsHash={duplicateFieldsHash}
+              duplicateHashesMemo={duplicateHashesMemo}
+              setDuplicateAvailable={setDuplicateAvailable}
+            />
+            <If condition={saveStructureDisabled}>
+              <Then>
+                <Button type="primary" onClick={createHandler}>
+                  Save Structure
+                </Button>
+              </Then>
+            </If>
+          </Then>
+        </If>
+      </Card>
+    </Spin>
   );
 }
 
-export default Create;
+export default withRouter(Create);

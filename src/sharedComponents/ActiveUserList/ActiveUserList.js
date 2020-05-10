@@ -12,12 +12,17 @@ function ActiveUserList({ vertical }) {
   useEffect(() => {
     const getData = async () => {
       setIsSpinning(true);
-      const {
-        data: { activeUsersList: list },
-      } = await getActiveUsersList();
-      setIsSpinning(false);
+      try {
+        const {
+          data: { activeUsersList: list },
+        } = await getActiveUsersList();
 
-      setActiveUserList(list);
+        setActiveUserList(list);
+      } catch (e) {
+        console.log("err", e);
+      } finally {
+        setIsSpinning(false);
+      }
     };
 
     getData();
