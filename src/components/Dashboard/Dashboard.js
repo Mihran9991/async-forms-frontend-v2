@@ -2,7 +2,12 @@
 import React, { useState } from "react";
 import { Link, Route, Switch, withRouter } from "react-router-dom";
 import { Layout, Menu } from "antd";
-import { FileOutlined, FormOutlined, UserOutlined } from "@ant-design/icons";
+import {
+  FileOutlined,
+  FormOutlined,
+  UserOutlined,
+  TeamOutlined,
+} from "@ant-design/icons";
 
 import routeConstants from "../../constants/routeConstants";
 // import logo from "/public/logo.png";
@@ -51,7 +56,7 @@ function SiderDemo({ match }) {
             </Link>
           </Menu.Item>
           <Menu.Item key="4">
-            <UserOutlined />
+            <TeamOutlined />
             <Link to={`${match.path}${routeConstants.ACTIVE_USERS}`}>
               {!collapsed && <span>Active Users</span>}
             </Link>

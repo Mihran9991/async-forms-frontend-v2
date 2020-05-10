@@ -8,32 +8,35 @@ export const startFieldChange = (fieldData) => {
 };
 
 export const finishFieldChange = (fieldData) => {
-  const valueByType = (() => {
-    if (fieldData.type === TABLE) {
+  if (fieldData.value) {
+    const valueByType = (() => {
+      if (fieldData.type === TABLE) {
+        return {
+          formName: fieldData.formName,
+          instanceName: fieldData.instanceName,
+          field: {
+            name: fieldData.fieldName,
+            field: {
+              rowId: fieldData.rowId,
+              name: fieldData.columnId,
+              value: fieldData.value,
+            },
+          },
+        };
+      }
+
       return {
         formName: fieldData.formName,
         instanceName: fieldData.instanceName,
         field: {
           name: fieldData.fieldName,
-          field: {
-            rowId: fieldData.rowId,
-            name: fieldData.columnId,
-            value: fieldData.value,
-          },
+          value: fieldData.value,
         },
       };
-    }
+    })();
 
-    return {
-      formName: fieldData.formName,
-      instanceName: fieldData.instanceName,
-      field: {
-        name: fieldData.fieldName,
-        value: fieldData.value,
-      },
-    };
-  })();
+    insertFormInstanceValue(valueByType);
+  }
 
-  insertFormInstanceValue(valueByType);
   socket.emit(socketConstants.FINISH_FORM_FIELD_CHANGE, fieldData);
 };

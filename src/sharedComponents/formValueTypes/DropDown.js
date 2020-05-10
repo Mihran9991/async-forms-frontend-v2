@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useRef } from "react";
 import { Select, Divider, Button, message, Spin } from "antd";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { If, Then, Else } from "react-if";
@@ -239,7 +239,7 @@ function DropDown({
       <If condition={!editable && items.length > 0}>
         <Then>
           <Select
-            disabled={disabled || isSpinning}
+            disabled={disabled}
             onChange={onChangeHandler}
             onBlur={mainOnBlurHandler}
             onFocus={mainOnFocusHandler}
@@ -269,7 +269,7 @@ function DropDown({
           <Select
             {...(withLoading && { open: isOpen })}
             defaultValue={forInstance ? defaultValue : currentValue}
-            disabled={disabled || isSpinning}
+            disabled={disabled}
             onBlur={mainOnBlurHandler}
             onFocus={mainOnFocusHandler}
             allowClear={true}
