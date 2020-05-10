@@ -32,7 +32,18 @@ function ActiveUserList({ vertical }) {
             renderItem={(item) => (
               <List.Item key={item.uuid}>
                 <List.Item.Meta
-                  avatar={<Avatar src={item.pictureUrl} />}
+                  avatar={
+                    <If condition={item.pictureUrl}>
+                      <Then>
+                        <Avatar src={item.pictureUrl} />
+                      </Then>
+                      <Else>
+                        <Avatar style={{ fontSize: "medium" }}>
+                          {item.name[0]}
+                        </Avatar>
+                      </Else>
+                    </If>
+                  }
                   title={
                     <a
                       href="https://ant.design"
@@ -46,7 +57,7 @@ function ActiveUserList({ vertical }) {
                 <div>Content</div>
               </List.Item>
             )}
-          ></List>
+          />
         </Then>
         <Else>
           <ul
@@ -72,7 +83,16 @@ function ActiveUserList({ vertical }) {
                       cursor: "pointer",
                     }}
                   >
-                    <Avatar src={pictureUrl} />
+                    <If condition={pictureUrl}>
+                      <Then>
+                        <Avatar src={pictureUrl} />
+                      </Then>
+                      <Else>
+                        <Avatar style={{ fontSize: "medium" }}>
+                          {name[0]}
+                        </Avatar>
+                      </Else>
+                    </If>
                   </li>
                 </Popover>
               );

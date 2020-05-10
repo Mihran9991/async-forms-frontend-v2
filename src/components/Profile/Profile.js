@@ -128,7 +128,9 @@ const EditProfileForm = () => {
               <Avatar src={formData.pictureUrl} size={150} />
             </Then>
             <Else>
-              <Avatar size={150}>{formData.name[0]}</Avatar>
+              <Avatar size={150} style={{ fontSize: "xxx-large" }}>
+                {formData.name[0]}
+              </Avatar>
             </Else>
           </If>
         </div>
