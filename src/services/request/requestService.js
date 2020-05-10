@@ -1,13 +1,13 @@
 import axios from "axios";
-import { HOST, PORT } from "../../constants/backendConstants";
+import { HOST } from "../../config/backendConfigs";
 import { getCookie, removeCookie } from "../cookie/cookieService";
 
 export const axiosInstance = axios.create({
-  baseURL: `http://${HOST}:${PORT}`,
+  baseURL: HOST,
   headers: { Authorization: `Bearer ${getCookie("user")}` },
 });
 
-// autoLOgout on 403
+// autoLogout on 403
 export const fetch = () => {
   removeCookie("user");
   window.location.reload();
