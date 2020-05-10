@@ -1,6 +1,3 @@
-export const HOST = "localhost";
-export const PORT = "3001";
-
 export const LOGIN_ROUTE = "/login";
 export const REGISTER_ROUTE = "/register";
 
@@ -19,8 +16,6 @@ export const GET_FORM_INSTANCE = "/form/instance/get";
 export const CHECK_FORM_FIELD_LOCK_STATUS = "form/field/isLocked";
 
 export default {
-  HOST,
-  PORT,
   LOGIN_ROUTE,
   REGISTER_ROUTE,
   GET_USER_ROUTE,

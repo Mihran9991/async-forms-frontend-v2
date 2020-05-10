@@ -4,8 +4,9 @@ import { events } from "./events";
 import { specificEvents } from "./specificEvents";
 
 import { getCookie } from "../cookie/cookieService";
+import { HOST } from "../../config/backendConfigs";
 
-export const socket = io("http://2fc220c0.ngrok.io", {
+export const socket = io(HOST, {
   query: `auth_token=${getCookie("user")}`,
 });
 
