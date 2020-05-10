@@ -1,6 +1,6 @@
 import axios from "axios";
-import backendConstants from "../constants/backendConstants";
+import { HOST } from "../config/backendConfigs";
 
 export const axiosInstance = axios.create({
-  baseURL: `http://${backendConstants.HOST}:${backendConstants.PORT}`,
+  baseURL: `HOST`,
 });
