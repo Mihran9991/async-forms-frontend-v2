@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter as Router, Switch } from "react-router-dom";
 import "antd/dist/antd.css";
+import { decode } from "jsonwebtoken";
 
+import { getCookie } from "./services/cookie/cookieService";
+import { autoLogout } from "./services/auth";
 import routeConstants from "./constants/routeConstants";
 import Register from "./pages/Auth/Register/";
 import Login from "./pages/Auth/Login/";
@@ -14,6 +17,15 @@ import WithSocket from "./sharedComponents/WithSocket";
 import "./App.scss";
 
 function App() {
+  useEffect(() => {
+    const token = getCookie("user");
+
+    if (token) {
+      const { exp } = decode(token);
+      autoLogout(exp);
+    }
+  }, []);
+
   return (
     <WithSocket>
       <Router>

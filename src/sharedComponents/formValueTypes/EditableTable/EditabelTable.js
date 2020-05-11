@@ -32,6 +32,7 @@ const EditableTable = ({
   forInstance,
   belongsTo,
   withLoading,
+  currentUserEmail,
 }) => {
   const [form] = Form.useForm();
   const [isSpinning, setIsSpinning] = useState(false);
@@ -177,11 +178,20 @@ const EditableTable = ({
       onCell: (record) => {
         const { instanceId, formId, fieldId, title, ownerId } = belongsTo;
         const cellId = `${record.rowId}-${col.dataIndex}`;
-        const disabled = get(
+        const currentField = get(record, `${col.dataIndex}`, {});
+        const isLocked = JSON.parse(get(currentField, `isLocked`, "false"));
+        const lockedBy = get(currentField, `lockedBy`, "");
+        const disabledBySocket = get(
           socketData,
           `${formId}.${instanceId}.${fieldId}`,
           new Set([])
         ).has(cellId);
+        const disabled =
+          disabledBySocket || (isLocked && lockedBy !== currentUserEmail);
+        const info =
+          lockedBy && lockedBy === currentUserEmail
+            ? "This field has been locked by you!"
+            : "";
 
         return {
           record,
@@ -195,6 +205,7 @@ const EditableTable = ({
           disabled,
           belongsTo: { ...belongsTo, formName: title, ownerId },
           withLoading,
+          info,
         };
       },
     };

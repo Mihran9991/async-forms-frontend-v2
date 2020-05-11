@@ -50,6 +50,7 @@ function DropDown({
   onlyValues,
   belongsTo,
   withLoading,
+  info: infoFromProps,
 }) {
   const commonActionsStyle = {
     marginRight: 5,
@@ -59,7 +60,7 @@ function DropDown({
     lineHeight: 1,
   };
   const socketData = useContext(socketContext);
-  const disabled =
+  const disabledBySocket =
     forInstance && belongsTo.type !== TABLE
       ? get(
           socketData,
@@ -67,6 +68,10 @@ function DropDown({
           false
         )
       : disabledFromProps;
+  const disabled = !forInstance
+    ? disabledBySocket
+    : disabledBySocket || disabledFromProps;
+  const [info, setInfo] = useState(infoFromProps);
   const [editabelMenuItems, setEditabelMenuItems] = useState(menuItems || []);
   const [formattedItems, setFormattedItems] = useState([]);
   const [currentValue, setCurrentValue] = useState(defaultValue);
@@ -223,6 +228,10 @@ function DropDown({
 
   const mainOnBlurHandler = (data) => {
     if (forInstance) {
+      if (info) {
+        setInfo("");
+      }
+
       instanceOnBlurHandler();
       return;
     }
@@ -326,6 +335,7 @@ function DropDown({
           </Select>
         </Else>
       </If>
+      {info && <span style={{ color: "red" }}>{info}</span>}
     </Spin>
   );
 }

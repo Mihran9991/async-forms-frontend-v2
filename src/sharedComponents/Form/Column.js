@@ -71,7 +71,7 @@ function Column({
   return (
     <div className={styels["column"]}>
       <div>{name ? name : EMPTY_VALUE}</div>
-      <div>
+      <div style={{ width: "95%" }}>
         <If condition={Boolean(editable)}>
           <Then>
             <If condition={Boolean(isValid && isEditingEnabled)}>

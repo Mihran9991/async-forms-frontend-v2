@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext, useRef } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Input as AInput, Spin } from "antd";
 import get from "lodash/get";
 
@@ -29,9 +29,10 @@ function Input({
   belongsTo,
   forInstance,
   withLoading = false,
+  info: infoFromProps,
 }) {
   const socketData = useContext(socketContext);
-  const disabled =
+  const disabledBySocket =
     forInstance && belongsTo.type !== TABLE
       ? get(
           socketData,
@@ -39,8 +40,11 @@ function Input({
           false
         )
       : disabledFromProps;
-
+  const disabled = !forInstance
+    ? disabledBySocket
+    : disabledBySocket || disabledFromProps;
   const [isSpinning, setIsSpinning] = useState(null);
+  const [info, setInfo] = useState(infoFromProps);
   const [currentValue, setCurrentValue] = useState("");
   const [defaultValue, setDefaultValue] = useState(defaultValueFromProps);
   const getWidth = () => {
@@ -146,6 +150,10 @@ function Input({
 
   const mainOnBlurHandler = (data) => {
     if (forInstance) {
+      if (info) {
+        setInfo("");
+      }
+
       instanceOnBlurHandler();
       return;
     }
@@ -178,6 +186,7 @@ function Input({
           placeholder={placeholder}
           disabled={disabled}
         />
+        {info && <span style={{ color: "red" }}>{info}</span>}
       </Spin>
     </div>
   );

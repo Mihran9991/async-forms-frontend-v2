@@ -28,6 +28,9 @@ function GenericFieldType({
   fieldId,
   ownerId,
   withLoading = false,
+  isLocked,
+  currentUserEmail,
+  lockedBy,
 }) {
   const [name, setName] = useState(nameFromProps || "");
   const [structure, setStructure] = useState(initialStrucutre);
@@ -132,6 +135,9 @@ function GenericFieldType({
             fieldId={fieldId}
             ownerId={ownerId}
             withLoading={withLoading}
+            isLocked={isLocked}
+            currentUserEmail={currentUserEmail}
+            lockedBy={lockedBy}
           />
           {error && <p style={{ color: "red" }}>{error}</p>}
           <br />

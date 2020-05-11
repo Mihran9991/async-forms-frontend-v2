@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { If, Else, Then } from "react-if";
-import { Form, Popover, Button } from "antd";
+import { Form, Popover } from "antd";
 import get from "lodash/get";
 import has from "lodash/has";
 
@@ -12,12 +12,6 @@ import {
 } from "../../constants/formConstants";
 import Input from "../formValueTypes/Input";
 import DropDown from "../formValueTypes/DropDown";
-import {
-  startFieldChange,
-  finishFieldChange,
-} from "../../services/socket/emitEvents";
-import isObject from "lodash/isObject";
-import { transformObjectDataIntoArray } from "../../utils/dataTransformUtil";
 
 function EditableRow({
   value,
@@ -29,25 +23,17 @@ function EditableRow({
   disabled,
   belongsTo,
   withLoading,
+  info,
 }) {
   const isValidType =
     inputType === INPUT || inputType === DROP_DOWN || dataIndex === OPERATION;
   const key = get(record, "rowId", "");
 
-  // useEffect(() => {
-  //   setIsPopoverVisible(disabled);
-  //   if (disabled) {
-  //     setTimeout(() => {
-  //       setIsPopoverVisible(false);
-  //     }, 1500);
-  //   }
-  // }, [disabled]);
-
   if (!isValidType) {
     return null;
   }
 
-  return (
+  const td = (
     <td>
       <If condition={dataIndex === OPERATION}>
         <Then>{children}</Then>
@@ -83,6 +69,7 @@ function EditableRow({
                     columnId: dataIndex,
                     type: TABLE,
                   }}
+                  info={info}
                 />
               </Then>
               <Else>
@@ -117,6 +104,17 @@ function EditableRow({
         </Else>
       </If>
     </td>
+  );
+
+  return (
+    <If condition={disabled}>
+      <Then>
+        <Popover title="Title" trigger="hover">
+          {td}
+        </Popover>
+      </Then>
+      <Else>{td}</Else>
+    </If>
   );
 }
 
