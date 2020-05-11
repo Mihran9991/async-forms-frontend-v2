@@ -16,3 +16,21 @@ export const FORM_DATA_TYPES = [
 export const COLUMN_KEYS = ["name", "type"].sort();
 
 export const EMPTY_VALUE = "N/A";
+
+export const AUDIT_TABLE_COLUMNS = [
+  {
+    title: "Owner",
+    dataIndex: "owner",
+    key: "owner",
+  },
+  {
+    title: "Value",
+    dataIndex: "value",
+    key: "value",
+  },
+  {
+    title: "Date",
+    dataIndex: "createdAt",
+    key: "createdAt",
+  },
+];
