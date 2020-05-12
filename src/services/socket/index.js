@@ -14,6 +14,6 @@ export default ({ setValue }) => {
   events({ setValue });
 };
 
-export const initSpecificEvents = ({ setInstanceData, data }) => {
-  specificEvents({ setInstanceData, data });
+export const initSpecificEvents = ({ setInstanceData, formName }) => {
+  specificEvents({ setInstanceData, formName });
 };

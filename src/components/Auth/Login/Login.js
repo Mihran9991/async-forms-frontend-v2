@@ -78,7 +78,7 @@ const LoginForm = ({ history }) => {
           </button>
           <p className="forgot-password text-right">
             <u>
-              <a href="#">Forgot password?</a>
+              <a href="/forgot-send">Forgot password?</a>
             </u>
           </p>
         </form>

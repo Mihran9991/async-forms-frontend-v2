@@ -30,7 +30,7 @@ function FormInstance({
           },
         });
 
-        initSpecificEvents({ setInstanceData });
+        initSpecificEvents({ setInstanceData, formName: title });
         setInstanceData(data);
       } catch (e) {
         console.log("err", e);
