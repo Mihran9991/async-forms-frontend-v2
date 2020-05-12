@@ -49,9 +49,7 @@ function FormInstance({
         structure.fields.map((field) => {
           const type = field.type.name;
           // TODO:: remove parsing
-          const isLocked = JSON.parse(
-            get(instanceData, `${field.name}.isLocked`, "false")
-          );
+          const isLocked = get(instanceData, `${field.name}.isLocked`, false);
           const lockedBy = get(instanceData, `${field.name}.lockedBy`, "");
           const existingValue =
             type === TABLE

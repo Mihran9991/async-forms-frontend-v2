@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { Avatar, Spin, Popover, List } from "antd";
 import { If, Then, Else } from "react-if";
+import { withRouter } from "react-router-dom";
 
 import { getActiveUsersList } from "../../services/request/userService";
+import routeConstants from "../../constants/routeConstants";
 
-function ActiveUserList({ vertical }) {
+function ActiveUserList({ vertical, history }) {
   const [activeUserList, setActiveUserList] = useState([]);
   const [isSpinning, setIsSpinning] = useState(false);
+
+  const displayActiveUsersCount = 1;
   let prev = 1;
 
   useEffect(() => {
@@ -74,7 +78,10 @@ function ActiveUserList({ vertical }) {
               marginRight: "12em",
             }}
           >
-            {activeUserList.map(({ pictureUrl, name }, idx) => {
+            {(activeUserList.length < displayActiveUsersCount
+              ? activeUserList
+              : activeUserList.slice(0, displayActiveUsersCount)
+            ).map(({ pictureUrl, name }, idx) => {
               const right = prev + 6;
               prev = right;
 
@@ -102,6 +109,18 @@ function ActiveUserList({ vertical }) {
                 </Popover>
               );
             })}
+            {activeUserList.length > displayActiveUsersCount && (
+              <span
+                style={{ cursor: "pointer" }}
+                onClick={() => {
+                  history.push(
+                    `${routeConstants.DASHBOARD}${routeConstants.ACTIVE_USERS}`
+                  );
+                }}
+              >
+                More
+              </span>
+            )}
           </ul>
         </Else>
       </If>
@@ -109,4 +128,4 @@ function ActiveUserList({ vertical }) {
   );
 }
 
-export default ActiveUserList;
+export default withRouter(ActiveUserList);

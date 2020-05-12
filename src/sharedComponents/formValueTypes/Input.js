@@ -92,7 +92,16 @@ function Input({
     try {
       const {
         data: { isLocked },
-      } = await isFormFieldLocked(belongsTo);
+      } = await isFormFieldLocked({
+        formName: title,
+        formId,
+        instanceName: instanceId,
+        fieldName: fieldId,
+        ownerId,
+        type: type || "",
+        rowId: rowId || "",
+        columnId: columnId || "",
+      });
 
       if (!isLocked) {
         setTimeout(() => {
@@ -165,12 +174,14 @@ function Input({
   };
 
   const openAuditModal = async () => {
+    setIsSpinning(true);
+
     try {
       const audit = await getFieldAudit({
         params: {
           formName: belongsTo.title,
           instanceName: belongsTo.instanceId,
-          fieldName: belongsTo.fieldId,
+          fieldName: belongsTo.fieldId || "",
           rowId: belongsTo.rowId || "",
           columnName: belongsTo.columnId || "",
         },
@@ -185,6 +196,8 @@ function Input({
       });
     } catch (e) {
       console.log("err", e);
+    } finally {
+      setIsSpinning(false);
     }
   };
 

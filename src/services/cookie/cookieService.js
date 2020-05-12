@@ -1,9 +1,9 @@
 export const addCookie = (key, value) => {
-  document.cookie = `${key}=${value}`;
+  document.cookie = `${key}=${value}; Path=/;`;
 };
 
 export const removeCookie = (key) => {
-  document.cookie = `${key}=; expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
+  document.cookie = `${key}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
 };
 
 export const getCookie = (name) => {

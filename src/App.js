@@ -18,10 +18,10 @@ import "./App.scss";
 
 function App() {
   useEffect(() => {
-    const token = getCookie("user");
+    const authToken = getCookie("user");
 
-    if (token) {
-      const { exp } = decode(token);
+    if (authToken) {
+      const { exp } = decode(authToken);
       autoLogout(exp);
     }
   }, []);

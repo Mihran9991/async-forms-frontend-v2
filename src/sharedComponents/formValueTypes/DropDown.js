@@ -169,7 +169,16 @@ function DropDown({
     try {
       const {
         data: { isLocked },
-      } = await isFormFieldLocked(belongsTo);
+      } = await isFormFieldLocked({
+        formName: title,
+        formId,
+        instanceName: instanceId,
+        fieldName: fieldId,
+        ownerId,
+        type: type || "",
+        rowId: rowId || "",
+        columnId: columnId || "",
+      });
       setTimeout(() => {
         setIsSpinning(false);
         setIsOpen(true);
@@ -243,14 +252,15 @@ function DropDown({
   };
 
   const openAuditModal = async () => {
+    setIsSpinning(true);
     try {
       const audit = await getFieldAudit({
         params: {
           formName: belongsTo.title,
           instanceName: belongsTo.instanceId,
-          fieldName: belongsTo.fieldId,
-          rowId: belongsTo.rowId,
-          columnName: belongsTo.columnId,
+          fieldName: belongsTo.fieldId || "",
+          rowId: belongsTo.rowId || "",
+          columnName: belongsTo.columnId || "",
         },
       });
       const data = get(audit, "data", []);
@@ -263,6 +273,8 @@ function DropDown({
       });
     } catch (e) {
       console.log("err", e);
+    } finally {
+      setIsSpinning(false);
     }
   };
 

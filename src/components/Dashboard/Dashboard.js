@@ -10,7 +10,6 @@ import {
 } from "@ant-design/icons";
 
 import routeConstants from "../../constants/routeConstants";
-// import logo from "/public/logo.png";
 import Create from "./Create";
 import Forms from "./Forms";
 import Form from "./Form";
@@ -36,7 +35,13 @@ function SiderDemo({ match }) {
       <Layout style={{ minHeight: "100vh" }} className={styles["dashboard"]}>
         <Sider collapsible collapsed={collapsed} onCollapse={onCollapse}>
           {/*  TODO:: defaultSelectedKeys={read from url(or current selected)} */}
-          <div className={styles["logo"]}>Logo</div>
+          <div className={styles["logo"]}>
+            <img
+              src={process.env.PUBLIC_URL + "/logo.png"}
+              alt="logo"
+              height={40}
+            />
+          </div>
           <Menu theme="dark" defaultSelectedKeys={["1"]} mode="inline">
             <Menu.Item key="1">
               <FileOutlined />
@@ -68,8 +73,13 @@ function SiderDemo({ match }) {
           <Header className="site-layout-background" style={{ padding: 0 }}>
             <a
               type="default"
-              style={{ float: "right", marginRight: 35 }}
+              style={{
+                float: "right",
+                marginRight: 35,
+                color: "rgba(255, 255, 255, 0.65)",
+              }}
               onClick={logOut}
+              css
             >
               Log out
             </a>
