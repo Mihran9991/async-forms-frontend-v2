@@ -8,6 +8,7 @@ import {
   INSERT_FORM_INSTANCE_VALUE,
   GET_FORM_INSTANCE,
   CHECK_FORM_FIELD_LOCK_STATUS,
+  GET_FORM_FIELD_AUDIT,
 } from "../../constants/backendConstants";
 
 export async function create(formData) {
@@ -79,6 +80,15 @@ export async function isFormFieldLocked(formData) {
       CHECK_FORM_FIELD_LOCK_STATUS,
       formData
     );
+    return instanceData;
+  } catch (e) {
+    console.log("err", e);
+  }
+}
+
+export async function getFieldAudit(fieldData) {
+  try {
+    const instanceData = axiosInstance.get(GET_FORM_FIELD_AUDIT, fieldData);
     return instanceData;
   } catch (e) {
     console.log("err", e);

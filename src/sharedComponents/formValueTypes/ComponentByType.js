@@ -25,9 +25,13 @@ function ComponentByType({
   fieldId,
   ownerId,
   withLoading = false,
+  isLocked,
+  currentUserEmail,
+  lockedBy,
 }) {
   const commonValidationStyle = { outline: error ? "red" : "#d9d9d9" };
   const belongsTo = { instanceId, formId, fieldId, title, ownerId };
+  const disabled = isLocked && lockedBy !== currentUserEmail;
 
   return (
     <>
@@ -48,6 +52,13 @@ function ComponentByType({
             forInstance={forInstance}
             belongsTo={belongsTo}
             withLoading={withLoading}
+            disabled={disabled}
+            currentUserEmail={currentUserEmail}
+            info={
+              lockedBy && lockedBy === currentUserEmail
+                ? "This field has been locked by you!"
+                : ""
+            }
           />
         </Case>
         <Case condition={type === DROP_DOWN}>
@@ -55,7 +66,7 @@ function ComponentByType({
             style={commonValidationStyle}
             onBlurHandler={saveStructureHandler}
             propName={name}
-            disabled={!name.length}
+            disabled={disabled}
             items={
               !forStructure && forInstance
                 ? reconstructDropDownData(get(value, "items", []), name)
@@ -73,6 +84,12 @@ function ComponentByType({
             onlyValues
             belongsTo={belongsTo}
             withLoading={withLoading}
+            currentUserEmail={currentUserEmail}
+            info={
+              lockedBy && lockedBy === currentUserEmail
+                ? "This field has been locked by you!"
+                : ""
+            }
           />
         </Case>
         <Case condition={type === TABLE}>
@@ -87,6 +104,7 @@ function ComponentByType({
             rows={forInstance ? get(value, "rows", []) : value}
             belongsTo={belongsTo}
             withLoading={withLoading}
+            currentUserEmail={currentUserEmail}
           />
         </Case>
         <Default>
@@ -100,6 +118,13 @@ function ComponentByType({
             forInstance={forInstance}
             belongsTo={belongsTo}
             withLoading={withLoading}
+            disabled={disabled}
+            currentUserEmail={currentUserEmail}
+            info={
+              lockedBy && lockedBy === currentUserEmail
+                ? "This field has been locked by you!"
+                : ""
+            }
           />
         </Default>
       </Switch>

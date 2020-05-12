@@ -14,7 +14,8 @@ const ProtectedRoute = ({ component: Component, path, ...rest }) => {
         if (user) {
           if (
             path === routeConstants.LOGIN ||
-            path === routeConstants.REGISTER
+            path === routeConstants.REGISTER ||
+            path === routeConstants.HOME
           ) {
             return (
               <Redirect

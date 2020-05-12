@@ -14,6 +14,7 @@ export const CREATE_FORM_INSTANCE = "/form/instance/create";
 export const INSERT_FORM_INSTANCE_VALUE = "/form/instance/insert";
 export const GET_FORM_INSTANCE = "/form/instance/get";
 export const CHECK_FORM_FIELD_LOCK_STATUS = "form/field/isLocked";
+export const GET_FORM_FIELD_AUDIT = "form/field/audit";
 
 export default {
   LOGIN_ROUTE,
@@ -28,4 +29,5 @@ export default {
   INSERT_FORM_INSTANCE_VALUE,
   GET_FORM_INSTANCE,
   CHECK_FORM_FIELD_LOCK_STATUS,
+  GET_FORM_FIELD_AUDIT,
 };

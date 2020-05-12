@@ -4,7 +4,13 @@ import { getCookie, removeCookie } from "../cookie/cookieService";
 
 export const axiosInstance = axios.create({
   baseURL: HOST,
-  headers: { Authorization: `Bearer ${getCookie("user")}` },
+});
+
+axiosInstance.interceptors.request.use((config) => {
+  const authToken = getCookie("user");
+
+  config.headers.Authorization = authToken ? `Bearer ${authToken}` : "";
+  return config;
 });
 
 // autoLogout on 403
