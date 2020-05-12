@@ -31,7 +31,9 @@ const ProtectedRoute = ({ component: Component, path, ...rest }) => {
         } else {
           if (
             path === routeConstants.LOGIN ||
-            path === routeConstants.REGISTER
+            path === routeConstants.REGISTER ||
+            path === routeConstants.FORGOT_SEND ||
+            path === routeConstants.FORGOT_RESET
           ) {
             return <Component path={path} {...rest} {...props} />;
           }
