@@ -1,9 +1,11 @@
-import { renderDOM as commonRenderDom, showMessage } from "../Forgot";
 import React, { useState } from "react";
+import { withRouter } from "react-router-dom";
+import { renderDOM as commonRenderDom, showMessage } from "../Forgot";
 import ForgotService from "../../../../services/request/forgotService";
 import QueryParamService from "../../../../services/request/queryParamService";
+import routeConstants from "../../../../constants/routeConstants";
 
-const ForgotResetForm = () => {
+const ForgotResetForm = ({ history }) => {
   const DOM = [
     {
       className: "form-group",
@@ -55,6 +57,7 @@ const ForgotResetForm = () => {
     ForgotService.resetRequest(formData)
       .then((response) => {
         showMessage(response.data.message);
+        history.push(routeConstants.LOGIN);
       })
       .catch(() => {
         showMessage("Unable to reset password");
@@ -81,8 +84,8 @@ const isValid = (formData) => {
   return (
     formData.newPassword &&
     formData.confirmPassword &&
-    formData.newPassword === formData.newPassword
+    formData.newPassword === formData.confirmPassword
   );
 };
 
-export default ForgotResetForm;
+export default withRouter(ForgotResetForm);

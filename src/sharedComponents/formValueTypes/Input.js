@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import { Input as AInput, Spin, Button, Modal, Table } from "antd";
+import { ClockCircleOutlined } from "@ant-design/icons";
 import get from "lodash/get";
 
 import {
@@ -233,7 +234,7 @@ function Input({
               type="primary"
               onClick={openAuditModal}
             >
-              Audit
+              <ClockCircleOutlined size="large" />
             </Button>
           )}
         </div>
