@@ -14,11 +14,11 @@ export const events = ({ setValue }) => {
       formId,
       instanceName: instanceId,
       fieldName: fieldId,
+      ownerId,
       type,
     }) => {
       setValue((state) => {
         const cellId = `${rowId}-${columnId}`;
-
         const fieldValue = !get(
           state,
           `${formId}.${instanceId}.${fieldId}`,
@@ -33,7 +33,10 @@ export const events = ({ setValue }) => {
             ...get(state, "formId", {}),
             [instanceId]: {
               ...get(state, `${formId}.${instanceId}`, {}),
-              [fieldId]: type === TABLE ? fieldValue : true,
+              [fieldId]: {
+                value: type === TABLE ? fieldValue : true,
+                ownerId,
+              },
             },
           },
         };
@@ -56,7 +59,7 @@ export const events = ({ setValue }) => {
       setValue((state) => {
         const cellId = `${rowId}-${columnId}`;
         const copyState = { ...state };
-        const propertyPath = `${formId}.${instanceId}.${fieldId}`;
+        const propertyPath = `${formId}.${instanceId}.${fieldId}.value`;
 
         if (type === TABLE) {
           get(copyState, propertyPath, new Set([])).delete(cellId);

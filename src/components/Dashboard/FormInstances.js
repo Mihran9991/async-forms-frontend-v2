@@ -112,7 +112,7 @@ function FormsInstances(props) {
       <List
         grid={{ gutter: 16, column: 4 }}
         dataSource={instances}
-        renderItem={({ name }) => (
+        renderItem={({ name, owner }) => (
           <List.Item>
             <Link
               to={{
@@ -128,7 +128,7 @@ function FormsInstances(props) {
                 },
               }}
             >
-              {name && <Card title={name}>Instance content</Card>}
+              {name && <Card title={name}>Instance created by {owner}</Card>}
             </Link>
           </List.Item>
           // {/* <Button type="danger" onClick={() => deleteInstance(title)}>

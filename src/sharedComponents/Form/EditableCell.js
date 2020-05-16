@@ -33,7 +33,7 @@ function EditableRow({
     return null;
   }
 
-  const td = (
+  return (
     <td>
       <If condition={dataIndex === OPERATION}>
         <Then>{children}</Then>
@@ -104,17 +104,6 @@ function EditableRow({
         </Else>
       </If>
     </td>
-  );
-
-  return (
-    <If condition={disabled}>
-      <Then>
-        <Popover title="Title" trigger="hover">
-          {td}
-        </Popover>
-      </Then>
-      <Else>{td}</Else>
-    </If>
   );
 }
 

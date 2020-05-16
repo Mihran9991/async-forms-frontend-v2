@@ -181,9 +181,14 @@ const EditableTable = ({
         const currentField = get(record, `${col.dataIndex}`, {});
         const isLocked = JSON.parse(get(currentField, `isLocked`, "false"));
         const lockedBy = get(currentField, `lockedBy`, "");
+        const currentOwnerId = get(
+          socketData,
+          `${formId}.${instanceId}.${fieldId}.ownerId`,
+          ""
+        );
         const disabledBySocket = get(
           socketData,
-          `${formId}.${instanceId}.${fieldId}`,
+          `${formId}.${instanceId}.${fieldId}.value`,
           new Set([])
         ).has(cellId);
         const disabled =
@@ -203,7 +208,7 @@ const EditableTable = ({
               : col.value,
           editRowHandler,
           disabled,
-          belongsTo: { ...belongsTo, formName: title, ownerId },
+          belongsTo: { ...belongsTo, formName: title, ownerId, currentOwnerId },
           withLoading,
           info,
         };

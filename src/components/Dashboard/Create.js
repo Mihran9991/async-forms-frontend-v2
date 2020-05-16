@@ -167,7 +167,6 @@ function Create({ history }) {
 
     for (let i = 0; i < fields.length; ++i) {
       if (fields[i].uid === uid) {
-        console.log("poxec", fields[i].uid);
         isNewField = false;
         fields[i] = currentStructPiece();
         break;

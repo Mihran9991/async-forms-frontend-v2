@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Input as AInput, Spin, Button, Modal, Table } from "antd";
+import { Input as AInput, Spin, Button, Modal, Table, Popover } from "antd";
 import { ClockCircleOutlined } from "@ant-design/icons";
 import get from "lodash/get";
 
@@ -40,17 +40,26 @@ function Input({
     forInstance && belongsTo.type !== TABLE
       ? get(
           socketData,
-          `${belongsTo.formId}.${belongsTo.instanceId}.${belongsTo.fieldId}`,
+          `${belongsTo.formId}.${belongsTo.instanceId}.${belongsTo.fieldId}.value`,
           false
         )
       : disabledFromProps;
   const disabled = !forInstance
     ? disabledBySocket
     : disabledBySocket || disabledFromProps;
+  const currentOwnerId =
+    forInstance &&
+    get(
+      socketData,
+      `${belongsTo.formId}.${belongsTo.instanceId}.${belongsTo.fieldId}.ownerId`,
+      false
+    );
   const [isSpinning, setIsSpinning] = useState(null);
   const [info, setInfo] = useState(infoFromProps);
   const [currentValue, setCurrentValue] = useState("");
   const [defaultValue, setDefaultValue] = useState(defaultValueFromProps);
+  const [isPopoverVisible, setIsPopoverVisible] = useState(false);
+
   const getWidth = () => {
     if (customWidth) {
       return customWidth;
@@ -214,33 +223,47 @@ function Input({
   }, [defaultValueFromProps]);
 
   return (
-    <div style={{ width: getWidth(), ...(style && style) }}>
-      <Spin spinning={withLoading && isSpinning}>
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <AInput
-            type={type}
-            className="form-control"
-            onChange={onChangeHandler}
-            onBlur={mainOnBlurHandler}
-            onFocus={mainOnFocusHandler}
-            value={defaultValue || currentValue}
-            aria-label={size}
-            placeholder={placeholder}
-            disabled={disabled}
-          />
-          {forInstance && (
-            <Button
-              style={{ marginLeft: 5 }}
-              type="primary"
-              onClick={openAuditModal}
-            >
-              <ClockCircleOutlined size="large" />
-            </Button>
-          )}
-        </div>
-        {info && <span style={{ color: "red" }}>{info}</span>}
-      </Spin>
-    </div>
+    <Popover
+      visible={isPopoverVisible}
+      trigger="hover"
+      title={`This field is being edited by ${currentOwnerId}`}
+    >
+      <div
+        style={{ width: getWidth(), ...(style && style) }}
+        onMouseEnter={() => {
+          disabled && currentOwnerId && setIsPopoverVisible(true);
+        }}
+        onMouseLeave={() => {
+          disabled && currentOwnerId && setIsPopoverVisible(false);
+        }}
+      >
+        <Spin spinning={withLoading && isSpinning}>
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <AInput
+              type={type}
+              className="form-control"
+              onChange={onChangeHandler}
+              onBlur={mainOnBlurHandler}
+              onFocus={mainOnFocusHandler}
+              value={defaultValue || currentValue}
+              aria-label={size}
+              placeholder={placeholder}
+              disabled={disabled}
+            />
+            {forInstance && (
+              <Button
+                style={{ marginLeft: 5 }}
+                type="primary"
+                onClick={openAuditModal}
+              >
+                <ClockCircleOutlined size="large" />
+              </Button>
+            )}
+          </div>
+          {info && <span style={{ color: "red" }}>{info}</span>}
+        </Spin>
+      </div>
+    </Popover>
   );
 }
 
