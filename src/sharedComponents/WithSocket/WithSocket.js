@@ -4,6 +4,7 @@ import SocketContext, { initialValue } from "./socketContext";
 import initSockets from "../../services/socket";
 
 function WithSocket({ children }) {
+  console.log("WithSocket");
   const [value, setValue] = useState(initialValue);
 
   useEffect(() => initSockets({ setValue }), []);
