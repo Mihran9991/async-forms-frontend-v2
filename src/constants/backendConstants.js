@@ -1,6 +1,7 @@
 export const LOGIN_ROUTE = "/login";
 export const REGISTER_ROUTE = "/register";
-
+export const FORGOT_SEND = "/forgot/send";
+export const FORGOT_RESET = "/forgot/reset";
 export const GET_USER_ROUTE = "/user/get";
 export const GET_USERS_ROUTE = "/user/getAll";
 export const EDIT_PROFILE_ROUTER = "/user/edit";
@@ -19,6 +20,8 @@ export const GET_FORM_FIELD_AUDIT = "form/field/audit";
 export default {
   LOGIN_ROUTE,
   REGISTER_ROUTE,
+  FORGOT_SEND,
+  FORGOT_RESET,
   GET_USER_ROUTE,
   EDIT_PROFILE_ROUTER,
   CREATE_FORM_ROUTE,

@@ -107,9 +107,8 @@ const RegisterForm = ({ history }) => {
         </button>
         <p className="forgot-password text-right">
           {/*somehow use param with ${} instead of hardcoded text*/}
-          Already registered?{" "}
           <u>
-            <a href="/login">Log in</a>
+            <a href="/login">Already have an account?</a>
           </u>
         </p>
       </form>

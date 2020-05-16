@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useState, useContext, useEffect } from "react";
 import { Select, Divider, Button, message, Spin, Modal, Table } from "antd";
-import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
+import { PlusOutlined, DeleteOutlined, ClockCircleOutlined } from "@ant-design/icons";
 import { If, Then, Else } from "react-if";
 import isEmpty from "lodash/isEmpty";
 import get from "lodash/get";
@@ -380,9 +380,9 @@ function DropDown({
             style={{ marginLeft: 5 }}
             type="primary"
             onClick={openAuditModal}
-          >
-            Audit
-          </Button>
+            >
+              <ClockCircleOutlined />
+            </Button>
         )}
       </div>
       {info && <span style={{ color: "red" }}>{info}</span>}

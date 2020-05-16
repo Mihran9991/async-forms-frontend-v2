@@ -76,11 +76,14 @@ const LoginForm = ({ history }) => {
           <button onClick={handleSubmit} className="btn btn-primary btn-block">
             Log In
           </button>
-          <p className="forgot-password text-right">
-            <u>
+          <div style={{overflow: "hidden"}}>
+            <div style={{float: "left"}}>
+              <a href="/register">Don't have an account?</a>
+            </div>
+            <div style={{float: "right"}}>
               <a href="/forgot-send">Forgot password?</a>
-            </u>
-          </p>
+            </div>
+          </div>
         </form>
       </div>
     </Spin>
