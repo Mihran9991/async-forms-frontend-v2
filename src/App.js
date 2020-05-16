@@ -28,7 +28,7 @@ function App() {
 
   return (
     <WithSocket>
-      <Router>
+      <Router forceRefresh={true}>
         <div className="App">
           <Switch>
             <ProtectedRoute

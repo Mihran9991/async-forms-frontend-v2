@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useState } from "react";
-import { Link, Route, Switch, withRouter } from "react-router-dom";
+import { Link, Route, Switch, withRouter, useLocation } from "react-router-dom";
 import { Layout, Menu, Spin } from "antd";
 import {
   FileOutlined,
@@ -23,7 +23,17 @@ import { logOut } from "../../services/auth";
 
 const { Header, Content, Footer, Sider } = Layout;
 
-function SiderDemo({ match }) {
+const routeNameKeyMap = {
+  [`${routeConstants.CREATE}`]: "1",
+  [`${routeConstants.FORMS}`]: "2",
+  [`${routeConstants.PROFILE}`]: "3",
+  [`${routeConstants.ACTIVE_USERS}`]: "4",
+};
+
+function SiderDemo({ match: { path } }) {
+  const location = useLocation();
+  const pathname = location.pathname.replace("/dashboard", "");
+
   const [collapsed, setIsCollapsed] = useState(false);
 
   const onCollapse = (collapsed) => {
@@ -42,28 +52,33 @@ function SiderDemo({ match }) {
               height={40}
             />
           </div>
-          <Menu theme="dark" defaultSelectedKeys={["1"]} mode="inline">
+          <Menu
+            theme="dark"
+            defaultSelectedKeys={["1"]}
+            mode="inline"
+            selectedKeys={[routeNameKeyMap[pathname]]}
+          >
             <Menu.Item key="1">
               <FileOutlined />
-              <Link to={`${match.path}${routeConstants.CREATE}`}>
+              <Link to={`${path}${routeConstants.CREATE}`}>
                 {!collapsed && <span>Create Form</span>}
               </Link>
             </Menu.Item>
             <Menu.Item key="2">
               <FormOutlined />
-              <Link to={`${match.path}${routeConstants.FORMS}`}>
+              <Link to={`${path}${routeConstants.FORMS}`}>
                 {!collapsed && <span>Forms</span>}
               </Link>
             </Menu.Item>
             <Menu.Item key="3">
               <UserOutlined />
-              <Link to={`${match.path}${routeConstants.PROFILE}`}>
+              <Link to={`${path}${routeConstants.PROFILE}`}>
                 {!collapsed && <span>Profile</span>}
               </Link>
             </Menu.Item>
             <Menu.Item key="4">
               <TeamOutlined />
-              <Link to={`${match.path}${routeConstants.ACTIVE_USERS}`}>
+              <Link to={`${path}${routeConstants.ACTIVE_USERS}`}>
                 {!collapsed && <span>Active Users</span>}
               </Link>
             </Menu.Item>
@@ -88,11 +103,11 @@ function SiderDemo({ match }) {
           <Content style={{ margin: "10px 16px" }}>
             <Switch>
               <Route
-                path={`${match.path}${routeConstants.CREATE}`}
+                path={`${path}${routeConstants.CREATE}`}
                 component={Create}
               />
               <Route
-                path={`${match.path}${routeConstants.FORMS}`}
+                path={`${path}${routeConstants.FORMS}`}
                 component={Forms}
               />
               <Route

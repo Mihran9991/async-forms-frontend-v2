@@ -63,7 +63,6 @@ function ActiveUserList({ vertical, history }) {
                   }
                   description={item.email}
                 />
-                <div>Content</div>
               </List.Item>
             )}
           />

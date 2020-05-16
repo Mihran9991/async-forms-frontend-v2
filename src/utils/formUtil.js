@@ -1,11 +1,9 @@
 import React from "react";
-
 import get from "lodash/get";
 import isEmpty from "lodash/isEmpty";
 import { v4 as uuid } from "uuid";
 
 import Title from "../sharedComponents/formValueTypes/EditableTable/Title";
-
 import {
   transformObjectDataIntoArray,
   filterObjectByKey,
@@ -18,7 +16,6 @@ import {
   TABLE,
 } from "../constants/formConstants";
 
-// TODO :: check if iterable before iterating over objects !!!!!!!!
 export const generateRowByColumns = (columns, key) => {
   return columns.reduce((acc, { dataIndex }) => {
     return {
@@ -250,7 +247,6 @@ export const customizedColumns = ({
             editColumnHandler={(...args) => {
               editColumnHandler(columns, ...args);
             }}
-            // TODO:: use lodash get
             deleteColumnByNameHandler={deleteColumnByNameHandler}
             saveStructureHandler={saveStructureHandler}
             cb={cb}

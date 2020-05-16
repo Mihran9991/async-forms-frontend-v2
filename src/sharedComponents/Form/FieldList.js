@@ -16,11 +16,6 @@ function FieldList({
   duplicateFieldsHash,
   duplicateHashesMemo,
 }) {
-  // console.log("duplicateFieldsHash", duplicateFieldsHash);
-  // console.log("fieldsHash", fieldsHash);
-  // console.log("duplicateHashesMemo", duplicateHashesMemo);
-  // console.log("duplicateAvailable ------------>", duplicateAvailable);
-
   return (
     <>
       {list.map(({ structPiece, uid }, idx) => {
@@ -44,14 +39,11 @@ function FieldList({
         })();
         const initialStrucutre = get(field, `type`, {});
         const isDuplicate = field.duplicate;
-        // console.log("00000000000000", isDuplicate, "000000000000000000000");
         const valueId = (() => {
           if (isDuplicate) {
-            // console.log("FROM DUPLICATE", duplicateFieldsHash, name);
             return get(duplicateFieldsHash, name, "");
           }
 
-          // console.log(" NOT FROM DUPLICATE", fieldsHash, name);
           duplicateHashesMemo = {};
           return get(fieldsHash, name, "");
         })();
@@ -61,8 +53,6 @@ function FieldList({
             ? get(field, `type.values`, false) ||
               get(field, `type.${name}`, false)
             : get(field, `type.fields`, []);
-
-        // console.log("valueId --------->", valueId);
 
         return (
           <>

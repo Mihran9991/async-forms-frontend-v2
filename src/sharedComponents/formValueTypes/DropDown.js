@@ -1,7 +1,20 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useState, useContext, useEffect } from "react";
-import { Select, Divider, Button, message, Spin, Modal, Table } from "antd";
-import { PlusOutlined, DeleteOutlined, ClockCircleOutlined } from "@ant-design/icons";
+import {
+  Select,
+  Divider,
+  Button,
+  message,
+  Spin,
+  Modal,
+  Table,
+  Popover,
+} from "antd";
+import {
+  PlusOutlined,
+  DeleteOutlined,
+  ClockCircleOutlined,
+} from "@ant-design/icons";
 import { If, Then, Else } from "react-if";
 import isEmpty from "lodash/isEmpty";
 import get from "lodash/get";
@@ -67,13 +80,20 @@ function DropDown({
     forInstance && belongsTo.type !== TABLE
       ? get(
           socketData,
-          `${belongsTo.formId}.${belongsTo.instanceId}.${belongsTo.fieldId}`,
+          `${belongsTo.formId}.${belongsTo.instanceId}.${belongsTo.fieldId}.value`,
           false
         )
       : disabledFromProps;
   const disabled = !forInstance
     ? disabledBySocket
     : disabledBySocket || disabledFromProps;
+  const currentOwnerId =
+    forInstance &&
+    get(
+      socketData,
+      `${belongsTo.formId}.${belongsTo.instanceId}.${belongsTo.fieldId}.ownerId`,
+      false
+    );
   const [info, setInfo] = useState(infoFromProps);
   const [editabelMenuItems, setEditabelMenuItems] = useState(menuItems || []);
   const [formattedItems, setFormattedItems] = useState([]);
@@ -81,6 +101,7 @@ function DropDown({
   const [currentItem, setCurrentItem] = useState({});
   const [isSpinning, setIsSpinning] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [isPopoverVisible, setIsPopoverVisible] = useState(false);
 
   const editItem = (editedData) => {
     setCurrentItem(editedData);
@@ -283,110 +304,127 @@ function DropDown({
   }, [defaultValue]);
 
   return (
-    <Spin spinning={isSpinning}>
-      <div style={{ display: "flex", alignItems: "center" }}>
-        <If condition={!editable && items.length > 0}>
-          <Then>
-            <Select
-              disabled={disabled}
-              onChange={onChangeHandler}
-              onBlur={mainOnBlurHandler}
-              onFocus={mainOnFocusHandler}
-              value={currentValue}
-              defaultValue={forInstance ? defaultValue : currentValue}
-              style={{ width: "100%", ...(style && style) }}
-              placeholder={get(items, "[0].value", "Select an item")}
-              {...(withLoading && { open: isOpen })}
-            >
-              {items.map(({ value: itemValue, key: itemKey }, idx) => {
-                return (
-                  <Option value={itemValue} key={idx}>
-                    <OptionItem
-                      value={itemValue}
-                      itemKey={itemKey}
-                      idx={idx}
-                      propName={propName}
-                      editable={Boolean(editable)}
-                      cb={cb}
-                    />
-                  </Option>
-                );
-              })}
-            </Select>
-          </Then>
-          <Else>
-            <Select
-              {...(withLoading && { open: isOpen })}
-              defaultValue={forInstance ? defaultValue : currentValue}
-              disabled={disabled}
-              onBlur={mainOnBlurHandler}
-              onFocus={mainOnFocusHandler}
-              allowClear={true}
-              style={{ width: "100%", ...(style && style) }}
-              placeholder={get(menuItems, "[0].value", "Add items")}
-              dropdownRender={(menu) => (
-                <div>
-                  {menu}
-                  <Divider style={{ margin: "4px 0" }} />
-                  <div
-                    style={{ display: "flex", flexWrap: "nowrap", padding: 8 }}
-                  >
-                    <Input
-                      style={{ flex: "auto" }}
-                      cb={editItem}
-                      propName={propName}
-                      reset={isEmpty(currentItem)}
-                      fullWidth
-                    />
-                  </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "flex-end",
-                      alignItems: "center",
-                      paddingRight: 2,
-                      marginBottom: 5,
-                      marginTop: 5,
-                    }}
-                  >
-                    <Button
-                      type="primary"
-                      style={commonActionsStyle}
-                      onClick={addItem}
+    <Popover
+      trigger="hover"
+      title={`This field is being edited by ${currentOwnerId}`}
+      visible={isPopoverVisible}
+      onMouseEnter={() => {
+        console.log("onMouseEnter");
+        disabled && currentOwnerId && setIsPopoverVisible(true);
+      }}
+      onMouseLeave={() => {
+        disabled && currentOwnerId && setIsPopoverVisible(false);
+      }}
+    >
+      <Spin spinning={isSpinning}>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <If condition={!editable && items.length > 0}>
+            <Then>
+              <Select
+                disabled={disabled}
+                onChange={onChangeHandler}
+                onBlur={mainOnBlurHandler}
+                onFocus={mainOnFocusHandler}
+                value={currentValue}
+                defaultValue={forInstance ? defaultValue : currentValue}
+                style={{ width: "100%", ...(style && style) }}
+                placeholder={get(items, "[0].value", "Select an item")}
+                {...(withLoading && { open: isOpen })}
+              >
+                {items.map(({ value: itemValue, key: itemKey }, idx) => {
+                  return (
+                    <Option value={itemValue} key={idx}>
+                      <OptionItem
+                        value={itemValue}
+                        itemKey={itemKey}
+                        idx={idx}
+                        propName={propName}
+                        editable={Boolean(editable)}
+                        cb={cb}
+                      />
+                    </Option>
+                  );
+                })}
+              </Select>
+            </Then>
+            <Else>
+              <Select
+                {...(withLoading && { open: isOpen })}
+                defaultValue={forInstance ? defaultValue : currentValue}
+                disabled={disabled}
+                onBlur={mainOnBlurHandler}
+                onFocus={mainOnFocusHandler}
+                allowClear={true}
+                style={{ width: "100%", ...(style && style) }}
+                placeholder={get(menuItems, "[0].value", "Add items")}
+                dropdownRender={(menu) => (
+                  <div>
+                    {menu}
+                    <Divider style={{ margin: "4px 0" }} />
+                    <div
+                      style={{
+                        display: "flex",
+                        flexWrap: "nowrap",
+                        padding: 8,
+                      }}
                     >
-                      Add item
-                      <PlusOutlined style={{ marginRight: 2 }} />
-                    </Button>
-                    <Button
-                      type="danger"
-                      style={commonActionsStyle}
-                      onClick={resetItemsList}
+                      <Input
+                        style={{ flex: "auto" }}
+                        cb={editItem}
+                        propName={propName}
+                        reset={isEmpty(currentItem)}
+                        fullWidth
+                      />
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        alignItems: "center",
+                        paddingRight: 2,
+                        marginBottom: 5,
+                        marginTop: 5,
+                      }}
                     >
-                      Reset items
-                      <DeleteOutlined style={{ marginRight: 2 }} />
-                    </Button>
+                      <Button
+                        type="primary"
+                        style={commonActionsStyle}
+                        onClick={addItem}
+                      >
+                        Add item
+                        <PlusOutlined style={{ marginRight: 2 }} />
+                      </Button>
+                      <Button
+                        type="danger"
+                        style={commonActionsStyle}
+                        onClick={resetItemsList}
+                      >
+                        Reset items
+                        <DeleteOutlined style={{ marginRight: 2 }} />
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              )}
-            >
-              {editabelMenuItems.map(({ value }, idx) => (
-                <Option key={idx}>{value}</Option>
-              ))}
-            </Select>
-          </Else>
-        </If>
-        {forInstance && (
-          <Button
-            style={{ marginLeft: 5 }}
-            type="primary"
-            onClick={openAuditModal}
+                )}
+              >
+                {editabelMenuItems.map(({ value }, idx) => (
+                  <Option key={idx}>{value}</Option>
+                ))}
+              </Select>
+            </Else>
+          </If>
+          {forInstance && (
+            <Button
+              style={{ marginLeft: 5 }}
+              type="primary"
+              onClick={openAuditModal}
             >
               <ClockCircleOutlined />
             </Button>
-        )}
-      </div>
-      {info && <span style={{ color: "red" }}>{info}</span>}
-    </Spin>
+          )}
+        </div>
+        {info && <span style={{ color: "red" }}>{info}</span>}
+      </Spin>
+    </Popover>
   );
 }
 

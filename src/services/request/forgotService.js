@@ -1,4 +1,4 @@
-import { axiosInstance } from "../../components";
+import { axiosInstance } from "./requestService";
 import { FORGOT_SEND, FORGOT_RESET } from "../../constants/backendConstants";
 
 export async function sendRequest(formData) {

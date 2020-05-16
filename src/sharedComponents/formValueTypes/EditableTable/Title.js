@@ -13,8 +13,6 @@ function Title({
   uid,
   data,
 }) {
-  // console.log("Title DD DATA", data);
-
   return (
     <Column
       name={name}
